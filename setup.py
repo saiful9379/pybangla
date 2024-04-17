@@ -40,7 +40,7 @@ setup(
     author='saiful',
     author_email='saifulbrur79@gmail.com',
     description='An example package',
-    url='https://github.com/yourusername/example-package',
+    url='https://github.com/saiful9379/pybangla',
     license='MIT',
     install_requires=[
         # List of dependencies
