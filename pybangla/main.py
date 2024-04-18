@@ -6,7 +6,7 @@ import datetime
 
 
 bn_weekdays = ["সোমবার", "মঙ্গলবার", "বুধবার","বৃহস্পতিবার", "শুক্রবার", "শনিবার", "রবিবার"]
-en_weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" "Sunday"]
+en_weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 bangla_seasons = ["গ্রীষ্ম","বর্ষা", "শরৎ", "হেমন্ত", "শীত", "বসন্ত",]
 en_name_bangla_seasons = ["Summer", "Wet season", "Autumn","Dry season", "Winter", "Spring"]
@@ -51,16 +51,25 @@ class DateParser:
 
     @staticmethod
     def data_splitter(date_string):
+        """
+        
+        """
         separator_pattern = '|'.join(map(re.escape, DateParser.SAMPLES))
         return re.split(separator_pattern, date_string)
 
     @staticmethod
     def month_convert_to_number(month):
+        """
+        
+        """
         key = month.lower().strip()
         return DateParser.MONTH_MAPPING.get(key, month)
 
     @staticmethod
     def format_non_punctuation(split_date):
+        """
+        
+        """
         if len(split_date[0]) == 8:
             if int(split_date[0][4:6]) <= 12:
                 year, month, day = split_date[0][:4], split_date[0][4:6], split_date[0][6:]
@@ -73,6 +82,9 @@ class DateParser:
 
     @staticmethod
     def get_day_and_month(year_idx, idx, date_list):
+        """
+        
+        """
         if year_idx == 0:
             return DateParser.get_day_and_month_helper(idx, date_list, 1, 2)
         elif year_idx == 2:
@@ -83,6 +95,9 @@ class DateParser:
 
     @staticmethod
     def get_day_and_month_helper(idx, date_list, offset1, offset2):
+        """
+        
+        """
         if date_list[idx + offset1].isdigit() and date_list[idx + offset2].isdigit():
             return date_list[idx + offset2], date_list[idx + offset1]
         elif not date_list[idx + offset1].isdigit() and date_list[idx + offset2].isdigit():
@@ -105,69 +120,150 @@ class DateParser:
 
 
 
-class Translator:
+class DateTranslator:
     def __init__(self):
         self.month_data = months_map
 
     @staticmethod
     def _replace_starting_zero(month):
+        """
+        Normalize string which start zero first
+        
+        """
         if month[0] == "0" or month[0] == "০":
             return month[1:]
         return month
     @staticmethod
     def _digit_converter(number, language):
+        """
+        convert the digit En to Bn or Bn to En
+        
+        """
         c_number = ""
         if language== "bn":
             for n in number:
-                if n.strip() in en_to_bn_digits_mapping:
-                    b_n = en_to_bn_digits_mapping[n.strip()]
-                    c_number+=b_n
-
+                if n in bn_number:
+                    c_number += n
+                else:
+                    if n.strip() in en_to_bn_digits_mapping:
+                        b_n = en_to_bn_digits_mapping[n.strip()]
+                        c_number+=b_n
         elif language== "en":
             for n in number:
-                if n.strip() in bn_to_en_digits_mapping:
-                    e_n = bn_to_en_digits_mapping[n.strip()]
-                    c_number+=e_n
+                if n in en_number:
+                    c_number += n
+                else:
+                    if n.strip() in bn_to_en_digits_mapping:
+                        e_n = bn_to_en_digits_mapping[n.strip()]
+                        c_number+=e_n
         else:
             print("language not handel yet")
         return c_number
     
-    def get_weekday(self, date_:list=[]):
+    def get_weekday(self, date_:list=[], language="bn"):
+
+        """
+        Get weekday name Bangla or English
+        
+        """
         current_date_object = datetime.datetime(int(date_[2]), int(date_[1]), int(date_[0]))
-        print(current_date_object)
-        bangla_weekday = bn_weekdays[current_date_object.weekday()]
-        return bangla_weekday
+        # print(current_date_object)
+        if language=="bn":
+            weekday = bn_weekdays[current_date_object.weekday()]
+        elif language=="en":
+            weekday = en_weekdays[current_date_object.weekday()]
+        else:
+            print("Not Handel")
+            weekday = ""
+
+
+        return weekday
+    
+    def get_more_into_with_months(self, search_key, indexs):
+
+        """
+        Get more information about a specific month based on provided indexes.
+
+        Args:
+            search_key (str): The key to search for in the month_data dictionary.
+            indexs (list): A list of indexes [month_index, lang_specific_name_index, seasons_index]
+                specifying which elements to extract from the month_data values.
+
+        Returns:
+            list: A list containing the extracted information based on the provided indexes.
+                The list contains [month, language_specific_month_name, seasons].
+
+        Note:
+            Ensure that the search_key exists in self.month_data and that the indexes 
+            are valid and within the range of the data structure being accessed.
+        """
+
+        month = self.month_data[search_key][indexs[0]]
+        language_specific_month_name = self.month_data[search_key][indexs[1]]
+        seasons = self.month_data[search_key][indexs[2]]
+
+        return [month, language_specific_month_name, seasons]
 
     def search_month(self, search_key, language="bn"):
+        """
+        Search for a month or month abbreviation in the month_data dictionary.
+        
+        Args:
+            search_key (str): The month or its abbreviation to search for.
+            language (str, optional): Language identifier ("bn" for Bengali, "en" for English). 
+                Defaults to "bn".
+        
+        Returns:
+            list: A list containing additional information about the month if found, 
+            formatted based on the specified language. 
+            The list contains [month_name, season_name, number_of_days].
+            If the month or abbreviation is not found, returns [None, None, None].
+        """
+        bn_index, en_index = [0,4,5], [1,2,6]
         search_key = self._replace_starting_zero(search_key)
         if search_key in self.month_data:
-
             # need to add more information
-
-            return self.month_data[search_key][0] if language == "bn" else self.month_data[search_key][1]
-        
+            if language == "bn":
+                month_info = self.get_more_into_with_months(search_key, bn_index)
+            elif language == "en":
+                month_info = self.get_more_into_with_months(search_key, en_index)
+            else:
+                print("Not handel name")
+                month_info = [None, None, None]
+            
+            return month_info        
 
         for key, value in self.month_data.items():
             if search_key in value:
-
-                # need to add more information
-
-                return value[0] if language == "bn" else value[1]
-        return None
+                if language == "bn":
+                    month_info = self.get_more_into_with_months(search_key, bn_index)
+                elif language == "en":
+                     month_info = self.get_more_into_with_months(search_key, bn_index)
+                else:
+                    month_info = [None, None, None]
+        return month_info
     
     def today(self, language="bn"):
+
+        """
+        It return today date if may Bangla and English
+        
+        """
         current_date_object = datetime.date.today()
         formatted_date = [current_date_object.day, current_date_object.month, current_date_object.year]
 
-        weekday = self.get_weekday(formatted_date)
+        weekday = self.get_weekday(formatted_date, language)
         formatted_date = list(map(str, formatted_date))
         day   = self._digit_converter(formatted_date[0], language)
         month = self.search_month(formatted_date[1], language)
         year  =  self._digit_converter(formatted_date[2], language)
 
-        return {"date":day, "month": month, "year": year, "weekday" : weekday}
+        return {"date":day, "month": month[0], "year": year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
     
     def weekdays(self, language="bn"):
+        """
+        Weekday return or pair of weekday
+        """
         if language=="bn":
             return bn_weekdays
         elif language =="en":
@@ -176,6 +272,10 @@ class Translator:
         return bn_en_weekday
 
     def seasons(self, language="bn"):
+        """
+        seasons return or pair of seasons
+        
+        """
         if language=="bn":
             return bangla_seasons
         elif language =="en":
@@ -184,6 +284,11 @@ class Translator:
         return bn_en_seasons
     
     def months(self, language="bn"):
+
+        """
+        months return or pair of months
+        
+        """
         if language=="bn":
             return bangla_months
         elif language =="en":
@@ -192,7 +297,16 @@ class Translator:
         return bn_en_seasons
 
     def date_format(self, date_, language="bn"):
+        """
+        Process the date from input and return format date
 
+        Arg:
+            data_{str or list} :  date may string or list of list like ["dd", "mm", "yyyy"]
+            language{str}      : specific language format, support bangla and english
+
+        return : 
+                Dictonary :  {"date":day, "month": month[0], "year": year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}       
+        """
         if isinstance(date_, list):
             if len(date_):
                 formatted_date = date_
@@ -204,40 +318,41 @@ class Translator:
                 formatted_date = DateParser.format_non_punctuation(split_date)
             else:
                 formatted_date = DateParser.get_date_indexes(split_date)
-
-        # print(f"Date: {split_date}, formated Date: {formatted_date}")
-
         if formatted_date[0] == None and formatted_date[1] == None and formatted_date[2] == None:
             current_date_object = datetime.date.today()
             formatted_date = [current_date_object.day, current_date_object.month, current_date_object.year]
-            # formatted_date = list(map(str, formatted_date))
 
-
-        weekday = self.get_weekday(formatted_date)
+        weekday = self.get_weekday(formatted_date, language)
         day   = self._digit_converter(str(formatted_date[0]), language)
         month = self.search_month(str(formatted_date[1]), language)
         year  =  self._digit_converter(str(formatted_date[2]), language)
-        # print(month
-        return {"date":day, "month": month, "year": year, "weekday" : weekday}
+        return {"date":day, "month": month[0], "year": year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
 
     def number_convert(self, number, language):
+        """
+        Convert the number digits English -> Bangla  or Bangla -> English
+
+        Arg:
+            number{str}  :  number string
+            language{str}: specific language format, support bangla and english
+
+        return: string
+        
+        """
         number   = self._digit_converter(number, language)
         return number
 
 if __name__ == "__main__":
-    date_strings = [
-        "2023-04-05", "06-04-2023", "04/01/2023", "07 April, 2023", "Apr 1, 2023", "2023/04/01",
-        "01-Apr-2023", "01-Apr/2023", "20230401", "20042024", ["1", "4", "2025"]
-    ]
+    date_list = ["2023-04-05",  "06-04-2023", "04/01/2023",  "07 April, 2023", "Apr 1, 2023",  "2023/04/01", "01-Apr-2023", "01-Apr/2023",  "20230401",  "20042024", ["1", "4", "2025"]]
     number = "123456"
-    TR = Translator()
-    for date_ in date_strings:
+    dt = DateTranslator()
+    for date_ in date_list:
         start_time = time.time()
-        formated_date = TR.date_format(date_, language="bn")
+        formated_date = dt.date_format(date_, language="en")
         print(formated_date)
-        print("processing time : ", time.time()-start_time)
+        # print("processing time : ", time.time()-start_time)
         
-    number = TR.number_convert(number, language="bn")
-    print("number : ", number)
-    today_date = TR.today()
-    print(today_date)
+    # number = dt.number_convert(number, language="bn")
+    # print("number : ", number)
+    # today_date = dt.today(language="en")
+    # print(today_date)
