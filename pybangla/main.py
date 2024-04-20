@@ -2,71 +2,61 @@
 import re
 import time
 import datetime
+from pybangla.config import Config as cfg
 
+data = cfg.data
 
+bn_number_mapping = cfg.bn_number_word_mapping
 
-bn_weekdays = ["সোমবার", "মঙ্গলবার", "বুধবার","বৃহস্পতিবার", "শুক্রবার", "শনিবার", "রবিবার"]
-en_weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+_abbreviations = cfg._abbreviations
 
-bangla_seasons = ["গ্রীষ্ম","বর্ষা", "শরৎ", "হেমন্ত", "শীত", "বসন্ত",]
-en_name_bangla_seasons = ["Summer", "Wet season", "Autumn","Dry season", "Winter", "Spring"]
+_symbols = cfg._abbreviations
 
-bangla_months = ["বৈশাখ", "জ্যৈষ্ঠ","আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফাল্গুন", "চৈত্র"]
-en_name_bangla_months = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর",  "ডিসেম্বর"]
+en_to_bn_digits_mapping = {e : b for e, b in zip(data["en"]["number"], data["bn"]["number"])}
+bn_to_en_digits_mapping = {v : k for k, v in en_to_bn_digits_mapping.items()}
+en_month_shortname = [i[:3] for i in data["en"]["months"]]
 
-bn_number = ["০","১","২","৩","৪", "৫", "৬", "৭", "৮", "৯"]
-en_number = ["0","1","2","3","4","5", "6", "7","8", "9"]
-
-months_map = {
-    "1": ["জানুয়ারি", "January", "Jan", "১", "বৈশাখ", "গ্রীষ্ম", "Summer"],
-    "2": ["ফেব্রুয়ারি", "February", "Feb", "২", "জ্যৈষ্ঠ", "গ্রীষ্ম", "Summer"],
-    "3": ["মার্চ", "March", "Mar", "৩", "আষাঢ়", "বর্ষা", "Wet season"],
-    "4": ["এপ্রিল", "April", "Apr", "৪", "শ্রাবণ", "বর্ষা", "Wet season"],
-    "5": ["মে", "May", "May", "৫", "ভাদ্র", "শরৎ", "Autumn"],
-    "6": ["জুন", "June", "Jun", "৬", "আশ্বিন", "শরৎ", "Autumn"],
-    "7": ["জুলাই","July", "Jul", "৭", "কার্তিক", "হেমন্ত", "Dry season"],
-    "8": ["আগস্ট", "August", "Aug", "৮", "অগ্রহায়ণ", "হেমন্ত", "Dry season"],
-    "9": ["সেপ্টেম্বর", "September", "Sep", "৯", "পৌষ", "শীত", "Winter"],
-    "10": ["অক্টোবর", "October", "Oct", "১০", "মাঘ", "শীত", "Winter"],
-    "11": ["নভেম্বর", "November", "Nov", "১১", "ফাল্গুন", "বসন্ত", "Spring"],
-    "12": ["ডিসেম্বর", "December", "Dec", "১২", "চৈত্র", "বসন্ত", "Spring"]
-}
-
-month_map_number = {
-    "jan": "01", "feb": "02", "mar": "03", "apr": "04", "may": "05", "jun": "06",
-    "aug": "07", "sep": "08", "sept": "09", "oct": "10", "nov": "11", "dec": "12",
-    "january": "01", "february": "02", "march": "03", "april": "04", "june": "06",
-    "july": "07", "august": "08", "september": "09", "october": "10", "movember": "11", "december": "12"
-}
-
-en_to_bn_digits_mapping ={e : b for e,b in zip(en_number, bn_number)}
-bn_to_en_digits_mapping = {v:k for k, v in en_to_bn_digits_mapping.items()}
-
-SYMBLES = ["-", ",", "/", " "]
+data["bn"]["digits_mapping"] = en_to_bn_digits_mapping
+data["en"]["digits_mapping"] = bn_to_en_digits_mapping
+data["en"]["option_name"] = en_month_shortname
 
 
 class DateParser:
-    SAMPLES = SYMBLES
-    MONTH_MAPPING = month_map_number
+    def __init__(self):
+        self.samples = cfg.samples
 
-    @staticmethod
-    def data_splitter(date_string):
+    def data_splitter(self, date_string):
         """
         
         """
-        separator_pattern = '|'.join(map(re.escape, DateParser.SAMPLES))
+        separator_pattern = '|'.join(map(re.escape, self.samples))
         return re.split(separator_pattern, date_string)
 
-    @staticmethod
-    def month_convert_to_number(month):
+
+    def month_convert_to_number(self, month):
         """
         
         """
         key = month.lower().strip()
-        return DateParser.MONTH_MAPPING.get(key, month)
+        if key in data["en"]["months"]:
+            index = data["en"]["months"].index(key)+1
+        elif key in data["bn"]["months"]:
+            index = data["bn"]["months"].index(key)+1
+        elif key in  data["bn"]["option_name"]:
+            index = data["bn"]["option_name"].index(key)+1
+        elif key in data["en"]["option_name"]:
+            index = data["en"]["option_name"].index(key)+1
+        elif key in data["en"]["number"]:
+            index = data["en"]["number"].index(key)+1
+        elif key in data["bn"]["number"]:
+            index = data["bn"]["number"].index(key)+1
+        else:
+            print("else : ", key)
+            index = key
+        return index
 
-    @staticmethod
-    def format_non_punctuation(split_date):
+
+    def format_non_punctuation(self, split_date):
         """
         
         """
@@ -78,54 +68,60 @@ class DateParser:
             return [day, month, year]
         else:
             print("This date format is not handled yet")
-            return None
+        return None
 
-    @staticmethod
-    def get_day_and_month(year_idx, idx, date_list):
+
+    def get_day_and_month(self, year_idx, idx, date_list):
         """
         
         """
         if year_idx == 0:
-            return DateParser.get_day_and_month_helper(idx, date_list, 1, 2)
+            return self.get_day_and_month_helper(idx, date_list, 1, 2)
         elif year_idx == 2:
-            return DateParser.get_day_and_month_helper(idx, date_list, -1, -2)
+            return self.get_day_and_month_helper(idx, date_list, -1, -2)
         else:
             print("Date format not handled yet")
-            return None, None
+        return None, None
 
-    @staticmethod
-    def get_day_and_month_helper(idx, date_list, offset1, offset2):
+
+    def get_day_and_month_helper(self, idx, date_list, offset1, offset2):
         """
         
         """
         if date_list[idx + offset1].isdigit() and date_list[idx + offset2].isdigit():
             return date_list[idx + offset2], date_list[idx + offset1]
         elif not date_list[idx + offset1].isdigit() and date_list[idx + offset2].isdigit():
-            return date_list[idx + offset2], DateParser.month_convert_to_number(date_list[idx + offset1])
+            return date_list[idx + offset2], self.month_convert_to_number(date_list[idx + offset1])
         elif date_list[idx + offset1].isdigit() and not date_list[idx + offset2].isdigit():
-            return date_list[idx + offset1], DateParser.month_convert_to_number(date_list[idx + offset2])
+            return date_list[idx + offset1], self.month_convert_to_number(date_list[idx + offset2])
         else:
             print("Date format not handled yet")
-            return None, None
+        return None, None
 
-    @staticmethod
-    def get_date_indexes(date_list):
+
+    def get_date_indexes(self, date_list):
+        """
+        
+        
+        """
         day, month, year = None, None, None
         for idx, elem in enumerate(date_list):
             if elem.isdigit() and len(elem) == 4:
                 year_idx = idx
                 year = date_list[idx]
-                day, month = DateParser.get_day_and_month(year_idx, idx, date_list)
+                # print(date_list)
+                day, month = self.get_day_and_month(year_idx, idx, date_list)
         return [day, month, year]
 
-
+dp = DateParser()
 
 class DateTranslator:
     def __init__(self):
-        self.month_data = months_map
 
-    @staticmethod
-    def _replace_starting_zero(month):
+        self.bn_regex = cfg.bn_regex
+
+
+    def _replace_starting_zero(self, month):
         """
         Normalize string which start zero first
         
@@ -133,31 +129,21 @@ class DateTranslator:
         if month[0] == "0" or month[0] == "০":
             return month[1:]
         return month
-    @staticmethod
-    def _digit_converter(number, language):
+
+    def _digit_converter(self, number, language):
         """
         convert the digit En to Bn or Bn to En
         
         """
+        # print("number  : ", number)
         c_number = ""
-        if language== "bn":
-            for n in number:
-                if n in bn_number:
-                    c_number += n
-                else:
-                    if n.strip() in en_to_bn_digits_mapping:
-                        b_n = en_to_bn_digits_mapping[n.strip()]
-                        c_number+=b_n
-        elif language== "en":
-            for n in number:
-                if n in en_number:
-                    c_number += n
-                else:
-                    if n.strip() in bn_to_en_digits_mapping:
-                        e_n = bn_to_en_digits_mapping[n.strip()]
-                        c_number+=e_n
-        else:
-            print("language not handel yet")
+        for n in number:
+            if n in data[language]["number"]:
+                c_number += n
+            else:
+                if n.strip() in data[language]["digits_mapping"]:
+                    b_n = data[language]["digits_mapping"][n.strip()]
+                    c_number+=b_n
         return c_number
     
     def get_weekday(self, date_:list=[], language="bn"):
@@ -166,43 +152,19 @@ class DateTranslator:
         Get weekday name Bangla or English
         
         """
+        d, y = list(re.finditer(self.bn_regex, date_[0], re.UNICODE)), list(re.finditer(self.bn_regex, date_[2], re.UNICODE))
+        if d:
+            date_[0] = self._digit_converter(date_[0], language="bn")
+        if y:
+            date_[2] = self._digit_converter(date_[2], language="bn")
         current_date_object = datetime.datetime(int(date_[2]), int(date_[1]), int(date_[0]))
-        # print(current_date_object)
-        if language=="bn":
-            weekday = bn_weekdays[current_date_object.weekday()]
-        elif language=="en":
-            weekday = en_weekdays[current_date_object.weekday()]
+        if language in data:
+            weekday = data[language]["weekdays"][current_date_object.weekday()]
         else:
-            print("Not Handel")
+            print("language not handel")
             weekday = ""
-
-
         return weekday
     
-    def get_more_into_with_months(self, search_key, indexs):
-
-        """
-        Get more information about a specific month based on provided indexes.
-
-        Args:
-            search_key (str): The key to search for in the month_data dictionary.
-            indexs (list): A list of indexes [month_index, lang_specific_name_index, seasons_index]
-                specifying which elements to extract from the month_data values.
-
-        Returns:
-            list: A list containing the extracted information based on the provided indexes.
-                The list contains [month, language_specific_month_name, seasons].
-
-        Note:
-            Ensure that the search_key exists in self.month_data and that the indexes 
-            are valid and within the range of the data structure being accessed.
-        """
-
-        month = self.month_data[search_key][indexs[0]]
-        language_specific_month_name = self.month_data[search_key][indexs[1]]
-        seasons = self.month_data[search_key][indexs[2]]
-
-        return [month, language_specific_month_name, seasons]
 
     def search_month(self, search_key, language="bn"):
         """
@@ -219,29 +181,12 @@ class DateTranslator:
             The list contains [month_name, season_name, number_of_days].
             If the month or abbreviation is not found, returns [None, None, None].
         """
-        bn_index, en_index = [0,4,5], [1,2,6]
-        search_key = self._replace_starting_zero(search_key)
-        if search_key in self.month_data:
-            # need to add more information
-            if language == "bn":
-                month_info = self.get_more_into_with_months(search_key, bn_index)
-            elif language == "en":
-                month_info = self.get_more_into_with_months(search_key, en_index)
-            else:
-                print("Not handel name")
-                month_info = [None, None, None]
-            
-            return month_info        
+        search_key = int(self._replace_starting_zero(search_key))-1
+        month = data[language]["months"][search_key]
+        seasons = data[language]["seasons"][search_key//2]
+        option_name = data[language]["option_name"][search_key]
 
-        for key, value in self.month_data.items():
-            if search_key in value:
-                if language == "bn":
-                    month_info = self.get_more_into_with_months(search_key, bn_index)
-                elif language == "en":
-                     month_info = self.get_more_into_with_months(search_key, bn_index)
-                else:
-                    month_info = [None, None, None]
-        return month_info
+        return [month, option_name, seasons]
     
     def today(self, language="bn"):
 
@@ -260,27 +205,23 @@ class DateTranslator:
 
         return {"date":day, "month": month[0], "year": year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
     
-    def weekdays(self, language="bn"):
+    def weekdays(self, language=""):
         """
         Weekday return or pair of weekday
         """
-        if language=="bn":
-            return bn_weekdays
-        elif language =="en":
-            return en_weekdays
-        bn_en_weekday = [(i, j)for i, j in zip(bn_weekdays, en_weekdays)]
-        return bn_en_weekday
+        if language:
+            return data[language]["weekdays"]
+        weekdays_map = [(i, j)for i, j in zip(data["bn"]["weekdays"], data["en"]["weekdays"])]
+        return weekdays_map
 
     def seasons(self, language="bn"):
         """
         seasons return or pair of seasons
-        
+
         """
-        if language=="bn":
-            return bangla_seasons
-        elif language =="en":
-            return en_name_bangla_seasons
-        bn_en_seasons = [(i, j)for i, j in zip(bangla_seasons, en_name_bangla_seasons)]
+        if language in data[language]["seasons"]:
+            return data[language]["seasons"]
+        bn_en_seasons = [(i, j)for i, j in zip(data["bn"]["seasons"], data["bn"]["seasons"])]
         return bn_en_seasons
     
     def months(self, language="bn"):
@@ -289,12 +230,10 @@ class DateTranslator:
         months return or pair of months
         
         """
-        if language=="bn":
-            return bangla_months
-        elif language =="en":
-            return en_name_bangla_months
-        bn_en_seasons = [(i, j)for i, j in zip(bangla_months, en_name_bangla_months)]
-        return bn_en_seasons
+        if language in data:
+            return data[language]["months"]
+        months_map = [(i, j)for i, j in zip(data["bn"]["months"], data["en"]["months"])]
+        return months_map
 
     def date_format(self, date_, language="bn"):
         """
@@ -311,13 +250,14 @@ class DateTranslator:
             if len(date_):
                 formatted_date = date_
         else:
-            split_date = DateParser.data_splitter(date_)
+            split_date = dp.data_splitter(date_)
             split_date = [i for i in split_date if i]
 
             if len(split_date) == 1:
-                formatted_date = DateParser.format_non_punctuation(split_date)
+                formatted_date = dp.format_non_punctuation(split_date)
             else:
-                formatted_date = DateParser.get_date_indexes(split_date)
+                formatted_date = dp.get_date_indexes(split_date)
+
         if formatted_date[0] == None and formatted_date[1] == None and formatted_date[2] == None:
             current_date_object = datetime.date.today()
             formatted_date = [current_date_object.day, current_date_object.month, current_date_object.year]
@@ -326,9 +266,10 @@ class DateTranslator:
         day   = self._digit_converter(str(formatted_date[0]), language)
         month = self.search_month(str(formatted_date[1]), language)
         year  =  self._digit_converter(str(formatted_date[2]), language)
+
         return {"date":day, "month": month[0], "year": year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
 
-    def number_convert(self, number, language):
+    def number_convert(self, number, language="bn"):
         """
         Convert the number digits English -> Bangla  or Bangla -> English
 
@@ -342,17 +283,48 @@ class DateTranslator:
         number   = self._digit_converter(number, language)
         return number
 
+
+
+
+def expand_symbols(text, lang="bn"):
+    for regex, replacement in _symbols[lang]:
+        text = re.sub(regex, replacement, text)
+        text = text.replace("  ", " ")  # Ensure there are no double spaces
+    return text.strip()
+
+def expand_abbreviations(text, lang="bn"):
+    for regex, replacement in _abbreviations[lang]:
+        text = re.sub(regex, replacement, text)
+    return text
+
+
+
 if __name__ == "__main__":
-    date_list = ["2023-04-05",  "06-04-2023", "04/01/2023",  "07 April, 2023", "Apr 1, 2023",  "2023/04/01", "01-Apr-2023", "01-Apr/2023",  "20230401",  "20042024", ["1", "4", "2025"]]
-    number = "123456"
-    dt = DateTranslator()
-    for date_ in date_list:
-        start_time = time.time()
-        formated_date = dt.date_format(date_, language="en")
-        print(formated_date)
+    # date_list = ["০১-এপ্রিল/২০২৩", "2023-04-05",  "06-04-2023", "04/01/2023",  "07 April, 2023", "Apr 1, 2023",  "2023/04/01", "01-Apr-2023", "01-Apr/2023",  "20230401",  "20042024", ["1", "4", "2025"]]
+    # number = "123456"
+    # dt = DateTranslator()
+    # for date_ in date_list:
+    #     start_time = time.time()
+    #     formated_date = dt.date_format(date_, language="en")
+    #     print(formated_date)
+
+    
+
+    # ০৫০৩ ২০২৩ 
+    # formated_date = dt.date_format("০১-এপ্রিল/২০২৩", language="bn")
+    # print(formated_date)
         # print("processing time : ", time.time()-start_time)
         
     # number = dt.number_convert(number, language="bn")
     # print("number : ", number)
     # today_date = dt.today(language="en")
     # print(today_date)
+
+    # weekdays = dt.weekdays()
+    # print(weekdays)
+
+    text = "মোঃ সাইফুল ইসলাম &"
+
+    text = expand_abbreviations(text)
+    text = expand_symbols(text)
+    print(text)
