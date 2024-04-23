@@ -6,11 +6,11 @@ setup(
     name='pybangla',
     version='0.0.1',
     packages=find_packages(),
-    entry_points={
-        'console_scripts': [
-            'pybangla = pybangla.main:DateTranslator'
-        ]
-    },
+    # entry_points={
+    #     'console_scripts': [
+    #         'pybangla = pybangla.main:Normalizer'
+    #     ]
+    # },
     author='saiful',
     author_email='saifulbrur79@gmail.com',
     description='date and number digits convert to bangla digits',
@@ -24,7 +24,8 @@ setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        "DateTime"
+        "DateTime",
+        "num2words"
     ],
     python_requires = ">=3.6"
 )

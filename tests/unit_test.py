@@ -1,5 +1,5 @@
 import unittest
-from ..pybangla.main import DateTranslator
+from ..pybangla.module.main import Normalizer
 from pprint import pprint
 
 
@@ -21,7 +21,7 @@ class TestJsonUpdater(unittest.TestCase):
         ]
 
         for date_str, expected_output in test_cases:
-            parsed_date = DateTranslator.date_format(date_str)
+            parsed_date = Normalizer.date_format(date_str)
 
             self.assertIsNotNone(parsed_date, f"Failed to parse date string: {date_str}")
             
