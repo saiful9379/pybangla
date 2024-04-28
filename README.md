@@ -3,12 +3,12 @@
 
 
 Project description
-PYBENGALI
+PYBANGLA
 
-pybengali is a python3 package for Bengali DateTime and Bengali numeric number conversation and many more. This package can be used with any python framework like Django, Flask, FastAPI, and others. pybengali is OS Independent, It can be used on any operating system Linux/Unix, Mac OS and Windows.
+PYBANGLA is a python3 package for Bengali DateTime and Bengali numeric number conversation and many more. This package can be used with any python framework like Django, Flask, FastAPI, and others. PYBANGLA is OS Independent, It can be used on any operating system Linux/Unix, Mac OS and Windows.
 Available Features
 
-    Features available in pybengali:
+    Features available in PYBANGLA:
     List of Bengali Numbers
     List of Bengali Months
     List of Bengali Weekdays
@@ -141,15 +141,4 @@ number = dt.number_convert("12345", language="bn")
 
 ```
 
-
-
-
-
-*pybengali is build based on Bengali calendar which was officially adopted in Bangladesh in 1987 and All the rules from Bengali_calendars to convert Gregorian date to Bangla date. *
-Contribute
-
-If you face any problem feel free to open issue.
-Contact
-
-If you have any suggestion: Email: pyshawon@gmail.com Facebook: https://www.facebook.com/pyshawon/
 
