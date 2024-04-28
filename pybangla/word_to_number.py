@@ -1,11 +1,8 @@
 
-# import re
+import re
+from module.parser import NumberParser, TextParser
 
-# en_pattern = ["জিরো","ওয়ান", "টু", "থ্রি", "ফোর", "ফাইভ", "সিক্স", "সেভেন", "এইট", "নাইন", "ডাবল", "ট্রিপল", "ডবল"]
-
-from module.parser import NumberParser
-
-np = NumberParser()
+np, tp = NumberParser(), TextParser()
 
 bn_word_map = {
     'শূন্য': '0', 'এক': '1', 'দুই': '2', 'তিন': '3', 'চার': '4', 'পাঁচ': '5', 'ছয়': '6', 'সাত': '7', 'আট': '8', 'নয়': '9', 'দশ': '10', 
@@ -27,31 +24,14 @@ bn_hundreds_3 = {i.replace(i[-1], "শো"): v for i, v in bn_hundreds_1.items()
 
 bn_hundreds = {**bn_hundreds_1, **bn_hundreds_2, **bn_hundreds_3}
 
-# print(bn_hundreds)
-# bn_hundreds_2 = {}
-# for i, v in bn_hundreds.items():
-#     print(i, v, i[-1])
-
-#     i = i.replace(i[-1], "শত")
-#     print(i, v)
-
-"""
-এগারোশো,
-এগারোশত 
-বারোশো, 
-তেরোশো,
-চৌদ্দশো
-পনেরোশো
-'ষোলশো
-'16', 'সতেরোশো': '17', 'আঠারোশো': '18', 'উনিশশো
-
-"""
 
 target_chars = ["শো", "শত", "শ"]
-hundreds = [k for k, v in bn_hundreds.items()]
+hundreds = list(bn_hundreds.keys())
 
 
 checking_hunderds = ['একশ', 'দুইশ', 'তিনশ', 'চারশ', 'পাঁচশ', 'ছয়শ', 'সাতশ', 'আটশ', 'নয়শ', 'লক্ষ', 'হাজার', 'কোটি', 'লাখ', "একশত"]
+
+# print("bn_hundreds : ", bn_hundreds)
 
 # print(hundreds)
 # print(bn_hundreds_2)
@@ -67,12 +47,12 @@ checking_hunderds = ['একশ', 'দুইশ', 'তিনশ', 'চারশ'
 
 # doshok_map = {"টুয়েন্টি": "20", "থার্টি": "30", "ফর্টি":"40", "ফিফ্টি": "50", "সিক্সটি": "60", "সেভেন্টি":"70", "এটি": "80" ,  "নাইনটি":"90"}
 
-# # bn_number_mapping = {'০':'শূন্য', '১':'এক', '২':'দুই', '৩':'তিন', '৪':'চার', '৫':'পাঁচ', '৬':'ছয়', '৭':'সাত', '৮':'আট', '৯':'নয়'}
-# # bn_number_mapping = {'শূন্য': '০', 'এক': '১', 'দুই': '২', 'তিন': '৩', 'চার': '৪', 'পাঁচ': '৫', 'ছয়': '৬', 'সাত': '৭', 'আট': '৮', 'নয়': '৯'}
+
 conjugative_number = {"ডবল": "2", "ডাবল": "2", "ট্রিপল": "3"}
 
+
 en_number_mapping = {"জিরো": "0" ,"ওয়ান": "1", "টু": "2", "থ্রি":"3", "ফোর":"4", "ফাইভ":"5", "সিক্স":"6", "সেভেন":"7", "এইট":"8", "নাইন":"9"}
-positional_dict = {'শত':2, 'শো':2, 'হাজার':3,'লক্ষ':5,'কোটি':7, 'লাখ':5}
+# positional_dict = {'শত':2, 'শো':2, 'হাজার':3,'লক্ষ':5,'কোটি':7, 'লাখ':5}
 
 fraction_int = {"ডেরশ": "150", "দেরশ": "150", "আরাইশ": "250", "আড়াইশ": "250"}
 
@@ -81,15 +61,16 @@ decimale_chunks = {"কোটি" : "10000000",'লক্ষ': "100000", "লা
 adjust_number = {"সাড়ে":0.5, "সারে":0.5, "আড়াই": 2.5, "আরাই":2.5, "দেড়":0.5, "দের":0.5}
 
 function_mapping = {
-    "সাড়ে":"equation_of_sare_and_der", 
-    "সারে":"equation_of_sare_and_der", 
-    "আড়াই": "equation_of_arai", 
-    "আরাই":"equation_of_arai", 
-    "দেড়":"equation_of_sare_and_der", 
-    "দের":"equation_of_sare_and_der"
-    }
+                "সাড়ে"    : "equation_of_sare_and_der", 
+                "সারে"    : "equation_of_sare_and_der", 
+                "আড়াই"   : "equation_of_arai", 
+                "আরাই"   : "equation_of_arai", 
+                "দেড়"     : "equation_of_sare_and_der", 
+                "দের"     : "equation_of_sare_and_der"
+                }
 
-checking_adjust = [k for k, v in adjust_number.items()]
+checking_adjust = list(adjust_number.keys())
+checking_conjugative_number = list(conjugative_number.keys())
 
 
 
@@ -103,14 +84,14 @@ def equation_of_arai(value, fraction):
     return int(value)*fraction
 
 
-def adjust_value_conversion(value):
+def adjust_value_conversion(value, sum_status= False):
 
     status, adjust_name = False, ""
 
     for v in value:
         if v in adjust_number:
             adjust_name = v
-            status = True
+            status, sum_status = True, False
             break
     if status:
         if len(value)==3 and value[1].isdigit() and  value[2].isdigit():
@@ -121,18 +102,20 @@ def adjust_value_conversion(value):
         fraction_value = adjust_number[adjust_name]
         function_name = function_mapping[adjust_name]
 
-        print("function_name : ", function_name, fraction_value)
+        # print("function_name : ", function_name, fraction_value)
 
 
         if function_name in globals() and callable(globals()[function_name]):
             func = globals()[function_name]
             return_value = func(number, fraction_value)
-            print("return value : ", return_value)
+            # print("return value : ", return_value)
+
+            return str(int(return_value)), sum_status
         
 
-        print("adjust_name : ", adjust_name, value)
+        # print("adjust_name : ", adjust_name, value)
 
-    return value
+    return value, sum_status
 
 
 
@@ -143,6 +126,7 @@ def check_last_chars(word):
     return False, None
 
 def normalize(text):
+    text = tp.collapse_whitespace(text)
     texts = text.split(" ")
     text_list = []
     for word in texts:
@@ -161,8 +145,6 @@ def normalize(text):
                 text_list.append(word)
         else:
             text_list.append(word)
-
-    # print(text_list)
     return text_list
 
 
@@ -178,9 +160,6 @@ def replace_word_to_number_string(text):
         index+=1
     return text
 
-# def sum_status(data):
-#     pass
-
 
 def sum_status(lst):
     status_list = []
@@ -193,11 +172,11 @@ def sum_status(lst):
     return status_list
 
 
-    
+   
 
 def extract_values(input_list):
     output, temp_sequence = [], []
-    i = 0
+    i, previous_index = 0, 0
     while i < len(input_list):
         if input_list[i].isdigit():
             if len(input_list)-1 == i:
@@ -205,10 +184,22 @@ def extract_values(input_list):
                 output.append(temp_sequence)
             else:
                 temp_sequence.append(input_list[i])
-        elif  input_list[i] == "লক্ষ" or input_list[i] == 'হাজার' or input_list[i]=="কোটি" or input_list[i]=="লাখ" or input_list[i] in hundreds or input_list[i] in fraction_int:
+
+        elif input_list[i] in decimale_chunks or input_list[i] in fraction_int:
+            temp_sequence.append(input_list[i])
+        elif input_list[i] in hundreds:
+            # print(f"Normal index: {i}, previous index : {previous_index}")
+            # if i==previous_index:
+            #     temp_sequence.append(input_list[i])
+            #     output.append(temp_sequence)
+            #     temp_sequence = []
+            # else:
             temp_sequence.append(input_list[i])
 
-        elif input_list[i] == "ডবল" or input_list[i]== "ডাবল" or input_list[i] =="ট্রিপল":
+            # previous_index+=1
+
+        
+        elif input_list[i] in checking_conjugative_number:
             temp_sequence.append(input_list[i])
         elif  input_list[i] in adjust_number:
             temp_sequence.append(input_list[i])
@@ -217,215 +208,232 @@ def extract_values(input_list):
                 output.append(temp_sequence)
                 temp_sequence = []
         i+=1
+    print("extraction group :", output)
     return output
 
+def converting2digits(results:list, text_list:list, sum_status_list:list)->str:
 
-
-if __name__ == "__main__":
-
-
-#     # Input text
-#     # text = "আমি এক দুই তিন চার পাঁচ টু থ্রি ফাইভ ছয় সেভেন এইট নাইন শূন্য আমার ফোন নাম্বার জিরো ওয়ান ডাবল সেভেন"
-
-
-    # text = "এগারোশো চার"
-    # text = "এগারোশত চার টাকা চুয়াল্লিশ"
-    # text = "তিনশ চার"
-    # text = "সাড়ে তিনশো"
-    # text = "সাড়ে তিন হাজার"
-    text = "আড়াই হাজার টাকা"
-    text = "আড়াই লক্ষ টাকা"
-    text = "ডেরশ টাকা"
-    # text = "দেড় হাজার টাকা দেয় এন্ড তুমি বিশ হাজার টাকা"
-    # text = "দের হাজার"
-    # text = "দের লক্ষ"
-    # text = "আমাকে এক লক্ষ দুই হাজার এক টাকা দেয় এন্ড তুমি বিশ হাজার টাকা নিও এন্ড এক লক্ষ চার হাজার দুইশ এক টাকা এক ডবল দুই এক"
-
-    text = normalize(text+" ")
-
-    # print("Normalized : ", text)
-    text_list = replace_word_to_number_string(text)
-
-        # print(text_list)
-    # print("replance text : ", text_list)
-    results = extract_values(text_list)
-    sum_status_list = sum_status(results)
-
-
-    print("result : ", results)
-    print("sum status : ", sum_status_list)
-
-
-
-    # result = result[::-1]
-    # sum_status_list = sum_status_list[::-1]
-    print(results, sum_status_list)
-    # chunks = [
-    #     number[i:i+chunk_millions] 
-    #     for i in range(0, len(number), chunk_millions)
-    #     ]
-    # result_chunks = [c[::-1] for c in result]
-    # print(result_chunks)
-
-
-    
+    # print("text_list : ", text_list)
+    original_text = " ".join(text_list)
+    # print("original_text", original_text)
     for result_chunk, status in zip(results, sum_status_list):
-        print("list : ", result_chunk)
-        final_value = []
-        index = 0
+        # print("list : ", result_chunk)
+        replance_text = " ".join(result_chunk)
+        # print("replance_text : ", replance_text)
+        index, final_value = 0, []
         for r in result_chunk:
             if r.isdigit():
                 final_value.append(r)
             elif r in decimale_chunks:
-                value = final_value[-1]
-                d_c = int(decimale_chunks[r])
-                if value.isdigit():
-                    calculated_value = (d_c*int(value))-int(value)
-                    final_value.append(str(calculated_value))
+                # print("decimale_chunks", r, final_value)
+                if final_value:
+                    value = final_value[-1]
+                    d_c = int(decimale_chunks[r])
+                    if value.isdigit():
+                        calculated_value = (d_c*int(value))-int(value)
+                        final_value.append(str(calculated_value))
+                    else:
+                        final_value.append(d_c)
                 else:
-                    print(d_c)
+                    d_c = int(decimale_chunks[r])
                     final_value.append(d_c)
             elif r in bn_hundreds:
                 final_value.append(bn_hundreds[r])
             elif r in fraction_int:
                 final_value.append(fraction_int[r])
             elif r in conjugative_number:
+
                 c_n = int(conjugative_number[r])-1
-                n_value = result_chunk[index+1]
-                final_value.append(n_value)
+
+                # print("result chunk : ", result_chunk, len(result_chunk), index+1)
+                if len(result_chunk) > index+1:
+                    n_value = result_chunk[index+1]
+                    l_value = [str(n_value)]*c_n
+                else:
+                    l_value = conjugative_number[r]
+                final_value.extend(l_value)
 
             else:
                 final_value.append(r)
             index += 1
-        adjust_value_conversion(final_value)
+
+        value, status = adjust_value_conversion(final_value, sum_status= status)
+
+    
+        if status:
+            # print("status : ", status)
+            # print(value)
+            numbers = str(sum(int(num) for num in value))
+
+            # print(numbers)
+        elif isinstance(value, str):
 
 
-        # if status:
-        #     numbers = sum(int(num) for num in final_value)
-        # else:
-        #     numbers = "".join(final_value)
+            numbers = value
+        else:
+            numbers = "".join(value)
+
+        # print("converted value : ", numbers)
+
+        original_text = original_text.replace(replance_text, numbers)
+
+    # print("final text : ", original_text)
+
+    return original_text
+
+def word2number(text):
+
+    text = normalize(text+" ")
+    text_list = replace_word_to_number_string(text)
+    results = extract_values(text_list)
+    sum_status_list = sum_status(results)
 
 
+    text = converting2digits(results, text_list, sum_status_list)
 
-        print(final_value)
-    # chunks = chunks[::-1]
-    # if en_extraction:
-    #     number = " crore ".join([self.number_to_words_converting_process(chunk, lang="en") for chunk in chunks])
-    #     number = number.replace("zero", "")
-    # else:
-    #     number = " কোটি ".join([self.number_to_words_converting_process(chunk, lang="bn") for chunk in chunks])
-    #     # print(number)
-    #     number = number.replace("শূন্য", "")
-
-
-#    texts = [
-#         # "আমি এক দুই তিন চার পাঁচ টু থ্রি ফাইভ ছয় সেভেন এইট নাইন শূন্য আমার ফোন নাম্বার জিরো ওয়ান ডাবল সেভেন"
-        # "ওয়ান ডাবল নাইন টু",
-#         # "একশ বিশ টাকা",
-#         # "জিরো টু ডাবল ওয়ান",
-#         # "জিরো ওয়ান ডাবল সেভেন থ্রি ডাবল ফাইভ নাইন থ্রি সেভেন নাইন",
-#         # "আমার ফোন নম্বর জিরো ওয়ান ডাবল সেভেন থ্রি ডাবল ফাইভ নাইন থ্রি সেভেন নাইন",
-#         # "ট্রিপল টু ওয়ান",
-#         # "দুই হাজার চারশো বিশ",
-#         # "দুই হাজার চারশ  বিশ",
-#         # "হাজার বিশ",
-#         # "ডাবল নাইন টু",
-#         # "এক লক্ষ চার হাজার দুইশ",
-#         # "এক লক্ষ চার হাজার দুইশ এক",
-#         # "এক লক্ষ চার হাজার দুইশ এক টাকা এক দুই",
-#         # "আমাকে এক লক্ষ দুই হাজার টাকা দেয়",
-        # "আমাকে এক লক্ষ দুই হাজার এক টাকা দেয় এন্ড তুমি বিশ হাজার টাকা নিও এন্ড এক লক্ষ চার হাজার দুইশ এক টাকা এক ডবল দুই",
-#         # "ছয় হাজার বিশ",
-#         # "আমার সাড়ে পাঁচ হাজার",
-#         # "আমার সাড়ে তিনশ",
-#         # "আড়াই হাজার",
-#         # "আড়াই লক্ষ",
-#         # "ডেরশ",
-#         # "আমাকে ডেরশ টাকা দেয়",
-#         # "সাড়ে পাঁচ কোটি টাকা",
-#         # "সাড়ে 1254 টাকা",
-#         # "জিরো",
-#         # "একশ বিশ take একশ",
-#         # "জিরো টু ডাবল ওয়ান",
-#         # "জিরো টু ওয়ান ওয়ান",
-#         # "থ্রি ফোর ফাইভ এইট",
-#         # "একশ বিশ টাকা",
-#         # "ডাবল ওয়ান ডবল টু",
-#         # "জিরো ওয়ান টু",
-#         # "থ্রি ফোর ফাইভ সিক্স",
-#         # "সেভেন এইট নাইন টেন",
-#         # "একশ দুইশ তিনশ",
-#         # "চারশ পাঁচশ",
-#         # "ছয়শ সাতশ",
-#         # "আটশ নয়শ",
-#         # "দশ তিরানব্বই",
-#         # "ট্রিপল থ্রি টু",
-#         # "শূন্য এক দুই তিন",
-#         # "চার পাঁচ ছয় সাত",
-#         # "আট নয় দশ এগারো",
-#         # "বারো তেরো চৌদ্দ পনেরো",
-#         # "ষোল সতেরো আঠারো উনিশ",
-#         # "বিশ একুশ বাইশ তেইশ",
-#         # "চব্বিশ পঁচিশ ছাব্বিশ সাতাশ",
-#         # "আঠাশ ঊনত্রিশ ত্রিশ একত্রিশ",
-#         # "বত্রিশ তেত্রিশ চৌত্রিশ পঁয়ত্রিশ",
-#         # "ছত্রিশ সাঁইত্রিশ আটত্রিশ ঊনচল্লিশ",
-#         # "চল্লিশ একচল্লিশ বিয়াল্লিশ তেতাল্লিশ",
-#         # "চুয়াল্লিশ পঁয়তাল্লিশ ছেচল্লিশ সাতচল্লিশ",
-#         # "আটচল্লিশ ঊনপঞ্চাশ পঞ্চাশ একান্ন",
-#         # "বাহান্ন তিপ্পান্ন চুয়ান্ন পঞ্চান্ন",
-#         # "ছাপ্পান্ন সাতান্ন আটান্ন ঊনষাট",
-#         # "ষাট একষট্টি বাষট্টি তেষট্টি",
-#         # "চৌষট্টি পঁয়ষট্টি ছেষট্টি সাতষট্টি",
-#         # "আটষট্টি ঊনসত্তর সত্তর একাত্তর",
-#         # "বাহাত্তর তিয়াত্তর চুয়াত্তর পঁচাত্তর",
-#         # "ছিয়াত্তর সাতাত্তর আটাত্তর ঊনআশি",
-#         # "আশি একাশি বিরাশি তিরাশি",
-#         # "চুরাশি পঁচাশি ছিয়াশি সাতাশি",
-#         # "আটাশি ঊননব্বই নব্বই একানব্বই",
-#         # "বিরানব্বই তিরানব্বই চুরানব্বই পঁচানব্বই",
-#         # "ছিয়ানব্বই সাতানব্বই আটানব্বই নিরানব্বই",
-#         # "এক লক্ষ চার হাজার দুইশ এক টাকা এক দুই",
-#         # "তিনশ পঁচিশ পাঁচশ",
-#         # "তিনশ পঁচিশ পাঁচশ এক",
-#         # "চা-পুন",
-#         # "ওকে",
-#         # "ডের আউটস্ট্যান্ডিং কত",
-#         # "ডাবল",
-#         # "নাইন ডাবল এইট",
-#         # "দশ বারো এ এগুলা একশ একশ দুই"
-        # ]
-    # for i in texts:
-    #     text = normalize(i)
-    #     text_list = replace_word_to_number_string(text)
-
-    #     # print(text_list)
-    #     result = extract_values(text_list)
-    #     sum_status_list = sum_status(result)
-    #     print(result)
-    #     print(sum_status_list)
+    # print("processing text : ", text)
+    return text
 
 
 
+if __name__ == "__main__":
+    # Input text
+    # text = "আমি এক দুই তিন চার পাঁচ টু থ্রি ফাইভ ছয় সেভেন এইট নাইন শূন্য আমার ফোন নাম্বার জিরো ওয়ান ডাবল সেভেন"
+    # text = "এগারোশো চার"
+    # text = "আমাকে এগারোশত চার টাকা দেয় তুমি চুয়াল্লিশ নিও"
+    # text = "তিনশ চার"
+    # text = "সাড়ে তিনশো"
+    # text = "সাড়ে তিন হাজার"
+    # text = "আড়াই হাজার টাকা"
+    # text = "আমাকে আড়াই লক্ষ টাকা দেয়"
+    # text = "ডেরশ টাকা"
+    # text = "দেড় হাজার টাকা দেয় এন্ড তুমি বিশ হাজার টাকা"
+    # text = "দের হাজার"
+    # text = "দের লক্ষ"
+    # text = "আমাকে এক লক্ষ দুই হাজার এক টাকা দেয় এন্ড তুমি বিশ হাজার টাকা নিও এন্ড এক লক্ষ চার হাজার দুইশ এক টাকা এক ডবল দুই এক"
+    # text = "সাড়ে পাঁচ কোটি টাকা"
+    # text = "1254 টাকা"
+    # text = "ওকে"
+    # text = "আশি একাশি বিরাশি তিরাশি"
+    # text = "শূন্য এক দুই তিন চার পাঁচ ছয় সাত আট নয়"
 
-    # input_list = ['1','2','আমাকে', '1', 'লক্ষ', '2', 'হাজার', '1', 'টাকা', 'দেয়', 'এন্ড', 'তুমি', '20', 'হাজার', 'টাকা', 'নিও', 'এন্ড', '1', 'লক্ষ', '4', 'হাজার', '200', '1', 'টাকা', '1', "ট্রিপল", '2']
-    # output_list = [['1', 'লক্ষ', '2', 'হাজার', '1'], ['20', 'হাজার'], ['1', 'লক্ষ', '4', 'হাজার', '200', '1'], ['1', 'ডবল', '2']]
-    # result = extract_values(input_list)
 
-    # # print(input_list[24])
-    # print("Expected Output:", output_list)
-    # print("Extracted Output:", result)
+    texts = [
+        "আমি এক দুই তিন চার পাঁচ টু থ্রি ফাইভ ছয় সেভেন এইট নাইন শূন্য আমার ফোন নাম্বার জিরো ওয়ান ডাবল সেভেন",
+        "ওয়ান ডাবল নাইন টু",
+        "একশ বিশ টাকা",
+        "জিরো টু ডাবল ওয়ান",
+        "জিরো ওয়ান ডাবল সেভেন থ্রি ডাবল ফাইভ নাইন থ্রি সেভেন নাইন",
+        "আমার ফোন নম্বর জিরো ওয়ান ডাবল সেভেন থ্রি ডাবল ফাইভ নাইন থ্রি সেভেন নাইন",
+        "ট্রিপল টু ওয়ান",
+        "দুই হাজার চারশো বিশ",
+        "দুই হাজার চারশ  বিশ",
+        "হাজার বিশ",
+        "ডাবল নাইন টু",
+        "এক লক্ষ চার হাজার দুইশ",
+        "এক লক্ষ চার হাজার দুইশ এক",
+        "এক লক্ষ চার হাজার দুইশ এক টাকা এক দুই",
+        "আমাকে এক লক্ষ দুই হাজার টাকা দেয়",
+        "আমাকে এক লক্ষ দুই হাজার এক টাকা দেয় এন্ড তুমি বিশ হাজার টাকা নিও এন্ড এক লক্ষ চার হাজার দুইশ এক টাকা এক ডবল দুই",
+        "ছয় হাজার বিশ",
+        "আমার সাড়ে পাঁচ হাজার",
+        "আমার সাড়ে তিনশ",
+        "আড়াই হাজার",
+        "আড়াই লক্ষ",
+        "ডেরশ",
+        "আমাকে ডেরশ টাকা দেয়",
+        "সাড়ে পাঁচ কোটি টাকা",
+        "সাড়ে 1254 টাকা",
+        "জিরো",
+        "একশ বিশ take একশ",
+        "জিরো টু ডাবল ওয়ান",
+        "জিরো টু ওয়ান ওয়ান",
+        "থ্রি ফোর ফাইভ এইট",
+        "একশ বিশ টাকা",
+        "ডাবল ওয়ান ডবল টু",
+        "জিরো ওয়ান টু",
+        "থ্রি ফোর ফাইভ সিক্স",
+        "সেভেন এইট নাইন টেন",
+        "একশ দুইশ তিনশ",
+        "চারশ পাঁচশ",
+        "ছয়শ সাতশ",
+        "আটশ নয়শ",
+        "দশ তিরানব্বই",
+        "ট্রিপল থ্রি টু",
+        "শূন্য এক দুই তিন",
+        "চার পাঁচ ছয় সাত",
+        "আট নয় দশ এগারো",
+        "বারো তেরো চৌদ্দ পনেরো",
+        "ষোল সতেরো আঠারো উনিশ",
+        "বিশ একুশ বাইশ তেইশ",
+        "চব্বিশ পঁচিশ ছাব্বিশ সাতাশ",
+        "আঠাশ ঊনত্রিশ ত্রিশ একত্রিশ",
+        "বত্রিশ তেত্রিশ চৌত্রিশ পঁয়ত্রিশ",
+        "ছত্রিশ সাঁইত্রিশ আটত্রিশ ঊনচল্লিশ",
+        "চল্লিশ একচল্লিশ বিয়াল্লিশ তেতাল্লিশ",
+        "চুয়াল্লিশ পঁয়তাল্লিশ ছেচল্লিশ সাতচল্লিশ",
+        "আটচল্লিশ ঊনপঞ্চাশ পঞ্চাশ একান্ন",
+        "বাহান্ন তিপ্পান্ন চুয়ান্ন পঞ্চান্ন",
+        "ছাপ্পান্ন সাতান্ন আটান্ন ঊনষাট",
+        "ষাট একষট্টি বাষট্টি তেষট্টি",
+        "চৌষট্টি পঁয়ষট্টি ছেষট্টি সাতষট্টি",
+        "আটষট্টি ঊনসত্তর সত্তর একাত্তর",
+        "বাহাত্তর তিয়াত্তর চুয়াত্তর পঁচাত্তর",
+        "ছিয়াত্তর সাতাত্তর আটাত্তর ঊনআশি",
+        "আশি একাশি বিরাশি তিরাশি",
+        "চুরাশি পঁচাশি ছিয়াশি সাতাশি",
+        "আটাশি ঊননব্বই নব্বই একানব্বই",
+        "বিরানব্বই তিরানব্বই চুরানব্বই পঁচানব্বই",
+        "ছিয়ানব্বই সাতানব্বই আটানব্বই নিরানব্বই",
+        "এক লক্ষ চার হাজার দুইশ এক টাকা এক দুই",
+        "তিনশ পঁচিশ পাঁচশ",
+        "তিনশ পঁচিশ পাঁচশ এক",
+        "চা-পুন",
+        "ওকে",
+        "ডের আউটস্ট্যান্ডিং কত",
+        "ডাবল",
+        "নাইন ডাবল এইট",
+        "দশ বারো এ এগুলা একশ একশ দুই"
+        ]
+    
+    texts = ["আটশ নয়শ চার একশ দুই"]
+    for i in texts:
+        print("="*40)
+        print("input : ", i)
+        text = word2number(i)
+        print("output : ", text)
+        print("="*40)
+
+    # need to solve this issue 
 
 
+    # bn_hundreds_1={'একশ': "100",'দুইশ': "200", 'তিনশ':"300",'চারশ': "400",'পাঁচশ':"500",'ছয়শ':"600",'সাতশ': "700",'আটশ':"800",'নয়শ':"900"}
 
 
-# input = ['আমাকে', '1', 'লক্ষ', '2', 'হাজার', '1', 'টাকা', 'দেয়', 'এন্ড', 'তুমি', '20', 'হাজার', 'টাকা', 'নিও', 'এন্ড', '1', 'লক্ষ', '4', 'হাজার', '200', '1', 'টাকা', '1', 'ডবল', '2']
+    # def split_consecutive(input_list):
+    #     output_list = []
+    #     temp = []
+    #     previous_index = 0
+    #     for i, value in enumerate(input_list):
+    #         if value in bn_hundreds_1:
+    #             if i==0:
+    #                 temp.append(value)
+    #             else:
+    #                 print(i, previous_index)
+                
+    #             previous_index+=1
 
+    #         elif value.isdigit():
+    #             temp.append(value)
+    #             output_list.append(temp)
+    #             temp = []
+    #         else:
+    #             output_list.append(temp)
+    #             temp = []
+    #     print(output_list)
+    #     return output_list
 
-
-# output = [['1', 'লক্ষ', '2', 'হাজার', '1'], ['20', 'হাজার'], ['1', 'লক্ষ', '4', 'হাজার', '200', '1'], ['1', 'ডবল', '2']]
-
-
-# input = [['2', 'ডবল', '1'], ['1', 'দুইশ', 'হাজার', '4', 'লক্ষ', '1'], ['হাজার', '20'], ['1', 'হাজার', '2', 'লক্ষ', '5']]
-
-# ouptut = [["2","2","1"], ['1', '200', '4000', '100000'], ['20000'], ['1', '2000', '500000']]
+    # # Example usage:
+    # input_list = ['আটশ', 'নয়শ', 'নয়শ','4', 'একশ', '2']
+    # output_list = split_consecutive(input_list)
+    # print(output_list)  # Output: [['আটশ'], ['নয়শ', '4'], ['একশ', '2']]
