@@ -58,11 +58,11 @@ if __name__ == "__main__":
     # print("++++++++++++++++ end weekdays +++++++++++++++++++++")
     # # print(weekdays)
     # print("+++++++++++++++ seasons ++++++++++++++++++++++++")
-    # # seasons = nmlr.seasons()
+    seasons = nmlr.seasons()
     # # seasons = nmlr.seasons(language="bn")
     # # seasons = nmlr.seasons(language="en")
     # seasons = nmlr.seasons(seasons = "গ্রীষ্ম")
-    # print(seasons)
+    print(seasons)
 
     # print("+++++++++++++++ end seasons ++++++++++++++++++++++++")
 

@@ -65,12 +65,12 @@ class Normalizer:
                 return {seasons: en_seasons[bn_seasons.index(seasons)]}
             if seasons in en_seasons:
                 return {seasons: bn_seasons[en_seasons.index(seasons)]}
-        if language in data[language]["seasons"]:
+        if language:
             return data[language]["seasons"]
         
         bn_en_seasons = {
             "bn":data["bn"]["seasons"], 
-            "en" : data["bn"]["seasons"]
+            "en" : data["en"]["seasons"]
             }
         return bn_en_seasons
     
