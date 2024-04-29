@@ -79,7 +79,7 @@ class NumberParser:
             Bangla year in words. Example: "উনিশশো চুরানব্বই"
 
         """
-        print("year_in_number[1]", year_in_number[1])
+        # print("year_in_number[1]", year_in_number[1])
         # if (len(year_in_number) == 4 and year_in_number[1] != '০') or \
         #     (len(year_in_number) == 4 and year_in_number[1] != '0') or len(year_in_number) == 3:
 
@@ -116,7 +116,13 @@ class NumberParser:
         convert the digit En to Bn or Bn to En
         
         """
-        # print("number  : ", number)
+        # print("number  : ", number, language)
+
+        if language=="en":
+            extracted_number = list(re.finditer(self.bn_regex, str(number), re.UNICODE))
+            if extracted_number:
+                number = "".join([cfg._bangla2english_digits_mapping[i] for i in number])
+                # print("extracted : ", number)
         c_number = ""
         for n in number:
             if n in data[language]["number"]:

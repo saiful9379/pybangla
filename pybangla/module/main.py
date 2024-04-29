@@ -148,8 +148,11 @@ class Normalizer:
         
         """
         number   = npr._digit_converter(number, language)
+        # print("====== ",number)
+
+
         number_string = npr.number_to_words(number)
-        digit_word = npr.digit_number_to_digit_word(number)
+        digit_word = npr.digit_number_to_digit_word(number, language=language)
 
         data = {"digit": number, "digit_word":digit_word , "number_string": number_string}
         return data

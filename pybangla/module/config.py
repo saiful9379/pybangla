@@ -33,8 +33,11 @@ class Config:
     data["bn"]["digits_mapping"] = en_to_bn_digits_mapping
     data["en"]["digits_mapping"] = bn_to_en_digits_mapping
     data["en"]["option_name"] = en_month_shortname
+    
     _bangla2english_digits_mapping = {'১':'1', '২':'2', '৩':'3', '৪':'4', '৫':'5', '৬':'6', '৭':'7', '৮':'8', '৯':'9', '০':'0'}
 
+    _english2bangla2_digits_mapping = {j:i for i, j in _bangla2english_digits_mapping.items()}
+ 
     
     
     
