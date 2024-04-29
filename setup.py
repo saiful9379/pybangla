@@ -14,8 +14,10 @@ setup(
     author='saiful',
     author_email='saifulbrur79@gmail.com',
     description='date and number digits convert to bangla digits',
+
     long_description=codecs.open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
+    
     url='https://github.com/saiful9379/pybangla',
     license='MIT',
     classifiers = [

@@ -272,7 +272,7 @@ class TextParser:
         self.year_patterns  =["সালের","সালে", "শতাব্দী", "শতাব্দীর", "শতাব্দীতে"]
         self.year_pattern = r'(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে)+'
         self.currency_pattern = r'(?:\$|£|৳|€|¥|₹|₽|₺)?(?:\d+(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)'
-        self.np = NumberParser()
+        self.npr = NumberParser()
 
     def collapse_whitespace(self, text):
         return re.sub(_whitespace_re, " ", text)
@@ -312,7 +312,7 @@ class TextParser:
             matches = re.findall(r'(\d+)(?:\s*)(?:তম)', text)
             if matches:
                 for i in matches:
-                    word = self.np.number_to_words(i)
+                    word = self.npr.number_to_words(i)
                     text = text.replace(i+"তম", word+"তম")
                     text = text.replace(i+" তম", word+"তম")
         return text
@@ -325,7 +325,7 @@ class TextParser:
         Need to correct year format extraction
         """
         for i in matches:
-            text = text.replace(i, self.np.year_in_number(i))
+            text = text.replace(i, self.npr.year_in_number(i))
         return text
 
     def extract_currency_amounts(self, text):
@@ -344,13 +344,13 @@ class TextParser:
                 n_m = m.replace(currency[0], "")
                 if "." in n_m:
                     s_m = n_m.split(".")
-                    before_dot_word, after_dot_word = self.np.number_to_words(s_m[0]), self.np.digit_number_to_digit_word(s_m[1])
+                    before_dot_word, after_dot_word = self.npr.number_to_words(s_m[0]), self.npr.digit_number_to_digit_word(s_m[1])
 
                     word =  before_dot_word+" দশমি "+after_dot_word
                     text = text.replace(m, word)
                     # print(s_m, before_dot_word, after_dot_word)
                 else:
-                    word = self.np.number_to_words(n_m)
+                    word = self.npr.number_to_words(n_m)
                     n_word = word + _currency[currency[0]]
                     text = text.replace(m, n_word)
         return text
@@ -363,7 +363,7 @@ class TextParser:
         text = self.expand_position(text)
         text = self.extract_currency_amounts(text)
         text = self.year_formation(text)
-        text = self.np.number_processing(text)
+        text = self.npr.number_processing(text)
         return text
     
 if __name__ =="__main__":

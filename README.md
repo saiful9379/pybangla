@@ -1,62 +1,45 @@
-# PYBENGALA
+# Project Discription
 
-
-
-Project description
-PYBANGLA
-
-PYBANGLA is a python3 package for Bengali DateTime and Bengali numeric number conversation and many more. This package can be used with any python framework like Django, Flask, FastAPI, and others. PYBANGLA is OS Independent, It can be used on any operating system Linux/Unix, Mac OS and Windows.
+PYBANGLA is a python3 package for Bengala Number, DateTime and Text Normalizer. This package can be used Normalize the text number and date (ex: number to text vice versa). This framework  also can be used Django, Flask, FastAPI, and others. PYBANGLA module supported operating system Linux/Unix, Mac OS and Windows.
 Available Features
 
-    Features available in PYBANGLA:
-    List of Bengali Numbers
-    List of Bengali Months
-    List of Bengali Weekdays
-    List of Bengali Seasons
-    Bengali Year
-    Bengali Weekday
-    Bengali Date
-    Bengali Today
-    Bengali Tomorrow
-    Bengali Yesterday
-    Bengali Past Date
-    Bengali Future Date
-    Bengali Timesince
-    Convert English Month Name to Bengali
-    Convert English Numeric Number to Bengali Numeric Number
+Features available in PYBANGLA:
 
-Installation
+1. Date Format
+2. Text Normalization
+3. Number Converstion
+4. Months, Weekdays, Seasons
+
+
+# Installation
+
+The easiest way to install pybangla is to use pip:
 
 ```
 pip install pybangala
 ```
 
+# Usage
 
-1. Formating Date
+## 1. Date Format
+Supported Date Format:
 
-This module support format date English as well as Bangla. those format are support of the module.
-
-Input Format:
 ```
-"2023-04-05",  "06-04-2023", "04/01/2023", "07 April, 2023", "Apr 1, 2023",  "2023/04/01", "01-Apr-2023", "01-Apr/2023",  "20230401",  "20042024", ["1", "4", "2025"]
+"2023-04-05",  "06-04-2023", "04/01/2023", "07 April, 2023", "Apr 1, 2023", "2023/04/01", "01-Apr-2023", "01-Apr/2023",  "20230401",  "20042024", ["1", "4", "2025"]
 ```
 output :
 
-Bangla Format:
 
 ```
+Bangla : 
 {'date': '০৪', 'month': 'জানুয়ারি', 'year': '২০২৩', 'weekday': 'বুধবার', 'ls_month': 'বৈশাখ', 'seasons': 'গ্রীষ্ম'}
-```
 
-English Format:
-```
+or
+English:
+
 {'date': '04', 'month': 'January', 'year': '2023', 'weekday': 'Wednesday', 'ls_month': 'Jan', 'seasons': 'Summer'}
 ```
-
-# Usage:
-Supported Date formate
-
-## 1. Date Format:
+## Command line::
 
 ```
 import pybangla

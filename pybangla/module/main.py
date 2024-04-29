@@ -4,7 +4,8 @@ import time
 import datetime
 from .config import Config as cfg
 from .parser import DateParser, TextParser, NumberParser
-dp, tp, np = DateParser(), TextParser(), NumberParser()
+from .number_parser import Word2NumberMap
+dp, tp, npr, wnmp = DateParser(), TextParser(), NumberParser(), Word2NumberMap()
 data = cfg.data
 
 class Normalizer:
@@ -21,13 +22,17 @@ class Normalizer:
         current_date_object = datetime.date.today()
         formatted_date = [current_date_object.day, current_date_object.month, current_date_object.year]
 
-        weekday = np.get_weekday(formatted_date, language)
+        weekday = npr.get_weekday(formatted_date, language)
         formatted_date = list(map(str, formatted_date))
-        day   = np._digit_converter(formatted_date[0], language)
-        month = np.search_month(formatted_date[1], language)
-        year  =  np._digit_converter(formatted_date[2], language)
+        day   = npr._digit_converter(formatted_date[0], language)
+        month = npr.search_month(formatted_date[1], language)
+        year  =  npr._digit_converter(formatted_date[2], language)
 
-        return {"date":day, "month": month[0], "year": year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
+
+        txt_date = npr.number_to_words(day)
+        txt_year = npr.year_in_number(year)
+
+        return {"date":day , "month": month[0], "month": month[0], "year": year, "txt_date": txt_date, "txt_year":txt_date, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
     
     def weekdays(self, language="", day=""):
         """
@@ -120,12 +125,16 @@ class Normalizer:
             current_date_object = datetime.date.today()
             formatted_date = [current_date_object.day, current_date_object.month, current_date_object.year]
 
-        weekday = np.get_weekday(formatted_date, language)
-        day   = np._digit_converter(str(formatted_date[0]), language)
-        month = np.search_month(str(formatted_date[1]), language)
-        year  =  np._digit_converter(str(formatted_date[2]), language)
+        weekday = npr.get_weekday(formatted_date, language)
+        day   = npr._digit_converter(str(formatted_date[0]), language)
+        month = npr.search_month(str(formatted_date[1]), language)
+        year  =  npr._digit_converter(str(formatted_date[2]), language)
 
-        return {"date":day, "month": month[0], "year": year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
+        txt_date = npr.number_to_words(day)
+        txt_year = npr.year_in_number(year)
+
+
+        return {"date":day, "month": month[0], "year": year, "txt_date":txt_date, "txt_year": txt_year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
 
     def number_convert(self, number, language="bn"):
         """
@@ -138,9 +147,9 @@ class Normalizer:
         return: string
         
         """
-        number   = np._digit_converter(number, language)
-        number_string = np.number_to_words(number)
-        digit_word = np.digit_number_to_digit_word(number)
+        number   = npr._digit_converter(number, language)
+        number_string = npr.number_to_words(number)
+        digit_word = npr.digit_number_to_digit_word(number)
 
         data = {"digit": number, "digit_word":digit_word , "number_string": number_string}
         return data
@@ -150,6 +159,10 @@ class Normalizer:
         this is the text normalizer fucntion
         """
         text = tp.processing(text)
+        return text
+    
+    def word2number(self, text):
+        text = wnmp.convert_word2number(text)
         return text
     
 if __name__ == "__main__":
