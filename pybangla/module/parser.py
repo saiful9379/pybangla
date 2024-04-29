@@ -79,15 +79,26 @@ class NumberParser:
             Bangla year in words. Example: "উনিশশো চুরানব্বই"
 
         """
-        if (len(year_in_number) == 4 and year_in_number[1] != '০') or \
-            (len(year_in_number) == 4 and year_in_number[1] != '0') or len(year_in_number) == 3:
+        print("year_in_number[1]", year_in_number[1])
+        # if (len(year_in_number) == 4 and year_in_number[1] != '০') or \
+        #     (len(year_in_number) == 4 and year_in_number[1] != '0') or len(year_in_number) == 3:
 
-            if language=="bn":
-                mid_text = "শো "
-            else:
-                mid_text = " century "
 
+
+        if language=="bn":
+            mid_text = "শো "
+        else:
+            mid_text = " century "
+
+        if (len(year_in_number) == 4 and year_in_number[1] != '০') or len(year_in_number) == 3:
+            
+            if year_in_number[1] != '0':
+                return self.number_to_words(year_in_number)
+                
             return self.number_to_words(year_in_number[:-2]) + mid_text + self.number_to_words(year_in_number[-2:])
+        
+        # elif (len(year_in_number) == 4 and year_in_number[1] != '0') or len(year_in_number) == 3:
+        #     return self.number_to_words(year_in_number[:-2]) + mid_text + self.number_to_words(year_in_number[-2:])
         else:
             return self.number_to_words(year_in_number)
 
@@ -353,12 +364,14 @@ class TextParser:
                     s_m = n_m.split(".")
                     before_dot_word, after_dot_word = self.npr.number_to_words(s_m[0]), self.npr.digit_number_to_digit_word(s_m[1])
 
-                    word =  before_dot_word+" দশমি "+after_dot_word
+                    word =  before_dot_word+" দশমি "+after_dot_word+ " "+_currency[currency[0]]
                     text = text.replace(m, word)
                     # print(s_m, before_dot_word, after_dot_word)
                 else:
                     word = self.npr.number_to_words(n_m)
-                    n_word = word + _currency[currency[0]]
+                    n_word = word + " "+_currency[currency[0]]
+
+
                     text = text.replace(m, n_word)
         return text
     
