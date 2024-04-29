@@ -30,7 +30,7 @@ class Normalizer:
 
 
         txt_date = npr.number_to_words(day)
-        txt_year = npr.year_in_number(year)
+        txt_year = npr.year_in_number(year, language=language)
 
         return {"date":day , "month": month[0], "month": month[0], "year": year, "txt_date": txt_date, "txt_year":txt_date, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
     
@@ -131,7 +131,7 @@ class Normalizer:
         year  =  npr._digit_converter(str(formatted_date[2]), language)
 
         txt_date = npr.number_to_words(day)
-        txt_year = npr.year_in_number(year)
+        txt_year = npr.year_in_number(year, language=language)
 
 
         return {"date":day, "month": month[0], "year": year, "txt_date":txt_date, "txt_year": txt_year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     print("Date format Testing : ", end ="", flush=True)
     for date_ in date_list:
         start_time = time.time()
-        formated_date = nmlr.date_format(date_, language="bn")
+        formated_date = nmlr.date_format(date_, language="en")
         print(formated_date)
     print("++++++++++++++++++++ end of Date testing ++++++++++++++++++++++")
 

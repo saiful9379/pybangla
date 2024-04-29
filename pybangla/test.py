@@ -27,7 +27,7 @@ if __name__ == "__main__":
     print("Date format Testing : ", end ="", flush=True)
     for date_ in date_list:
         start_time = time.time()
-        formated_date = nmlr.date_format(date_, language="bn")
+        formated_date = nmlr.date_format(date_, language="en")
         print(formated_date)
     print("++++++++++++++++++++ end of Date testing ++++++++++++++++++++++")
 
@@ -152,10 +152,10 @@ if __name__ == "__main__":
         "নাইন ডাবল এইট",
         "দশ বারো এ এগুলা একশ একশ দুই"
         ]
-    for i in input_texts:
-        print("="*40)
-        print("input : ", i)
-        text = nmlr.word2number(i)
-        print("output : ", text)
-        print("="*40)
+    # for i in input_texts:
+    #     print("="*40)
+    #     print("input : ", i)
+    #     text = nmlr.word2number(i)
+    #     print("output : ", text)
+    #     print("="*40)
 

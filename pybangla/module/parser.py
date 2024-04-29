@@ -69,7 +69,7 @@ class NumberParser:
             s_n += " "+n
         return s_n.strip()
     
-    def year_in_number(self, year_in_number:str):
+    def year_in_number(self, year_in_number:str, language="bn"):
         """ Converts a Bangla year in numeric form to literal words.
 
         Args:
@@ -79,8 +79,15 @@ class NumberParser:
             Bangla year in words. Example: "উনিশশো চুরানব্বই"
 
         """
-        if (len(year_in_number) == 4 and year_in_number[1] != '০') or len(year_in_number) == 3:
-            return self.number_to_words(year_in_number[:-2]) + "শো " + self.number_to_words(year_in_number[-2:])
+        if (len(year_in_number) == 4 and year_in_number[1] != '০') or \
+            (len(year_in_number) == 4 and year_in_number[1] != '0') or len(year_in_number) == 3:
+
+            if language=="bn":
+                mid_text = "শো "
+            else:
+                mid_text = " century "
+
+            return self.number_to_words(year_in_number[:-2]) + mid_text + self.number_to_words(year_in_number[-2:])
         else:
             return self.number_to_words(year_in_number)
 
