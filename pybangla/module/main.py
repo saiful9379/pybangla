@@ -32,7 +32,7 @@ class Normalizer:
         txt_date = npr.number_to_words(day)
         txt_year = npr.year_in_number(year, language=language)
 
-        return {"date":day , "month": month[0], "month": month[0], "year": year, "txt_date": txt_date, "txt_year":txt_date, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
+        return {"date":day , "month": month[0], "month": month[0], "year": year, "txt_date": txt_date, "txt_year":txt_year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
     
     def weekdays(self, language="", day=""):
         """
