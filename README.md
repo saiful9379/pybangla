@@ -24,8 +24,7 @@ pip install pybangla
 
 # Usage
 
-
-# 1. Text Normalization
+## 1. Text Normalization
 
 ```py
 import pybangla
@@ -97,7 +96,7 @@ Supported
 ```
 
 
-# 2. Number Conversion
+## 2. Number Conversion
 
 ```py
 text = "আপনার ফোন নম্বর হলো জিরো ওয়ান ডাবল সেভেন থ্রি ডাবল ফাইভ নাইন থ্রি সেভেন নাইন"
@@ -186,7 +185,7 @@ number = nrml.number_convert(number, language="bn")
 {'digit': '২০১৩', 'digit_word': 'দুই শূন্য এক তিন', 'number_string': 'দুই হাজার তেরো'}
 ```
 
-# 3. Date Format
+## 3. Date Format
 ```py
 
 import pybangla
@@ -270,8 +269,6 @@ English:
 
 {'date': '04', 'month': 'January', 'year': '2023', 'weekday': 'Wednesday', 'ls_month': 'Jan', 'seasons': 'Summer'}
 ```
-## Command line::
-
 ```
 import pybangla
 nrml = pybangla.Normalizer()
@@ -292,7 +289,7 @@ print(f"{en_date}")
 {'date': '01', 'month': 'April', 'year': '2023', 'weekday': 'Saturday', 'ls_month': 'Apr', 'seasons': 'Wet season'}
 ```
 
-# 4. Today, Months, Weekdays, Seasons
+## 4. Today, Months, Weekdays, Seasons
 
 ## 1. Today:
 
