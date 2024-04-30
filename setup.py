@@ -13,7 +13,7 @@ setup(
     # },
     author='saiful',
     author_email='saifulbrur79@gmail.com',
-    description='date and number digits convert to bangla digits',
+    description='pybangla is the bangla text normalizer tool, it use for text normalization like word to number and date formating purposes',
 
     long_description=codecs.open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
