@@ -6,7 +6,7 @@ Available Features
 Features available in PYBANGLA:
 
 1. Text Normalization
-2. Number Converstion
+2. Number Conversion
 3. Date Format
 4. Months, Weekdays, Seasons
 
@@ -97,7 +97,7 @@ Supported
 ```
 
 
-# 2. Number Converstion
+# 2. Number Conversion
 
 ```py
 text = "আপনার ফোন নম্বর হলো জিরো ওয়ান ডাবল সেভেন থ্রি ডাবল ফাইভ নাইন থ্রি সেভেন নাইন"
