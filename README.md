@@ -271,7 +271,7 @@ Supported Date Format:
 output :
 
 
-```json
+```
 Bangla : 
 {'date': '০৪', 'month': 'জানুয়ারি', 'year': '২০২৩', 'weekday': 'বুধবার', 'ls_month': 'বৈশাখ', 'seasons': 'গ্রীষ্ম'}
 
