@@ -1,5 +1,5 @@
 
-PYBANGLA is a python3 package for Bengala Number, DateTime and Text Normalizer. This package can be used Normalize the text number and date (ex: number to text vice versa). This framework  also can be used Django, Flask, FastAPI, and others. PYBANGLA module supported operating system Linux/Unix, Mac OS and Windows.
+PYBANGLA is a python3 package for Bangla Number, DateTime and Text Normalizer and Date Extraction. This package can be used Normalize the text number and date (ex: number to text vice versa). This framework  also can be used Django, Flask, FastAPI, and others. PYBANGLA module supported operating system Linux/Unix, Mac OS and Windows.
 Available Features
 
 Features available in PYBANGLA:
@@ -17,8 +17,6 @@ The easiest way to install pybangla is to use pip:
 ```
 pip install pybangla
 ```
-
-
 
 
 # Usage
@@ -55,6 +53,16 @@ text = "আজকের তাপমাত্রা ৪৪°"
 
 #output:
 'আজকের তাপমাত্রা চুয়াল্লিশ ডিগ্রী'
+
+```
+
+```py
+
+text = "সম্মেলনটি সেপ্টেম্বর ০৫ ২০২৩ তারিখে নির্ধারিত করা হয়েছে. এপ্রিল ২০২৩"
+text = nrml.text_normalizer(text)
+#output:
+
+সম্মেলনটি পাঁচ সেপ্টেম্বর দুই হাজার তেইশ তারিখে নির্ধারিত করা হয়েছে. এক এপ্রিল দুই হাজার তেইশ
 
 ```
 
@@ -263,7 +271,7 @@ Supported Date Format:
 output :
 
 
-```
+```json
 Bangla : 
 {'date': '০৪', 'month': 'জানুয়ারি', 'year': '২০২৩', 'weekday': 'বুধবার', 'ls_month': 'বৈশাখ', 'seasons': 'গ্রীষ্ম'}
 
@@ -272,7 +280,7 @@ English:
 
 {'date': '04', 'month': 'January', 'year': '2023', 'weekday': 'Wednesday', 'ls_month': 'Jan', 'seasons': 'Summer'}
 ```
-```
+```py
 import pybangla
 nrml = pybangla.Normalizer()
 
@@ -282,7 +290,7 @@ print(f"{date}")
 {'date': '০১', 'month': 'এপ্রিল', 'year': '২০২৩', 'weekday': 'শনিবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
 ```
 
-```
+```py
 import pybangla
 nrml = pybangla.Normalizer()
 en_date = dt.date_format("01-Apr/2023", language="en")
@@ -290,6 +298,26 @@ print(f"{en_date}")
 
 # Output :
 {'date': '01', 'month': 'April', 'year': '2023', 'weekday': 'Saturday', 'ls_month': 'Apr', 'seasons': 'Wet season'}
+```
+
+## Date extraction
+
+```py
+Rule based Date Extraction
+import pybangla
+nrml = pybangla.Normalizer()
+
+text = "সম্মেলনটি সেপ্টেম্বর ০৫ ২০২৩ তারিখে নির্ধারিত করা হয়েছে. এপ্রিল ২০২৩"
+dates = nrml.date_extraction(text)
+
+#output:
+
+[
+{'date': '০৫', 'month': 'সেপ্টেম্বর', 'year': '২০২৩', 'txt_date': 'পাঁচ', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'মঙ্গলবার', 'ls_month': 'পৌষ', 'seasons': 'শীত'}, 
+
+{'date': '১', 'month': 'এপ্রিল', 'year': '২০২৩', 'txt_date': 'এক', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'শনিবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
+]
+
 ```
 
 ## 4. Today, Months, Weekdays, Seasons
@@ -457,11 +485,19 @@ print(seasons)
 2. Bangla lemmatization and stemming algorithm
 3. Bangla Tokenizer
 
-# Contribute
-
-If you face any problem feel free to open issue.
 
 # Contact
 If you have any suggestion: Email: saifulbrur79@gmail.com
 
+# Contributor
+
+```
+@misc{BanglaASR ,
+  title={PYBANGLA module use for normalize textual format like text to number and number to text},
+  author={Md Saiful Islam, Hassan Ali Emon,  HM-badhon, Sagor Sarker},
+  howpublished={},
+  year={2024}
+}
+```
+If you face any problem feel free to open issue.
 

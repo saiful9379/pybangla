@@ -5,7 +5,9 @@ import datetime
 from .config import Config as cfg
 from .parser import DateParser, TextParser, NumberParser
 from .number_parser import Word2NumberMap
+from .date_extractor import DateExtractor
 dp, tp, npr, wnmp = DateParser(), TextParser(), NumberParser(), Word2NumberMap()
+dt = DateExtractor()
 data = cfg.data
 
 class Normalizer:
@@ -109,32 +111,8 @@ class Normalizer:
         return : 
                 Dictonary :  {"date":day, "month": month[0], "year": year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}       
         """
-        if isinstance(date_, list):
-            if len(date_):
-                formatted_date = date_
-        else:
-            split_date = dp.data_splitter(date_)
-            split_date = [i for i in split_date if i]
-
-            if len(split_date) == 1:
-                formatted_date = dp.format_non_punctuation(split_date)
-            else:
-                formatted_date = dp.get_date_indexes(split_date)
-
-        if formatted_date[0] == None and formatted_date[1] == None and formatted_date[2] == None:
-            current_date_object = datetime.date.today()
-            formatted_date = [current_date_object.day, current_date_object.month, current_date_object.year]
-
-        weekday = npr.get_weekday(formatted_date, language)
-        day   = npr._digit_converter(str(formatted_date[0]), language)
-        month = npr.search_month(str(formatted_date[1]), language)
-        year  =  npr._digit_converter(str(formatted_date[2]), language)
-
-        txt_date = npr.number_to_words(day)
-        txt_year = npr.year_in_number(year, language=language)
-
-
-        return {"date":day, "month": month[0], "year": year, "txt_date":txt_date, "txt_year": txt_year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
+        formated_date = dp.date_processing(date_, language=language)
+        return formated_date
 
     def number_convert(self, number, language="bn"):
         """
@@ -167,6 +145,14 @@ class Normalizer:
     def word2number(self, text):
         text = wnmp.convert_word2number(text)
         return text
+    
+    def date_extraction(self, text):
+
+        dates = dt.get_dates(text)
+        formated_date = [self.date_format(i)for i in dates]
+        # print(f"Input: {sentence}: Output: {dates}")
+        return formated_date
+
     
 if __name__ == "__main__":
 

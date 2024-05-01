@@ -2,6 +2,12 @@ import re
 import datetime
 from .config import Config as cfg
 from num2words import num2words
+from .date_extractor import DateExtractor
+# from .number_parser import Word2NumberMap
+
+
+dt = DateExtractor()
+# nr = Normalizer()
 data = cfg.data
 
 _abbreviations = cfg._abbreviations
@@ -142,6 +148,9 @@ class NumberParser:
 
         # print("++++++++++++++++++++ : ", date_)
 
+
+        # print("date_: ", date_)
+
         d, y = list(re.finditer(self.bn_regex, str(date_[0]), re.UNICODE)), list(re.finditer(self.bn_regex, str(date_[2]), re.UNICODE))
         
         # print("d, y : ", d, y)
@@ -181,6 +190,22 @@ class NumberParser:
 
         return [month, option_name, seasons]
     
+    
+    def find_word_index(self, text:str, word:str)->list:
+        """
+        Word spanning position
+        """
+        start  = text.find(word)
+        end = start+len(word)
+        return [start, end]
+
+    def replace_text_at_position(self, text:str, replacement:str, start_pos:int, end_pos:int)->str:
+        """
+        Replance text using text position
+        
+        """
+        return text[:start_pos] + replacement + text[end_pos:]
+    
     def number_processing(self, text):
 
         # bn_regex, en_regex = r'[০-৯]+', r'[0-9]+'
@@ -201,6 +226,8 @@ class NumberParser:
 class DateParser:
     def __init__(self):
         self.samples = cfg.samples
+
+        self.npr = NumberParser()
 
     def data_splitter(self, date_string):
         """
@@ -289,6 +316,43 @@ class DateParser:
                 # print(date_list)
                 day, month = self.get_day_and_month(year_idx, idx, date_list)
         return [day, month, year]
+    
+    def date_processing(self, date_, language="bn"):
+
+        if isinstance(date_, list):
+            if len(date_):
+                formatted_date = date_
+        else:
+            split_date = self.data_splitter(date_)
+            split_date = [i for i in split_date if i]
+
+            if len(split_date)==2:
+                adding_date = ["1"] if language=="en" else ["১"]
+                split_date = adding_date +split_date
+
+            # print("split_date : ", split_date)
+
+            if len(split_date) == 1:
+                formatted_date = self.format_non_punctuation(split_date)
+            else:
+                formatted_date = self.get_date_indexes(split_date)
+
+        if formatted_date[0] == None and formatted_date[1] == None and formatted_date[2] == None:
+            current_date_object = datetime.date.today()
+            formatted_date = [current_date_object.day, current_date_object.month, current_date_object.year]
+
+        weekday = self.npr.get_weekday(formatted_date, language)
+        day   = self.npr._digit_converter(str(formatted_date[0]), language)
+        month = self.npr.search_month(str(formatted_date[1]), language)
+        year  =  self.npr._digit_converter(str(formatted_date[2]), language)
+
+        txt_date = self.npr.number_to_words(day)
+        txt_year = self.npr.year_in_number(year, language=language)
+
+
+        return {"date":day, "month": month[0], "year": year, "txt_date":txt_date, "txt_year": txt_year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
+
+
 
 class TextParser:
 
@@ -297,6 +361,7 @@ class TextParser:
         self.year_pattern = r'(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে)+'
         self.currency_pattern = r'(?:\$|£|৳|€|¥|₹|₽|₺)?(?:\d+(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)'
         self.npr = NumberParser()
+        self.dp = DateParser() 
 
     def collapse_whitespace(self, text):
         return re.sub(_whitespace_re, " ", text)
@@ -369,17 +434,26 @@ class TextParser:
                 if "." in n_m:
                     s_m = n_m.split(".")
                     before_dot_word, after_dot_word = self.npr.number_to_words(s_m[0]), self.npr.digit_number_to_digit_word(s_m[1])
-
                     word =  before_dot_word+" দশমি "+after_dot_word+ " "+_currency[currency[0]]
                     text = text.replace(m, word)
                     # print(s_m, before_dot_word, after_dot_word)
                 else:
                     word = self.npr.number_to_words(n_m)
                     n_word = word + " "+_currency[currency[0]]
-
-
                     text = text.replace(m, n_word)
         return text
+    
+    def replance_date_processing(self, text):
+        dates = dt.get_dates(text)
+        for date in dates:
+            position = self.npr.find_word_index(text, date)
+            formated_date = self.dp.date_processing(date)
+            # print(formated_date)
+            f_d_string = formated_date["txt_date"]+" "+formated_date["month"]+" "+formated_date["txt_year"]
+            # print(f_d_string)
+            text = self.npr.replace_text_at_position(text, f_d_string, position[0], position[1])
+        return text
+
     
 
     def processing(self, text):
@@ -388,7 +462,7 @@ class TextParser:
         text = self.expand_abbreviations(text)
         text = self.expand_position(text)
         text = self.extract_currency_amounts(text)
-        text = self.year_formation(text)
+        text = self.replance_date_processing(text)
         text = self.npr.number_processing(text)
         return text
     

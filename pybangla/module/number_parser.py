@@ -153,20 +153,20 @@ class Word2NumberMap:
                 output_list.append([value]), output_status.append(False)  
         return output_list, output_status
 
-    def find_word_index(self, text:str, word:str)->list:
-        """
-        Word spanning position
-        """
-        start  = text.find(word)
-        end = start+len(word)
-        return [start, end]
+    # def find_word_index(self, text:str, word:str)->list:
+    #     """
+    #     Word spanning position
+    #     """
+    #     start  = text.find(word)
+    #     end = start+len(word)
+    #     return [start, end]
 
-    def replace_text_at_position(self, text:str, replacement:str, start_pos:int, end_pos:int)->str:
-        """
-        Replance text using text position
+    # def replace_text_at_position(self, text:str, replacement:str, start_pos:int, end_pos:int)->str:
+    #     """
+    #     Replance text using text position
         
-        """
-        return text[:start_pos] + replacement + text[end_pos:]
+    #     """
+    #     return text[:start_pos] + replacement + text[end_pos:]
 
     def converting_condition(self, word:str, final_value:list, c_data:list, index:int)-> [list, int]:
 
@@ -226,7 +226,7 @@ class Word2NumberMap:
                 clustring_data, clustring_status = [result_chunk], [status]
             for c_data, c_status in zip(clustring_data, clustring_status):
                 replance_text = " ".join(c_data)
-                word_spanning = self.find_word_index(original_text, replance_text)
+                word_spanning = npr.find_word_index(original_text, replance_text)
                 index, final_value = 0, []
                 for c_d in c_data:
                     final_value, index = self.converting_condition(c_d, final_value, c_data, index)
@@ -239,7 +239,7 @@ class Word2NumberMap:
                 else:
                     numbers = "".join(value)
 
-                original_text = self.replace_text_at_position(original_text, numbers, word_spanning[0], word_spanning[1])
+                original_text = npr.replace_text_at_position(original_text, numbers, word_spanning[0], word_spanning[1])
         return original_text
 
     def replace_word_to_number(self, text:list)-> list:
