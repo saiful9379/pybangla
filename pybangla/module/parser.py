@@ -434,7 +434,7 @@ class TextParser:
                 if "." in n_m:
                     s_m = n_m.split(".")
                     before_dot_word, after_dot_word = self.npr.number_to_words(s_m[0]), self.npr.digit_number_to_digit_word(s_m[1])
-                    word =  before_dot_word+" দশমি "+after_dot_word+ " "+_currency[currency[0]]
+                    word =  before_dot_word+" দশমিক "+after_dot_word+ " "+_currency[currency[0]]
                     text = text.replace(m, word)
                     # print(s_m, before_dot_word, after_dot_word)
                 else:
