@@ -92,8 +92,19 @@ class Word2NumberMap:
         output, temp_sequence = [], []
         i = 0
         while i < len(input_list):
+            input_list[i] = input_list[i].replace("শত00", "শত")
+            input_list[i] = input_list[i].replace("শো00", "শত")
             if input_list[i].isdigit():
-                if len(input_list)-1 == i:
+                if len(input_list[i])==2 and len(input_list)-1 != i:
+                    if input_list[i+1] in cfg.checking_hunderds:
+                        temp_sequence.append(input_list[i])
+                        output.append(temp_sequence)
+                    else:
+                        temp_sequence.append(input_list[i])
+                        output.append(temp_sequence)
+                        temp_sequence = []
+
+                elif len(input_list)-1 == i:
                     temp_sequence.append(input_list[i])
                     output.append(temp_sequence)
                 else:
@@ -293,6 +304,8 @@ class Word2NumberMap:
     def convert_word2number(self, text):
         text = self.normalize(text+" ")
         text_list = self.replace_word_to_number(text)
+
+        # print("text_list : ", text_list)
         results = self.word_clustering(text_list)
         sum_status_list = self.sum_status(results)
         text = self.converting2digits(results, text_list, sum_status_list)

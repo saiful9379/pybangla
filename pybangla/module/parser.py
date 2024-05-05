@@ -127,16 +127,18 @@ class NumberParser:
         if language=="en":
             extracted_number = list(re.finditer(self.bn_regex, str(number), re.UNICODE))
             if extracted_number:
-                number = "".join([cfg._bangla2english_digits_mapping[i] for i in number])
+                number = "".join([cfg._bangla2english_digits_mapping[i.replance(",", "")] for i in number])
                 # print("extracted : ", number)
         c_number = ""
         for n in number:
-            if n in data[language]["number"]:
-                c_number += n
-            else:
-                if n.strip() in data[language]["digits_mapping"]:
-                    b_n = data[language]["digits_mapping"][n.strip()]
-                    c_number+=b_n
+            n = n.replace(",", "")
+            if n:
+                if n in data[language]["number"]:
+                    c_number += n
+                else:
+                    if n.strip() in data[language]["digits_mapping"]:
+                        b_n = data[language]["digits_mapping"][n.strip()]
+                        c_number+=b_n
         return c_number
     
     def get_weekday(self, date_:list=[], language="bn"):
@@ -213,13 +215,15 @@ class NumberParser:
             list(re.finditer(self.en_regex, text, re.UNICODE))
         if en_matches:
             for m in en_matches:
-                if m[0]:
-                    bn_m= self.number_to_words(self._digit_converter(m[0]))
+                m = m[0].replace(",", "")
+                if m:
+                    bn_m= self.number_to_words(self._digit_converter(m))
                     text = text.replace(m[0], bn_m)
         if bn_matches:
             for m in bn_matches:
+                m = m[0].replace(",", "")
                 if m[0]:
-                    bn_m= self.number_to_words(m[0])
+                    bn_m= self.number_to_words(m)
                     text = text.replace(m[0], bn_m)
         return text
 
@@ -431,6 +435,7 @@ class TextParser:
             if currency:
                 # print("m : ", m)
                 n_m = m.replace(currency[0], "")
+                n_m = n_m.replace(",", "")
                 if "." in n_m:
                     s_m = n_m.split(".")
                     before_dot_word, after_dot_word = self.npr.number_to_words(s_m[0]), self.npr.digit_number_to_digit_word(s_m[1])

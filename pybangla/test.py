@@ -5,78 +5,78 @@ if __name__ == "__main__":
 
 
     # # Testing Date format
-    date_list = [
-        "সেপ্টেম্বর ০৫ ২০২৩",
-        "এপ্রিল ২০২৩" 
-        "2023-04-05",  
-        "06-04-2023", 
-        "04/01/2023",  
-        "07 April, 2023", 
-        "Apr 1, 2023",  
-        "2023/04/01", 
-        "01-Apr-2023", 
-        "01-Apr/2023",  
-        "20230401",  
-        "20042024",
-        ["1", "4", "2025"]
-    ]
-    # # number = "123456" or "২০২৩"
-    number = "২০২৩"
+    # date_list = [
+    #     "সেপ্টেম্বর ০৫ ২০২৩",
+    #     "এপ্রিল ২০২৩" 
+    #     "2023-04-05",  
+    #     "06-04-2023", 
+    #     "04/01/2023",  
+    #     "07 April, 2023", 
+    #     "Apr 1, 2023",  
+    #     "2023/04/01", 
+    #     "01-Apr-2023", 
+    #     "01-Apr/2023",  
+    #     "20230401",  
+    #     "20042024",
+    #     ["1", "4", "2025"]
+    # ]
+    # # # number = "123456" or "২০২৩"
+    # number = "২০২৩"
     nrml = Normalizer()
-    # print("++++++++++++++++++++ Date testing ++++++++++++++++++++++")
-    # print("Date format Testing : ", end ="", flush=True)
-    for date_ in date_list:
-        start_time = time.time()
-        formated_date = nrml.date_format(date_, language="bn")
-        print(formated_date)
-    print("++++++++++++++++++++ end of Date testing ++++++++++++++++++++++")
+    # # print("++++++++++++++++++++ Date testing ++++++++++++++++++++++")
+    # # print("Date format Testing : ", end ="", flush=True)
+    # for date_ in date_list:
+    #     start_time = time.time()
+    #     formated_date = nrml.date_format(date_, language="bn")
+    #     print(formated_date)
+    # print("++++++++++++++++++++ end of Date testing ++++++++++++++++++++++")
 
-    print("++++++++++++++++++++ en number to bn number convert ++++++++++++++++++++++")
-    number = nrml.number_convert(number, language="bn")
+    # print("++++++++++++++++++++ en number to bn number convert ++++++++++++++++++++++")
+    # number = nrml.number_convert(number, language="bn")
     
     
-    number = nrml.number_convert(number, language="bn")
+    # number = nrml.number_convert(number, language="bn")
 
-    print("Bn Number : ", number)
-    print("++++++++++++++++++++ stop number convert ++++++++++++++++++++++")
+    # print("Bn Number : ", number)
+    # print("++++++++++++++++++++ stop number convert ++++++++++++++++++++++")
 
-    # print("++++++++++++++++ Today +++++++++++++++++++++")
-    today_date = nrml.today(language="bn")
-    # today_date = nrml.today(language="en")
-    print(today_date)
+    # # print("++++++++++++++++ Today +++++++++++++++++++++")
+    # today_date = nrml.today(language="bn")
+    # # today_date = nrml.today(language="en")
+    # print(today_date)
 
-    # print("++++++++++++++++ End Today +++++++++++++++++++++")
-    # # print(today_date)
-    # print("++++++++++++++++ weekdays +++++++++++++++++++++")
-    weekdays = nrml.weekdays()
-    weekdays = nrml.weekdays(language="bn")
-    weekdays = nrml.weekdays(language="en")
-    weekdays = nrml.weekdays(day = "সোমবার")
-    weekdays = nrml.weekdays(day = "Monday")
-    print(weekdays)
+    # # print("++++++++++++++++ End Today +++++++++++++++++++++")
+    # # # print(today_date)
+    # # print("++++++++++++++++ weekdays +++++++++++++++++++++")
+    # weekdays = nrml.weekdays()
+    # weekdays = nrml.weekdays(language="bn")
+    # weekdays = nrml.weekdays(language="en")
+    # weekdays = nrml.weekdays(day = "সোমবার")
+    # weekdays = nrml.weekdays(day = "Monday")
+    # print(weekdays)
 
-    # print("++++++++++++++++ end weekdays +++++++++++++++++++++")
-    # # print(weekdays)
-    # print("+++++++++++++++ seasons ++++++++++++++++++++++++")
-    seasons = nrml.seasons()
-    seasons = nrml.seasons(language="bn")
-    seasons = nrml.seasons(language="en")
-    seasons = nrml.seasons(seasons = "গ্রীষ্ম")
-    print(seasons)
+    # # print("++++++++++++++++ end weekdays +++++++++++++++++++++")
+    # # # print(weekdays)
+    # # print("+++++++++++++++ seasons ++++++++++++++++++++++++")
+    # seasons = nrml.seasons()
+    # seasons = nrml.seasons(language="bn")
+    # seasons = nrml.seasons(language="en")
+    # seasons = nrml.seasons(seasons = "গ্রীষ্ম")
+    # print(seasons)
 
-    # print("+++++++++++++++ end seasons ++++++++++++++++++++++++")
+    # # print("+++++++++++++++ end seasons ++++++++++++++++++++++++")
 
-    # print("+++++++++++++++++ months +++++++++++++++++++++++++++")
-    month = nrml.months()
-    month = nrml.months(month="মার্চ")
-    print(month)
+    # # print("+++++++++++++++++ months +++++++++++++++++++++++++++")
+    # month = nrml.months()
+    # month = nrml.months(month="মার্চ")
+    # print(month)
 
 
-    text = "রাহিম ক্লাস ওয়ান এ ১ম, ১১তম ২২ তম ৩৩ তম, ১২৩৪ শতাব্দীতে ¥২০৩০.১২৩৪ বিবিধ  বাকেরগঞ্জ উপজেলার প্রায় 40 ভাগের পেশাই চাষাবাদ 80 and 40 ২২"
+    # text = "রাহিম ক্লাস ওয়ান এ ১ম, ১১তম ২২ তম ৩৩ তম, ১২৩৪ শতাব্দীতে ¥২০৩০.১২৩৪ বিবিধ  বাকেরগঞ্জ উপজেলার প্রায় 40 ভাগের পেশাই চাষাবাদ 80 and 40 ২২"
     
-    text = nrml.text_normalizer(text)
+    # text = nrml.text_normalizer(text)
 
-    print(text)
+    # print(text)
 
     input_texts = [
         "আমি এক দুই তিন চার পাঁচ টু থ্রি ফাইভ ছয় সেভেন এইট নাইন শূন্য আমার ফোন নাম্বার জিরো ওয়ান ডাবল সেভেন",
@@ -153,7 +153,8 @@ if __name__ == "__main__":
         "ডের আউটস্ট্যান্ডিং কত",
         "ডাবল",
         "নাইন ডাবল এইট",
-        "দশ বারো এ এগুলা একশ একশ দুই"
+        "দশ বারো এ এগুলা একশ একশ দুই",
+        "এক লক্ষ তেত্রিশ চার"
         ]
     for i in input_texts:
         print("="*40)
@@ -161,7 +162,7 @@ if __name__ == "__main__":
         text = nrml.word2number(i)
         print("output : ", text)
         print("="*40)
-    text = "সম্মেলনটি সেপ্টেম্বর ০৫ ২০২৩ তারিখে নির্ধারিত করা হয়েছে. এপ্রিল ২০২৩"
+    text = "সম্মেলনটি সেপ্টেম্বর ০৫ ২০২৩ তারিখে নির্ধারিত করা হয়েছে. এপ্রিল ২,০২৩"
     formated_date = nrml.date_extraction(text)
 
     print(formated_date)
