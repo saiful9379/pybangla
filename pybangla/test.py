@@ -5,31 +5,31 @@ if __name__ == "__main__":
 
 
     # # Testing Date format
-    # date_list = [
-    #     "সেপ্টেম্বর ০৫ ২০২৩",
-    #     "এপ্রিল ২০২৩" 
-    #     "2023-04-05",  
-    #     "06-04-2023", 
-    #     "04/01/2023",  
-    #     "07 April, 2023", 
-    #     "Apr 1, 2023",  
-    #     "2023/04/01", 
-    #     "01-Apr-2023", 
-    #     "01-Apr/2023",  
-    #     "20230401",  
-    #     "20042024",
-    #     ["1", "4", "2025"]
-    # ]
+    date_list = [
+        "সেপ্টেম্বর ০৫ ২০২৩",
+        "এপ্রিল ২০২৩" 
+        "2023-04-05",  
+        "06-04-2023", 
+        "04/01/2023",  
+        "07 April, 2023", 
+        "Apr 1, 2023",  
+        "2023/04/01", 
+        "01-Apr-2023", 
+        "01-Apr/2023",  
+        "20230401",  
+        "20042024",
+        ["1", "4", "2025"]
+    ]
     # # # number = "123456" or "২০২৩"
     # number = "২০২৩"
     nrml = Normalizer()
     # # print("++++++++++++++++++++ Date testing ++++++++++++++++++++++")
-    # # print("Date format Testing : ", end ="", flush=True)
-    # for date_ in date_list:
-    #     start_time = time.time()
-    #     formated_date = nrml.date_format(date_, language="bn")
-    #     print(formated_date)
-    # print("++++++++++++++++++++ end of Date testing ++++++++++++++++++++++")
+    # print("Date format Testing : ", end ="", flush=True)
+    for date_ in date_list:
+        start_time = time.time()
+        formated_date = nrml.date_format(date_, language="bn")
+        print(formated_date)
+    print("++++++++++++++++++++ end of Date testing ++++++++++++++++++++++")
 
     # print("++++++++++++++++++++ en number to bn number convert ++++++++++++++++++++++")
     # number = nrml.number_convert(number, language="bn")
@@ -166,6 +166,11 @@ if __name__ == "__main__":
     formated_date = nrml.date_extraction(text)
 
     print(formated_date)
+
+    # text = "৫ বছরে নন-ক্যাডার পদে ৭,৪৪৭ জনকে নিয়োগের সুপারিশ করা হয়েছে 1,230"
+    text = "৫ বছরে নন-ক্যাডার পদে ৭,৪৪৭ জনকে নিয়োগের সুপারিশ করা হয়েছে"
+
+    # text = "The numbers are 10 নন-ক্যাডার 20.5  30, and 40.75. সুপারিশ ২০৩০.৩০ 12 23 45"
 
     text = nrml.text_normalizer(text)
     print(text)

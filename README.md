@@ -481,9 +481,8 @@ print(seasons)
 ```
 # Next Upcomming Features
 
-1. Date extraction from normal text sentence and convert it numerical to word(vice versa)
-2. Bangla lemmatization and stemming algorithm
-3. Bangla Tokenizer
+1. Bangla lemmatization and stemming algorithm
+2. Bangla Tokenizer
 
 
 # Contact

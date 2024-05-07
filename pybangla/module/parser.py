@@ -1,5 +1,6 @@
 import re
 import datetime
+import string
 from .config import Config as cfg
 from num2words import num2words
 from .date_extractor import DateExtractor
@@ -30,6 +31,10 @@ class NumberParser:
     def is_english_digit_string(s):
         # Check if all characters in the string are digits (0-9)
         return all(char.isdigit() for char in s)
+    
+    def contains_only_english(self, input_string):
+        # Check if all characters in the string are English (ASCII) characters
+        return all(ord(char) < 128 for char in input_string)
 
     def number_to_words_converting_process(self, number_string:str, lang = "bn"):
         number_string = number_string.strip()
@@ -71,6 +76,8 @@ class NumberParser:
         number = re.sub(_whitespace_re, " ", number)
         s_n = ""
         for i in number:
+            # print("language : ", language, i)
+
             n = data[language]["number_mapping"][i]
             s_n += " "+n
         return s_n.strip()
@@ -162,6 +169,8 @@ class NumberParser:
         if y:
             date_[2] = self._digit_converter(date_[2], language="bn")
 
+        # print("date_", date_)
+
         current_date_object = datetime.datetime(int(date_[2]), int(date_[1]), int(date_[0]))
         if language in data:
             weekday = data[language]["weekdays"][current_date_object.weekday()]
@@ -204,27 +213,45 @@ class NumberParser:
     def replace_text_at_position(self, text:str, replacement:str, start_pos:int, end_pos:int)->str:
         """
         Replance text using text position
-        
+    
         """
-        return text[:start_pos] + replacement + text[end_pos:]
+        rep_text = text[:start_pos] + replacement + text[end_pos:]
+        return rep_text
+    
+    def fraction_number_conversion(self, number, language="bn"):
+        n_n = ""
+        for i in number:
+            if i in cfg._english2bangla2_digits_mapping:
+                n_n+=cfg._english2bangla2_digits_mapping[i]
+            else:
+                n_n+=i
+                
+        s_m = n_n.split(".")
+        before_dot_word, after_dot_word = self.number_to_words(s_m[0]), self.digit_number_to_digit_word(s_m[1], language=language)
+        word =  before_dot_word+" দশমিক "+after_dot_word
+        return word
     
     def number_processing(self, text):
+        pattern = r'[\d,\.]+'
+        matches = re.findall(pattern, text)
+        for n in matches:
+            status = self.contains_only_english(n)
+            m_re = n.replace(",", "")
+            if status:
+                if "." in m_re:
+                    bn_m= self.fraction_number_conversion(m_re)
+                else:
+                    bn_m= self.number_to_words(self._digit_converter(m_re))
+                
+                text = text.replace(n, bn_m)
+            else:
+                if "." in m_re:
+                    bn_m= self.fraction_number_conversion(m_re, language="bn")
+                else:
+                    bn_m= self.number_to_words(m_re)
+                print(n, m_re, bn_m)
+                text = text.replace(n, bn_m)
 
-        # bn_regex, en_regex = r'[০-৯]+', r'[0-9]+'
-        bn_matches, en_matches = list(re.finditer(self.bn_regex, text, re.UNICODE)), \
-            list(re.finditer(self.en_regex, text, re.UNICODE))
-        if en_matches:
-            for m in en_matches:
-                m = m[0].replace(",", "")
-                if m:
-                    bn_m= self.number_to_words(self._digit_converter(m))
-                    text = text.replace(m[0], bn_m)
-        if bn_matches:
-            for m in bn_matches:
-                m = m[0].replace(",", "")
-                if m[0]:
-                    bn_m= self.number_to_words(m)
-                    text = text.replace(m[0], bn_m)
         return text
 
 class DateParser:
@@ -259,8 +286,9 @@ class DateParser:
         elif key in data["bn"]["number"]:
             index = data["bn"]["number"].index(key)+1
         else:
-            print("else : ", key)
-            index = key
+            key = key.strip()
+            if key[-1] in string.punctuation:
+                index = key[:-1]
         return index
 
 
@@ -420,6 +448,8 @@ class TextParser:
         for i in matches:
             text = text.replace(i, self.npr.year_in_number(i))
         return text
+    
+
 
     def extract_currency_amounts(self, text):
 
@@ -427,7 +457,6 @@ class TextParser:
         pattern = r'[৳$£€¥₹₽₺]'
 
         for m in matches:
-            # print("m : ", m)
             # Use findall to extract matches
             currency = re.findall(pattern, m)
 
@@ -436,27 +465,38 @@ class TextParser:
                 # print("m : ", m)
                 n_m = m.replace(currency[0], "")
                 n_m = n_m.replace(",", "")
+                language = "en" if self.npr.contains_only_english(n_m) else "bn"
                 if "." in n_m:
-                    s_m = n_m.split(".")
-                    before_dot_word, after_dot_word = self.npr.number_to_words(s_m[0]), self.npr.digit_number_to_digit_word(s_m[1])
-                    word =  before_dot_word+" দশমিক "+after_dot_word+ " "+_currency[currency[0]]
-                    text = text.replace(m, word)
-                    # print(s_m, before_dot_word, after_dot_word)
+                    word = self.npr.fraction_number_conversion(n_m, language=language)
+                    r_word =  word+" "+_currency[currency[0]]
+                    text = text.replace(m, r_word)
                 else:
                     word = self.npr.number_to_words(n_m)
                     n_word = word + " "+_currency[currency[0]]
                     text = text.replace(m, n_word)
         return text
     
+    def date_formate_validation(self, date):
+        n_data = date.strip().split(" ")
+        month_name = data["en"]["months"]+ data["en"]["months"] + data["en"]["option_name"] + data["bn"]["option_name"]
+        for n_d in n_data:
+            if n_d in month_name:
+                return True
+        return False
+
+
+    
     def replance_date_processing(self, text):
         dates = dt.get_dates(text)
         for date in dates:
-            position = self.npr.find_word_index(text, date)
-            formated_date = self.dp.date_processing(date)
-            # print(formated_date)
-            f_d_string = formated_date["txt_date"]+" "+formated_date["month"]+" "+formated_date["txt_year"]
-            # print(f_d_string)
-            text = self.npr.replace_text_at_position(text, f_d_string, position[0], position[1])
+            status = True
+            if " " in date:
+                status = self.date_formate_validation(date)
+            if status:
+                position = self.npr.find_word_index(text, date)
+                formated_date = self.dp.date_processing(date)
+                f_d_string = formated_date["txt_date"]+" "+formated_date["month"]+" "+formated_date["txt_year"]
+                text = self.npr.replace_text_at_position(text, f_d_string, position[0], position[1])
         return text
 
     
