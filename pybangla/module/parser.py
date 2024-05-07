@@ -249,7 +249,7 @@ class NumberParser:
                     bn_m= self.fraction_number_conversion(m_re, language="bn")
                 else:
                     bn_m= self.number_to_words(m_re)
-                print(n, m_re, bn_m)
+                # print(n, m_re, bn_m)
                 text = text.replace(n, bn_m)
 
         return text
