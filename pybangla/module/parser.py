@@ -230,27 +230,36 @@ class NumberParser:
         before_dot_word, after_dot_word = self.number_to_words(s_m[0]), self.digit_number_to_digit_word(s_m[1], language=language)
         word =  before_dot_word+" দশমিক "+after_dot_word
         return word
+    def check_comma_dot_dari(self,  p):
+        l_p = [",", ".", "।"]
+        if p in l_p:
+            return True
+        return False
     
     def number_processing(self, text):
         pattern = r'[\d,\.]+'
         matches = re.findall(pattern, text)
         for n in matches:
-            status = self.contains_only_english(n)
-            m_re = n.replace(",", "")
-            if status:
-                if "." in m_re:
-                    bn_m= self.fraction_number_conversion(m_re)
-                else:
-                    bn_m= self.number_to_words(self._digit_converter(m_re))
-                
-                text = text.replace(n, bn_m)
+            p_status = self.check_comma_dot_dari(n)
+
+            if p_status:
+                text = text.replace(n, n+" ")
             else:
-                if "." in m_re:
-                    bn_m= self.fraction_number_conversion(m_re, language="bn")
+                status = self.contains_only_english(n)
+                m_re = n.replace(",", "")
+                if status:
+                    if "." in m_re:
+                        bn_m= self.fraction_number_conversion(m_re)
+                    else:
+                        bn_m= self.number_to_words(self._digit_converter(m_re))
+                    
+                    text = text.replace(n, bn_m)
                 else:
-                    bn_m= self.number_to_words(m_re)
-                # print(n, m_re, bn_m)
-                text = text.replace(n, bn_m)
+                    if "." in m_re:
+                        bn_m= self.fraction_number_conversion(m_re, language="bn")
+                    else:
+                        bn_m= self.number_to_words(m_re)
+                    text = text.replace(n, bn_m)
 
         return text
 
@@ -398,6 +407,13 @@ class TextParser:
     def collapse_whitespace(self, text):
         return re.sub(_whitespace_re, " ", text)
     
+    def unwanted_puntuation_removing(self, text):
+        unwanted_symbols = ["-", "_", ":", "[", "]", "(", ")", "{", "}", "^", "~"]
+        pattern = "[" + re.escape("".join(unwanted_symbols)) + "]"
+        text = re.sub(pattern, " ", text)
+        return text
+
+    
     def expand_symbols(self, text, lang="bn"):
         for regex, replacement in _symbols[lang]:
             # print("regex : ", regex)
@@ -488,6 +504,7 @@ class TextParser:
     
     def replance_date_processing(self, text):
         dates = dt.get_dates(text)
+        # print()
         for date in dates:
             status = True
             if " " in date:
@@ -502,13 +519,14 @@ class TextParser:
     
 
     def processing(self, text):
-        text = self.collapse_whitespace(text)
+        text = self.unwanted_puntuation_removing(text)
         text = self.expand_symbols(text)
         text = self.expand_abbreviations(text)
         text = self.expand_position(text)
         text = self.extract_currency_amounts(text)
         text = self.replance_date_processing(text)
         text = self.npr.number_processing(text)
+        text = self.collapse_whitespace(text)
         return text
     
 if __name__ =="__main__":
