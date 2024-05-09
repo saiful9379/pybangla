@@ -16,6 +16,7 @@ _symbols = cfg._symbols
 _ordinal_re = cfg._ordinal_re
 _whitespace_re = cfg._whitespace_re
 _currency = cfg._currency
+_punctuations = cfg._punctuations
 
 english_digits = cfg._bangla2english_digits_mapping
 bangla_numeric_words = cfg._bangla_numeric_words
@@ -408,10 +409,14 @@ class TextParser:
         return re.sub(_whitespace_re, " ", text)
     
     def unwanted_puntuation_removing(self, text):
-        unwanted_symbols = ["-", "_", ":", "[", "]", "(", ")", "{", "}", "^", "~"]
-        pattern = "[" + re.escape("".join(unwanted_symbols)) + "]"
-        text = re.sub(pattern, " ", text)
-        return text
+        text = text.replace("'র" , " এর")
+        text = text.replace("-র" , " এর")
+        translation_table = str.maketrans(_punctuations)
+        return text.translate(translation_table)
+        # unwanted_symbols = ["-", "_", ":", "[", "]", "(", ")", "{", "}", "^", "~"]
+        # pattern = "[" + re.escape("".join(unwanted_symbols)) + "]"
+        # text = re.sub(pattern, " ", text)
+        # return text
 
     
     def expand_symbols(self, text, lang="bn"):
