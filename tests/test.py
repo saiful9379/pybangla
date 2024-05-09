@@ -1,5 +1,9 @@
+import sys
+from pathlib import Path
+sys.path[0] = str(Path(sys.path[0]).parent)
+
 import time
-from ..pybangla.module.main import Normalizer
+from pybangla.module.main import Normalizer
 
 if __name__ == "__main__":
 
@@ -74,3 +78,31 @@ if __name__ == "__main__":
     text = nmlr.text_normalizer(text)
 
     print(text)
+    print("+++++++++++++++++ end months +++++++++++++++++++++++++++")
+    
+    print("+++++++++++++++++ punctuations +++++++++++++++++++++++++++")
+    text = "শাশ্বতী জানালেন, বিয়ে-বৌভাতের চলতি মরশুমে ভোজবাড়ির ডিনারে এক জনের প্রত্যাবর্তন ঘটেছে— দাপুটে প্রত্যাবর্তন।"
+    text = nmlr.text_normalizer(text)
+    print(text)
+    
+    text = "সে যা-ই হোক, সত্যিকারের এমন পাকা পোনা শেষ বার নেমন্তন্ন বাড়িতে খেয়েছি ১৯৮৭-র এপ্রিলে।"
+    text = nmlr.text_normalizer(text)
+    print(text)
+    
+    text = "‘আমি ছেলেকে ছাড়া বাঁচব কী করে’"
+    text = nmlr.text_normalizer(text)
+    print(text)
+    
+    text = "২০২০ সালে ‘দেয়ার ইজ নো এভিল’ সিনেমার জন্য বার্লিন উৎসবের সর্বোচ্চ পুরস্কার স্বর্ণভালুক জেতেন রাসুলফ। ২০২২ সালে তাঁকে গ্রেপ্তার করা হয়, পরে ইরানে বিক্ষোভ শুরু হলে সে বছরের সেপ্টেম্বর মাসে তাঁকে মুক্তি দেওয়া হয়।"
+    text = nmlr.text_normalizer(text)
+    print(text)
+    
+    text = "করে ‘দ্য পাবলিক গ্যাম্বলিং অ্যাক্ট ১৮৬৭’ সংশোধনের উদ্যোগ নেওয়া হয়েছে।"
+    text = nmlr.text_normalizer(text)
+    print(text)
+    
+    text = "৬৭% সংশোধনের উদ্যোগ নেওয়া হয়েছে।"
+    text = nmlr.text_normalizer(text)
+    print(text)
+    print("+++++++++++++++++ end punctuations +++++++++++++++++++++++++++")
+    
