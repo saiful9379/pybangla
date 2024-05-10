@@ -21,6 +21,8 @@ _punctuations = cfg._punctuations
 english_digits = cfg._bangla2english_digits_mapping
 bangla_numeric_words = cfg._bangla_numeric_words
 
+_STANDARDIZE_ZW = cfg._STANDARDIZE_ZW
+_DELETE_ZW = cfg._DELETE_ZW
 
 class NumberParser:
     def __init__(self):
@@ -409,10 +411,19 @@ class TextParser:
         return re.sub(_whitespace_re, " ", text)
     
     def unwanted_puntuation_removing(self, text):
+        text = _STANDARDIZE_ZW.sub('\u200D', text)
+        text = re.sub(r'\u200d', '', text)
+        text = _DELETE_ZW.sub('', text)
+        
         text = text.replace("'র" , " এর")
         text = text.replace("-র" , " এর")
         translation_table = str.maketrans(_punctuations)
-        return text.translate(translation_table)
+        text = text.translate(translation_table)
+        text = re.sub(r'(?<=[^\w\s])\s+(?=[^\w\s])', '', text) # deleting space between two punctuations
+        
+        text = re.sub(r'([^\w\s])\1+', r'\1', text) # only keep the first punctuation
+        
+        return text
         # unwanted_symbols = ["-", "_", ":", "[", "]", "(", ")", "{", "}", "^", "~"]
         # pattern = "[" + re.escape("".join(unwanted_symbols)) + "]"
         # text = re.sub(pattern, " ", text)

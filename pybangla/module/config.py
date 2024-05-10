@@ -291,6 +291,10 @@ class Config:
         "ninety-nine" : "নিরানব্বই"
     }
     
+    _STANDARDIZE_ZW = re.compile(r'(?<=\u09b0)[\u200c\u200d]+(?=\u09cd\u09af)')
+
+    _DELETE_ZW = re.compile(r'(?<!\u09b0)[\u200c\u200d](?!\u09cd\u09af)')
+    
     _punctuations = {
         "।": "।",  # won't be replaced
         ",": ",", # won't be replaced
@@ -308,7 +312,7 @@ class Config:
         ":": " ",  
         "'": " ", 
         "\\": " ", 
-        "-": " ", 
+        "-": "-", # won't be replaced
         "[": " ", 
         "]": " ", 
         "{": " ", 
