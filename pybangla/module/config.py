@@ -126,10 +126,12 @@ class Config:
                 ("হাফিঃ", "হাফিযাহুল্লাহ"),
                 ("দাঃবাঃ", "দামাত বারাকাতুহুম,দামাত বারাকাতুল্লাহ"),
                 ("মোঃ",  "মোহাম্মদ"),
+                ("মো.",  "মোহাম্মদ"),
                 ("মোসাঃ",  "মোসাম্মত"),
                 ("মোছাঃ", "মোছাম্মত"),
                 ("আ:" , "আব্দুর"),
                 ("ডাঃ" , "ডাক্তার"),
+                ("ড." , "ডক্টর"),
                 (" কিমি ", " কিলোমিটার "),
                 (" সেমি ", " সেন্টিমিটার "),
                 (" বিডি ", " বাংলাদেশ ")
@@ -296,18 +298,18 @@ class Config:
     _DELETE_ZW = re.compile(r'(?<!\u09b0)[\u200c\u200d](?!\u09cd\u09af)')
     
     _punctuations = {
-        "।": "।",  # won't be replaced
-        ",": ",", # won't be replaced
+        "।": "। ",  # won't be replaced
+        ",": ", ", # won't be replaced
         ".": ".", # won't be replaced
-        "?": "?", # won't be replaced
-        "!": "!", # won't be replaced
-        "⁇": "?", # won't be replaced
-        "’": '"', # won't be replaced
+        "?": "? ", # won't be replaced
+        "!": "! ", # won't be replaced
+        "⁇": "? ", # won't be replaced
+        "’": ' ', 
         '"': '"', # won't be replaced
         "“": '"', # won't be replaced
-        "‘": '"', # won't be replaced
+        "‘": ' ', 
         "”": '"', # won't be replaced
-        "`": '"', # won't be replaced
+        "`": ' ', 
         ";": " ", 
         ":": " ",  
         "'": " ", 

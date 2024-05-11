@@ -99,7 +99,7 @@ if __name__ == "__main__":
     
     text = "করে ‘দ্য পাবলিক গ্যাম্বলিং অ্যাক্ট ১৮৬৭’ সংশোধনের উদ্যোগ নেওয়া হয়েছে।"
     text = nmlr.text_normalizer(text)
-    print(text)
+    print(text) 
     
     text = "৬৭% সংশোধনের উদ্যোগ নেওয়া হয়েছে।"
     text = nmlr.text_normalizer(text)
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     text = nmlr.text_normalizer(text)
     print(text)
     
-    text = "বিশ্বযিদ হত্যা কান্ড করেছিলো কুত্তালীগের কুত্তার বাচ্চারা ওরা কি ফাঁসীর কাঠগড়ায় দাড়াবে?না হারিস আনিস জোসেফের মতো খালাস!!!???"
+    text = "দাড়াবে?না হারিস আনিস জোসেফের মতো খালাস!!!???"
     text = nmlr.text_normalizer(text)
     print(text)
     
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     text = nmlr.text_normalizer(text)
     print(text)
     
-    text = "আজব এক ধর্ম। অবমাননার অর্থ কি ?? কেউ বলবেন?? মেধাহীন জাতি তা আর একবার প্রমাণ করলো ।"
+    text = "আজব এক ধর্ম। অবমাননার অর্থ কি ? ? কেউ বলবেন? ? মেধাহীন জাতি তা আর একবার প্রমাণ করলো ।"
     text = nmlr.text_normalizer(text)
     print(text)
     

@@ -411,17 +411,26 @@ class TextParser:
         return re.sub(_whitespace_re, " ", text)
     
     def unwanted_puntuation_removing(self, text):
+        
+        # https://stackoverflow.com/questions/63256077/how-to-remove-redundant-punctuations-keep-only-the-first-one-in-text
+        def my_replace(match): 
+            match = match.group()
+            return match[0] + (" " if " " in match else "")
+
+        _redundent_punc_removal = r"[!\"#$%&\'()*+,\-.\/:;<=>?@\[\\\]^_`।{|}~ ]{2,}"
+        
         text = _STANDARDIZE_ZW.sub('\u200D', text)
         text = re.sub(r'\u200d', '', text)
         text = _DELETE_ZW.sub('', text)
         
         text = text.replace("'র" , " এর")
         text = text.replace("-র" , " এর")
+        
+        text = re.sub(r'(?<=[^\w\s])\s+(?=[^\w\s])', '', text) # deleting space between two punctuations
+        text = re.sub(_redundent_punc_removal, my_replace, text, 0) # only keep the first punctuation
+        
         translation_table = str.maketrans(_punctuations)
         text = text.translate(translation_table)
-        text = re.sub(r'(?<=[^\w\s])\s+(?=[^\w\s])', '', text) # deleting space between two punctuations
-        
-        text = re.sub(r'([^\w\s])\1+', r'\1', text) # only keep the first punctuation
         
         return text
         # unwanted_symbols = ["-", "_", ":", "[", "]", "(", ")", "{", "}", "^", "~"]
