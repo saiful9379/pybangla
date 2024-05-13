@@ -26,10 +26,11 @@ class DateExtractor:
         bn_number_month_year = "[০-৯]{1,2}[-\\/,.;: ](( )+)?("+ '|'.join(bn_month_name) +")((( )+)?[-\\/,.;: ](( )+)?[০-৯]{1,4})?"
         bn_month_number_year = "("+ '|'.join(bn_month_name) +")(( )+)?[-\\/,.;: ][০-৯]{1,2}(?![০-৯])((( )+)?[-\\/,.;: ](( )+)?[০-৯]{1,4})?"
         bn_month_year = "("+ '|'.join(bn_month_name) +")(( )+)?[-\\/,.;: ](( )+)?[০-৯]{1,4}"
+        bn_year_date_num_month_name = "[০-৯]{1,4}(( )+)?[-\\/,.;: ](( )+)?(সালে|সালের)(( )+)?[-\\/,.;: ]?[০-৯]{1,2}(( )+)?[-\\/,.;: ]?(( )+)?("+ '|'.join(bn_month_name) +")?"
         bn_plain_date = "[০-৯]{8}"
 
-        en_regex = '|'.join([en_dd_mm_yy, en_number_month_year, en_month_number_year,en_month_year, en_plain_date])
-        bn_regex = '|'.join([bn_dd_mm_yy, bn_number_month_year, bn_month_number_year,bn_month_year, bn_plain_date])
+        en_regex = '|'.join([en_dd_mm_yy, en_number_month_year, en_month_number_year, en_month_year, en_plain_date])
+        bn_regex = '|'.join([bn_dd_mm_yy, bn_number_month_year, bn_month_number_year, bn_month_year, bn_year_date_num_month_name, bn_plain_date])
         combined_regex = en_regex + '|' + bn_regex
         return combined_regex
     
@@ -91,6 +92,8 @@ if __name__ == '__main__':
     "20042024 ",
 ]
     Bangla_sentences = [
+    "১৯৯৬ সালের ৬তারিখে নির্ধারিত করা হয়েছে.",
+    "১৯৯৬ সালের৬ সেপ্টেম্বর ভ্রমণ পরিকল্পনা করছি.",
     "আমি জুলাই ২০২৩ তে একটি সমুদ্র ভ্রমণ পরিকল্পনা করছি.",
     "সম্মেলনটি সেপ্টেম্বর ০৫ ২০২৩ তারিখে নির্ধারিত করা হয়েছে.",
     "আমরা খ্রীষ্টমাসের জন্য ডিসেম্বর ২৫ ২০২৩ তারিখে পরিবারের সংগঠন করব.",
