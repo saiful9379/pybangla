@@ -118,10 +118,11 @@ if __name__ == '__main__':
     "আমি মার্চ ২০২৩ তারিখে একটি নতুন চাকরি শুরু করছি.",
     "আমি মে ২০২৩ তারিখে পাহাড়ে ট্রেকিং করতে যাচ্ছি.",
     "বিদ্যালয়ের নাটকটি নভেম্বর ২০২৩ তারিখে নির্ধারিত হয়েছে.",
-    "আমরা অক্টোবর ২০২৩ তার"
+    "আমরা অক্টোবর ২০২৩ তার",
+    "১৯৯৬ সালের ৬ সেপ্টেম্বর"
     ]
 
-    combined_sentences = English_sentences + Bangla_sentences + template_provided
+    combined_sentences = English_sentences  + template_provided+Bangla_sentences
     date_extractor = DateExtractor()
     
     for sentence in combined_sentences:

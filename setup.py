@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pybangla',
-    version='1.0.9-dev',
+    version='1.0.9-dev1',
     packages=find_packages(),
     # entry_points={
     #     'console_scripts': [
@@ -27,7 +27,9 @@ setup(
     ],
     install_requires=[
         "DateTime",
-        "num2words"
+        "num2words",
+        "python-Levenshtein",
+        "fuzzywuzzy"
     ],
     python_requires = ">=3.6"
 )

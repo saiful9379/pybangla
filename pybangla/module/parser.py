@@ -4,6 +4,7 @@ import string
 from .config import Config as cfg
 from num2words import num2words
 from .date_extractor import DateExtractor
+from fuzzywuzzy import fuzz
 # from .number_parser import Word2NumberMap
 
 
@@ -95,27 +96,19 @@ class NumberParser:
             Bangla year in words. Example: "উনিশশো চুরানব্বই"
 
         """
-        # print("year_in_number[1]", year_in_number[1])
-        # if (len(year_in_number) == 4 and year_in_number[1] != '০') or \
-        #     (len(year_in_number) == 4 and year_in_number[1] != '0') or len(year_in_number) == 3:
-
-
-
         if language=="bn":
             mid_text = "শো "
         else:
             mid_text = " century "
 
         if (len(year_in_number) == 4 and year_in_number[1] != '০') or len(year_in_number) == 3:
+            # print("year in ")
             
             if year_in_number[1] != '0':
-                return self.number_to_words(year_in_number)
-                
+                year_str = self.number_to_words(year_in_number)
             return self.number_to_words(year_in_number[:-2]) + mid_text + self.number_to_words(year_in_number[-2:])
-        
-        # elif (len(year_in_number) == 4 and year_in_number[1] != '0') or len(year_in_number) == 3:
-        #     return self.number_to_words(year_in_number[:-2]) + mid_text + self.number_to_words(year_in_number[-2:])
         else:
+            # print("+++++++++ else+++++++++++++++")
             return self.number_to_words(year_in_number)
 
     def _replace_starting_zero(self, month):
@@ -157,22 +150,15 @@ class NumberParser:
         Get weekday name Bangla or English
         
         """
-
-        # print("++++++++++++++++++++ : ", date_)
-
-
-        # print("date_: ", date_)
-
-        d, y = list(re.finditer(self.bn_regex, str(date_[0]), re.UNICODE)), list(re.finditer(self.bn_regex, str(date_[2]), re.UNICODE))
+        if date_[0] is None or date_[1] is None or  date_[2]:
+            return None
         
-        # print("d, y : ", d, y)
+        d, y = list(re.finditer(self.bn_regex, str(date_[0]), re.UNICODE)), list(re.finditer(self.bn_regex, str(date_[2]), re.UNICODE))
         
         if d:
             date_[0] = self._digit_converter(date_[0], language="bn")
         if y:
             date_[2] = self._digit_converter(date_[2], language="bn")
-
-        # print("date_", date_)
 
         current_date_object = datetime.datetime(int(date_[2]), int(date_[1]), int(date_[0]))
         if language in data:
@@ -180,6 +166,7 @@ class NumberParser:
         else:
             print("language not handel")
             weekday = ""
+        print("weekday : ", weekday)
         return weekday
     
     def search_month(self, search_key, language="bn"):
@@ -284,6 +271,8 @@ class DateParser:
         """
         
         """
+        index= None
+        # print("month", month)
         key = month.lower().strip()
         if key in data["en"]["months"]:
             index = data["en"]["months"].index(key)+1
@@ -349,52 +338,79 @@ class DateParser:
 
     def get_date_indexes(self, date_list):
         """
-        
-        
+        Get Date index  
         """
         day, month, year = None, None, None
         for idx, elem in enumerate(date_list):
             if elem.isdigit() and len(elem) == 4:
                 year_idx = idx
                 year = date_list[idx]
-                # print(date_list)
+                # print(year)
                 day, month = self.get_day_and_month(year_idx, idx, date_list)
+                # print(day, month)
         return [day, month, year]
     
     def date_processing(self, date_, language="bn"):
-
         if isinstance(date_, list):
             if len(date_):
                 formatted_date = date_
         else:
             split_date = self.data_splitter(date_)
+            # print("split_date : ", split_date)
             split_date = [i for i in split_date if i]
-
+            # print("split_date : ", split_date)
             if len(split_date)==2:
                 adding_date = ["1"] if language=="en" else ["১"]
                 split_date = adding_date +split_date
 
-            # print("split_date : ", split_date)
 
             if len(split_date) == 1:
                 formatted_date = self.format_non_punctuation(split_date)
             else:
+                # print("hello")
                 formatted_date = self.get_date_indexes(split_date)
 
-        if formatted_date[0] == None and formatted_date[1] == None and formatted_date[2] == None:
+                # print("formatted_date :", formatted_date)
+
+        if formatted_date[0] is None and formatted_date[1] is None and formatted_date[2] is None:
             current_date_object = datetime.date.today()
             formatted_date = [current_date_object.day, current_date_object.month, current_date_object.year]
 
-        weekday = self.npr.get_weekday(formatted_date, language)
-        day   = self.npr._digit_converter(str(formatted_date[0]), language)
-        month = self.npr.search_month(str(formatted_date[1]), language)
-        year  =  self.npr._digit_converter(str(formatted_date[2]), language)
+        elif formatted_date[1] == None:
+            for i in split_date:
+                if formatted_date[0] == i or formatted_date[2] == i:
+                    continue
+                m_numeric = self.month_convert_to_number(i)
+                if m_numeric:
+                    formatted_date[1] = cfg._english2bangla2_digits_mapping[str(m_numeric)]
 
-        txt_date = self.npr.number_to_words(day)
-        txt_year = self.npr.year_in_number(year, language=language)
+        # print("final formated date : ", formatted_date)
 
+        if formatted_date[0] is not None and formatted_date[1] is not None and formatted_date[2] is not None:
+            weekday = self.npr.get_weekday(formatted_date, language)
+        else:
+            weekday = None
 
-        return {"date":day, "month": month[0], "year": year, "txt_date":txt_date, "txt_year": txt_year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
+        if formatted_date[0] is None:
+            day = None
+            txt_date = None
+        else:
+            day   = self.npr._digit_converter(str(formatted_date[0]), language)
+            txt_date = self.npr.number_to_words(day)
+        if formatted_date[1] is None:
+            month = [None, None, None]
+            m_n = None
+        else:
+            m_n = self.npr._digit_converter(str(formatted_date[1]), language)
+            month = self.npr.search_month(str(formatted_date[1]), language)
+        if formatted_date[2] is None:
+            year = None
+            txt_year = None
+        else:
+            year  =  self.npr._digit_converter(str(formatted_date[2]), language)
+            txt_year = self.npr.year_in_number(year, language=language)
+            
+        return {"date":day, "month": m_n, "year": year, "txt_date":txt_date, "txt_month":month[0] ,"txt_year": txt_year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
 
 
 
@@ -425,30 +441,24 @@ class TextParser:
         
         text = text.replace("'র" , " এর")
         text = text.replace("-র" , " এর")
+        text = text.replace("-" , " ")
         
         text = re.sub(r'(?<=[^\w\s])\s+(?=[^\w\s])', '', text) # deleting space between two punctuations
         text = re.sub(_redundent_punc_removal, my_replace, text, 0) # only keep the first punctuation
         
         translation_table = str.maketrans(_punctuations)
         text = text.translate(translation_table)
-        
         return text
-        # unwanted_symbols = ["-", "_", ":", "[", "]", "(", ")", "{", "}", "^", "~"]
-        # pattern = "[" + re.escape("".join(unwanted_symbols)) + "]"
-        # text = re.sub(pattern, " ", text)
-        # return text
 
-    
+
     def expand_symbols(self, text, lang="bn"):
-        for regex, replacement in _symbols[lang]:
-            # print("regex : ", regex)
-            text = re.sub(regex, replacement, text)
-            text = text.replace("  ", " ")  # Ensure there are no double spaces
+        for key, replacement in  _symbols[lang]:
+            text = text.replace(key, replacement)
         return text.strip()
 
     def expand_abbreviations(self, text, lang="bn"):
-        for regex, replacement in _abbreviations[lang]:
-            text = re.sub(regex, replacement, text)
+        for key, replacement in _abbreviations[lang]:
+            text = text.replace(key, replacement)
         return text
     
     def expand_position(self, text, lang="bn"):
@@ -498,12 +508,8 @@ class TextParser:
         pattern = r'[৳$£€¥₹₽₺]'
 
         for m in matches:
-            # Use findall to extract matches
             currency = re.findall(pattern, m)
-
-            # print(currency)
             if currency:
-                # print("m : ", m)
                 n_m = m.replace(currency[0], "")
                 n_m = n_m.replace(",", "")
                 language = "en" if self.npr.contains_only_english(n_m) else "bn"
@@ -517,29 +523,85 @@ class TextParser:
                     text = text.replace(m, n_word)
         return text
     
-    def date_formate_validation(self, date):
-        n_data = date.strip().split(" ")
-        month_name = data["en"]["months"]+ data["en"]["months"] + data["en"]["option_name"] + data["bn"]["option_name"]
+    def matching_similariy_of_months(self, input_word):
+        month_name = data["en"]["months"]+ data["bn"]["months"] + data["en"]["option_name"] + data["bn"]["option_name"]
+        similarity_threshold = 90  # Adjust this threshold as needed
+        similar_months = []
+        status = False
+        for month in month_name:
+            similarity_score = fuzz.partial_ratio(input_word, month)
+            if similarity_score >= similarity_threshold:
+                similar_months.append((month, input_word, similarity_score))
+
+        # print("Similar months:")
+        for month, input_word, similarity_score in similar_months:
+            # print(f"{input_word} {month}: Similarity Score = {similarity_score}")
+            status = True
+        # return True
+        if similar_months:
+            sorted_similar_months = sorted(similar_months, key=lambda x: x[2], reverse=True)
+            # print("+++++++", sorted_similar_months)
+            return status, (sorted_similar_months[0][0], sorted_similar_months[0][1])
+        return status, (None, None)
+    
+    def date_formate_validation(self, date, text):
+        n_data =date.strip().split(" ")
         for n_d in n_data:
-            if n_d in month_name:
-                return True
-        return False
+            status, text_replacer = self.matching_similariy_of_months(n_d)
+            if status:
+                for t in text_replacer:
+                    text = text.replace(t[0], t[1])
+                return status, text
+            if n_d in self.year_patterns:
+                return True, text
+        return False, text
+    
+    def add_spaces_to_numbers(self, text):
+        # Define a regular expression pattern to match both Bangla and English digits without spaces around them
+        pattern = r'(?<![০-৯0-9])[\u09E6-\u09EF0-9]+(?![০-৯0-9])'
+        # Use re.sub to find and replace matches with spaces around them
+        result = re.sub(pattern, lambda x: ' ' + x.group(0) + ' ', text)
+        # print(result)
+        result = " ".join([i for i in result.split(" ") if i.strip()]).strip()
+        return result
+    
 
-
+    def extract_year(self, text):
+        pattern = re.findall(self.year_pattern, text)
+        for p in pattern:
+            text = text.replace(p, f" {p} ")
+        return text
     
     def replance_date_processing(self, text):
+        text = self.extract_year(text)
+        original_text = text
+        r_text = text
+        # print("original_text : ", original_text)
         dates = dt.get_dates(text)
-        # print()
+        # print("+++++++++++++++++++++++++++ date :++++++++++++++++++++++++", dates)
         for date in dates:
+            r_date = date
+            # spanning_position = self.npr.find_word_index(text, date)
+            # print(spanning_position)
+            date = self.add_spaces_to_numbers(date)
+            # print("date:", date)
             status = True
             if " " in date:
-                status = self.date_formate_validation(date)
+                status, text = self.date_formate_validation(date, text)
             if status:
-                position = self.npr.find_word_index(text, date)
                 formated_date = self.dp.date_processing(date)
-                f_d_string = formated_date["txt_date"]+" "+formated_date["month"]+" "+formated_date["txt_year"]
-                text = self.npr.replace_text_at_position(text, f_d_string, position[0], position[1])
-        return text
+                original_date = date
+                date_list = [i for i in date.split(" ") if i.strip()]
+                # print(date_list)
+                for k, v in formated_date.items():
+                    if v in date_list:
+                        key = k if "txt" in k else f"txt_{k}"
+                        index = date_list.index(v)
+                        date_list[index] = formated_date[key]
+
+                process_date = " ".join(date_list).strip()
+                original_text = original_text.replace(r_date, " "+process_date+" ")
+        return original_text
 
     
 
