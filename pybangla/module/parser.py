@@ -130,7 +130,11 @@ class NumberParser:
         if language=="en":
             extracted_number = list(re.finditer(self.bn_regex, str(number), re.UNICODE))
             if extracted_number:
-                number = "".join([cfg._bangla2english_digits_mapping[i.replance(",", "")] for i in number])
+                print("language", number)
+                # [i[1] for i in number if i[0]=="0"]
+                if number[0]=="0":
+                    number = number[1:]
+                number = "".join([cfg._bangla2english_digits_mapping[i.replance(",", "")] for i in number if i[0]=="0"])
                 # print("extracted : ", number)
         c_number = ""
         for n in number:
@@ -150,7 +154,7 @@ class NumberParser:
         Get weekday name Bangla or English
         
         """
-        if date_[0] is None or date_[1] is None or  date_[2]:
+        if date_[0] is None or date_[1] is None or  date_[2] is None:
             return None
         
         d, y = list(re.finditer(self.bn_regex, str(date_[0]), re.UNICODE)), list(re.finditer(self.bn_regex, str(date_[2]), re.UNICODE))
@@ -166,7 +170,7 @@ class NumberParser:
         else:
             print("language not handel")
             weekday = ""
-        print("weekday : ", weekday)
+        # print("weekday : ", weekday)
         return weekday
     
     def search_month(self, search_key, language="bn"):
@@ -413,7 +417,6 @@ class DateParser:
         return {"date":day, "month": m_n, "year": year, "txt_date":txt_date, "txt_month":month[0] ,"txt_year": txt_year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}
 
 
-
 class TextParser:
 
     def __init__(self):
@@ -442,6 +445,11 @@ class TextParser:
         text = text.replace("'র" , " এর")
         text = text.replace("-র" , " এর")
         text = text.replace("-" , " ")
+        text = text.replace("°F", "° ফারেনহাইট")
+        text = text.replace("° F", "° ফারেনহাইট")
+        text = text.replace("°C", "° সেলসিয়াস")
+        text = text.replace("° C", "° সেলসিয়াস")
+        
         
         text = re.sub(r'(?<=[^\w\s])\s+(?=[^\w\s])', '', text) # deleting space between two punctuations
         text = re.sub(_redundent_punc_removal, my_replace, text, 0) # only keep the first punctuation
@@ -612,6 +620,9 @@ class TextParser:
         text = self.expand_position(text)
         text = self.extract_currency_amounts(text)
         text = self.replance_date_processing(text)
+        # handel the exception year like 2017-18
+        # text = exception_year_processing(text)
+
         text = self.npr.number_processing(text)
         text = self.collapse_whitespace(text)
         return text

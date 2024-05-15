@@ -222,28 +222,23 @@ number = nrml.number_convert(number, language="bn")
 import pybangla
 nrml = pybangla.Normalizer()
 date = "০১-এপ্রিল/২০২৩"
-date = nrml.date_format(date, language="en")
+date = nrml.date_format(date, language="bn")
 print(date)
 #output:
 
-{'date': '01', 'month': 'april', 'year': '2023', 'txt_date': 'one', 'txt_year': 'twenty century twenty-three', 'weekday': 'saturday', 'ls_month': 'apr', 'seasons': 'wet season'}
 
-
+{'date': '০১', 'month': '৪', 'year': '২০২৩', 'txt_date': 'এক', 'txt_month': 'এপ্রিল', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'শনিবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
 ```
 
-```py
-date = nrml.date_format("০১-এপ্রিল/২০২৩", language="bn")
-print(date)
-#output:
-{'date': '০১', 'month': 'এপ্রিল', 'year': '২০২৩', 'txt_date': 'এক', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'শনিবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
 
-```
 
 ```py
-date = nrml.date_format("2023-04-05", language="bn")
+date = nrml.date_format("সেপ্টেম্বর ০৫ ২০২৩", language="bn")
 
 #output
-{'date': '০৫', 'month': 'এপ্রিল', 'year': '২০২৩', 'txt_date': 'পাঁচ', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'বুধবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
+
+{'date': '০৫', 'month': '৯', 'year': '২০২৩', 'txt_date': 'পাঁচ', 'txt_month': 'সেপ্টেম্বর', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'মঙ্গলবার', 'ls_month': 'পৌষ', 'seasons': 'শীত'}
+
 
 ```
 
@@ -251,10 +246,10 @@ date = nrml.date_format("2023-04-05", language="bn")
 date = nrml.date_format("20230401", language="bn")
 print(date)
 #output
-
-{'date': '০১', 'month': 'এপ্রিল', 'year': '২০২৩', 'txt_date': 'এক', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'শনিবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
+{'date': '০১', 'month': '০৪', 'year': '২০২৩', 'txt_date': 'এক', 'txt_month': 'এপ্রিল', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'শনিবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
 
 ```
+
 
 ```py
 
@@ -265,7 +260,8 @@ print(date)
 
 #output
 
-{'date': '১', 'month': 'এপ্রিল', 'year': '২০২৫', 'txt_date': 'এক', 'txt_year': 'দুই হাজার পঁচিশ', 'weekday': 'মঙ্গলবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
+{'date': '১', 'month': '৪', 'year': '২০২৫', 'txt_date': 'এক', 'txt_month': 'এপ্রিল', 'txt_year': 'দুই হাজার পঁচিশ', 'weekday': 'মঙ্গলবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
+
 
 ```
 
