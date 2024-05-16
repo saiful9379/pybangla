@@ -421,7 +421,7 @@ class TextParser:
 
     def __init__(self):
         self.year_patterns  =["সালের","সালে", "শতাব্দী", "শতাব্দীর", "শতাব্দীতে"]
-        self.year_pattern = r'(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে)+'
+        self.year_pattern = r'(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে|এর)+'
         self.currency_pattern = r'(?:\$|£|৳|€|¥|₹|₽|₺)?(?:\d+(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)'
         self.npr = NumberParser()
         self.dp = DateParser() 
@@ -537,11 +537,11 @@ class TextParser:
                 language = "en" if self.npr.contains_only_english(n_m) else "bn"
                 if "." in n_m:
                     word = self.npr.fraction_number_conversion(n_m, language=language)
-                    r_word =  word+" "+_currency[currency[0]]
+                    r_word =  " " + word+" "+_currency[currency[0]] + " "
                     text = text.replace(m, r_word)
                 else:
                     word = self.npr.number_to_words(n_m)
-                    n_word = word + " "+_currency[currency[0]]
+                    n_word = " " + word + " "+_currency[currency[0]] + " "
                     text = text.replace(m, n_word)
         return text
     
@@ -623,6 +623,12 @@ class TextParser:
 
                 process_date = " ".join(date_list).strip()
                 original_text = original_text.replace(r_date, " "+process_date+" ")
+                # search for only year
+        
+        _only_years = re.findall(self.year_pattern, original_text)
+        # print(_only_years)
+        for y in _only_years:
+            original_text = original_text.replace(y, " " +self.npr.year_in_number(y) + " ")
         return original_text
 
     
