@@ -1,5 +1,5 @@
 
-PYBANGLA is a python3 package for Bangla Number, DateTime and Text Normalizer and Date Extraction. This package can be used Normalize the text number and date (ex: number to text vice versa). This framework  also can be used Django, Flask, FastAPI, and others. PYBANGLA module supported operating system Linux/Unix, Mac OS and Windows.
+PYBANGLA is a python3 package for Bangla Number, DateTime and Text Normalizer and Date Extraction. This package can be used to Normalize the text number and date (ex: number to text vice versa). This framework  also can be used Django, Flask, FastAPI, and others. PYBANGLA module supported operating systems Linux/Unix, Mac OS and Windows.
 Available Features
 
 Features available in PYBANGLA:
@@ -581,24 +581,24 @@ print(seasons)
 # output:
 {'summer': 'গ্রীষ্ম'}
 ```
-# Next Upcomming Features
+# Next Upcoming Features
 
 1. Bangla lemmatization and stemming algorithm
 2. Bangla Tokenizer
 
 
 # Contact
-If you have any suggestion: Email: saifulbrur79@gmail.com
+If you have any suggestions: Email: saifulbrur79@gmail.com
 
 # Contributor
 
 ```
-@misc{BanglaASR ,
-  title={PYBANGLA module use for normalize textual format like text to number and number to text},
-  author={Md Saiful Islam, Hassan Ali Emon,  HM-badhon, Sagor Sarker},
+@misc{pybangla,
+  title={PYBANGLA module used for normalize textual format like text to number and number to text},
+  author={Md Saiful Islam, Hassan Ali Emon,  HM-badhon, Sagor Sarker, ud0y},
   howpublished={},
   year={2024}
 }
 ```
-If you face any problem feel free to open issue.
+If you face any problems feel free to open an issue.
 
