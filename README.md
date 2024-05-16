@@ -362,7 +362,8 @@ nrml = pybangla.Normalizer()
 date = dt.date_format("01-Apr/2023", language="bn")
 print(f"{date}")
 # Output: 
-{'date': '০১', 'month': 'এপ্রিল', 'year': '২০২৩', 'weekday': 'শনিবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
+{'date': '০১', 'month': '৪', 'year': '২০২৩', 'txt_date': 'এক', 'txt_month': 'এপ্রিল', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'শনিবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
+
 ```
 
 ```py
@@ -372,7 +373,8 @@ en_date = dt.date_format("01-Apr/2023", language="en")
 print(f"{en_date}")
 
 # Output :
-{'date': '01', 'month': 'April', 'year': '2023', 'weekday': 'Saturday', 'ls_month': 'Apr', 'seasons': 'Wet season'}
+{'date': '01', 'month': '4', 'year': '2023', 'txt_date': 'one', 'txt_month': 'april', 'txt_year': 'twenty century twenty-three', 'weekday': 'saturday', 'ls_month': 'apr', 'seasons': 'wet season'}
+
 ```
 
 ## Date extraction
@@ -388,10 +390,11 @@ dates = nrml.date_extraction(text)
 #output:
 
 [
-{'date': '০৫', 'month': 'সেপ্টেম্বর', 'year': '২০২৩', 'txt_date': 'পাঁচ', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'মঙ্গলবার', 'ls_month': 'পৌষ', 'seasons': 'শীত'}, 
+    {'date': '০৫', 'month': '৯', 'year': '২০২৩', 'txt_date': 'পাঁচ', 'txt_month': 'সেপ্টেম্বর', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'মঙ্গলবার', 'ls_month': 'পৌষ', 'seasons': 'শীত'}, 
 
-{'date': '১', 'month': 'এপ্রিল', 'year': '২০২৩', 'txt_date': 'এক', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'শনিবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
+{'date': '১৬', 'month': '৫', 'year': '২০২৪', 'txt_date': 'ষোল', 'txt_month': 'মে', 'txt_year': 'দুই হাজার চব্বিশ', 'weekday': 'বৃহস্পতিবার', 'ls_month': 'ভাদ্র', 'seasons': 'শরৎ'}
 ]
+
 
 ```
 
