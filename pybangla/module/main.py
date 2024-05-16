@@ -3,10 +3,10 @@ import re
 import time
 import datetime
 from .config import Config as cfg
-from .parser import DateParser, TextParser, NumberParser
+from .parser import DateParser, TextParser, NumberParser, EmojiRemoval
 from .number_parser import Word2NumberMap
 from .date_extractor import DateExtractor
-dp, tp, npr, wnmp = DateParser(), TextParser(), NumberParser(), Word2NumberMap()
+dp, tp, npr, wnmp, emr = DateParser(), TextParser(), NumberParser(), Word2NumberMap(), EmojiRemoval()
 dt = DateExtractor()
 data = cfg.data
 
@@ -141,6 +141,14 @@ class Normalizer:
         """
         text = tp.processing(text)
         return text
+    
+    def remove_emoji(self, text):
+        text = emr.remove_emoji(text)
+        return text
+    
+    # def emoji2text(self, text):
+    #     text = emrp.replace_emoji(text)
+    #     return text
     
     def word2number(self, text):
         text = wnmp.convert_word2number(text)

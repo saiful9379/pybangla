@@ -5,6 +5,7 @@ from .config import Config as cfg
 from num2words import num2words
 from .date_extractor import DateExtractor
 from fuzzywuzzy import fuzz
+# from bnemo import Translator
 # from .number_parser import Word2NumberMap
 
 
@@ -421,13 +422,27 @@ class TextParser:
 
     def __init__(self):
         self.year_patterns  =["সালের","সালে", "শতাব্দী", "শতাব্দীর", "শতাব্দীতে"]
-        self.year_pattern = r'(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে)+'
+        self.year_pattern = r'(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে|এর)+'
         self.currency_pattern = r'(?:\$|£|৳|€|¥|₹|₽|₺)?(?:\d+(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)'
         self.npr = NumberParser()
         self.dp = DateParser() 
 
     def collapse_whitespace(self, text):
         return re.sub(_whitespace_re, " ", text)
+    
+    def exception_year_processing(self, text):
+        _year_with_hyphen = re.findall(r'(\d{4}(?:-|–|—|―)\d{2})', text)
+        # print(_year_with_hyphen)
+        replce_map = {}
+        for year in _year_with_hyphen:
+            # print(year)
+            rep_year = year.replace('–', '-')
+            rep_year = rep_year.replace('—', '-')
+            rep_year = rep_year.replace('―', '-')
+            four_digit_year, two_digit_year = rep_year.split('-')
+            rep_year = self.npr.year_in_number(four_digit_year) + " " + self.npr.number_to_words(two_digit_year)
+            text = text.replace(year, rep_year)
+        return text
     
     def unwanted_puntuation_removing(self, text):
         
@@ -523,11 +538,11 @@ class TextParser:
                 language = "en" if self.npr.contains_only_english(n_m) else "bn"
                 if "." in n_m:
                     word = self.npr.fraction_number_conversion(n_m, language=language)
-                    r_word =  word+" "+_currency[currency[0]]
+                    r_word =  " " + word+" "+_currency[currency[0]] + " "
                     text = text.replace(m, r_word)
                 else:
                     word = self.npr.number_to_words(n_m)
-                    n_word = word + " "+_currency[currency[0]]
+                    n_word = " " + word + " "+_currency[currency[0]] + " "
                     text = text.replace(m, n_word)
         return text
     
@@ -609,11 +624,18 @@ class TextParser:
 
                 process_date = " ".join(date_list).strip()
                 original_text = original_text.replace(r_date, " "+process_date+" ")
+                # search for only year
+        
+        _only_years = re.findall(self.year_pattern, original_text)
+        # print(_only_years)
+        for y in _only_years:
+            original_text = original_text.replace(y, " " +self.npr.year_in_number(y) + " ")
         return original_text
 
     
 
     def processing(self, text):
+        text = self.exception_year_processing(text)
         text = self.unwanted_puntuation_removing(text)
         text = self.expand_symbols(text)
         text = self.expand_abbreviations(text)
@@ -621,12 +643,52 @@ class TextParser:
         text = self.extract_currency_amounts(text)
         text = self.replance_date_processing(text)
         # handel the exception year like 2017-18
-        # text = exception_year_processing(text)
+        
 
         text = self.npr.number_processing(text)
         text = self.collapse_whitespace(text)
         return text
     
+
+class EmojiRemoval:
+    
+    def __init__(self):
+        self.regex_to_remove_emoji = re.compile("["
+                                                u"\U0001F600-\U0001F64F"  # emoticons
+                                                u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+                                                u"\U0001F680-\U0001F6FF"  # transport & map symbols
+                                                u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                                                u"\U00002500-\U00002BEF"  # chinese char
+                                                u"\U00002702-\U000027B0"
+                                                u"\U00002702-\U000027B0"
+                                                u"\U000024C2-\U0001F251"
+                                                u"\U0001f926-\U0001f937"
+                                                u"\U00010000-\U0010ffff"
+                                                u"\u2640-\u2642"
+                                                u"\u2600-\u2B55"
+                                                u"\u200d"
+                                                u"\u23cf"
+                                                u"\u23e9"
+                                                u"\u231a"
+                                                u"\ufe0f"  # dingbats
+                                                u"\u3030"
+                                                            "]+", re.UNICODE)
+        self.tp = TextParser()
+    
+    def remove_emoji(self, text):
+        text = re.sub(self.regex_to_remove_emoji, ' ', text)
+        text = self.tp.collapse_whitespace(text)
+        return text
+
+# class EmojiReplacer:
+#     def __init__(self):
+#         self.translator = Translator()
+        
+#     def replace_emoji(self, text):
+#         txt = self.translator.translate(text).text
+#         # print(txt)
+#         return text if len(txt)==0 else txt
+
 if __name__ =="__main__":
 
     text = "রাহিম ক্লাস ওয়ান এ ১ম, ১১তম ২২ তম ৩৩ তম, ১২৩৪ শতাব্দীতে ¥২০৩০.১২৩৪ বিবিধ  বাকেরগঞ্জ উপজেলার প্রায় 40 ভাগের পেশাই চাষাবাদ 80 and 40 ২২"
