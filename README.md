@@ -23,6 +23,11 @@ pip install pybangla
 
 ## 1. Text Normalization
 ### It supports converting Bangla abbreviations, symbols, and currencies to Bangla textual format.
+#### $${\color{lightblue}(Update) It supports year conversion like}
+* "১৯৮৭-র" to "উনিশশো সাতাশি এর"
+* "১৯৯৫ সালে" to "উনিশশো পঁচানব্বই সালে"
+* "২০২৬-২৭" to "দুই হাজার ছাব্বিশ সাতাশ"
+
 
 ```py
 import pybangla
@@ -80,6 +85,8 @@ text = nmlr.text_normalizer(text)
 
 text = "আজব এক ধর্ম। অবমাননার অর্থ কি ? ? কেউ বলবেন? ? মেধাহীন জাতি তা আর একবার প্রমাণ করলো ।"
 text = nmlr.text_normalizer(text)
+
+#output:
 
 আজব এক ধর্ম। অবমাননার অর্থ কি? কেউ বলবেন? মেধাহীন জাতি তা আর একবার প্রমাণ করলো।
 ```
@@ -336,10 +343,32 @@ dates = nrml.date_extraction(text)
 
 ```
 
-## 4. Today, Months, Weekdays, Seasons
+## 4. Emoji Removal
+### Now our normalizer can be used for removing emojis.
+
+```py
+text = 'দয়া করে পবিত্র কুরআনুল কারিম বলেন,,,,পবিত্র কথাটা অবশ্যই বলবেন,,, প্লিজ 😢😥🙏🙏🙏'
+text = nrml.remove_emoji(text)
+print(f"{text}")
+
+#output:
+দয়া করে পবিত্র কুরআনুল কারিম বলেন,,,,পবিত্র কথাটা অবশ্যই বলবেন,,, প্লিজ
+```
+
+
+```py
+text = "😬😬 আর বিভিন্ন চ্যানেল সম্পর্কে কি বলব"
+text = nrml.remove_emoji(text)
+print(f"{text}")
+
+#output:
+ আর বিভিন্ন চ্যানেল সম্পর্কে কি বলব
+```
+
+## 5. Today, Months, Weekdays, Seasons
 ### It converts Bangla (today, months, weekdays, and seasons) to English and English to Bangla, and vice versa, in a pair format.
 
-## 1. Today:
+### 1. Today:
 
 ```py
 import pybangla
@@ -366,7 +395,7 @@ print(today)
 ```
 
 
-# 2. Months
+### 2. Months
 
 ```py
 import pybangla
@@ -400,7 +429,7 @@ print(month)
 
 ```
 
-## 3. Weekdays
+### 3. Weekdays
 
 ```py
 import pybangla
@@ -450,7 +479,7 @@ print(weekdays)
 ```
 
 
-## 4. Seasons
+### 4. Seasons
 
 ```py
 import pybangla
