@@ -429,6 +429,20 @@ class TextParser:
     def collapse_whitespace(self, text):
         return re.sub(_whitespace_re, " ", text)
     
+    def exception_year_processing(self, text):
+        _year_with_hyphen = re.findall(r'(\d{4}(?:-|–|—|―)\d{2})', text)
+        # print(_year_with_hyphen)
+        replce_map = {}
+        for year in _year_with_hyphen:
+            # print(year)
+            rep_year = year.replace('–', '-')
+            rep_year = rep_year.replace('—', '-')
+            rep_year = rep_year.replace('―', '-')
+            four_digit_year, two_digit_year = rep_year.split('-')
+            rep_year = self.npr.year_in_number(four_digit_year) + " " + self.npr.number_to_words(two_digit_year)
+            text = text.replace(year, rep_year)
+        return text
+    
     def unwanted_puntuation_removing(self, text):
         
         # https://stackoverflow.com/questions/63256077/how-to-remove-redundant-punctuations-keep-only-the-first-one-in-text
@@ -614,6 +628,7 @@ class TextParser:
     
 
     def processing(self, text):
+        text = self.exception_year_processing(text)
         text = self.unwanted_puntuation_removing(text)
         text = self.expand_symbols(text)
         text = self.expand_abbreviations(text)
@@ -621,7 +636,7 @@ class TextParser:
         text = self.extract_currency_amounts(text)
         text = self.replance_date_processing(text)
         # handel the exception year like 2017-18
-        # text = exception_year_processing(text)
+        
 
         text = self.npr.number_processing(text)
         text = self.collapse_whitespace(text)
