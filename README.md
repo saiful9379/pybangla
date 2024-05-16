@@ -23,11 +23,18 @@ pip install pybangla
 
 ## 1. Text Normalization
 ### It supports converting Bangla abbreviations, symbols, and currencies to Bangla textual format.
-#### $${\color{lightblue}(Update) It supports year conversion like}
+<h2 style='color:LightBlue'>(UPDATE) It supports year conversion like </h2>
+
 * "১৯৮৭-র" to "উনিশশো সাতাশি এর"
 * "১৯৯৫ সালে" to "উনিশশো পঁচানব্বই সালে"
 * "২০২৬-২৭" to "দুই হাজার ছাব্বিশ সাতাশ"
 
+<h3 style='color:LightBlue'> Now it also has the abbreviation for units of temperature </h3>
+
+* "৪৪°F" to "চুয়াল্লিশ ডিগ্রী ফারেনহাইট"
+* "৪৪°C" to "চুয়াল্লিশ ডিগ্রী সেলসিয়াস"
+
+<h2> </h2>
 
 ```py
 import pybangla
@@ -89,6 +96,51 @@ text = nmlr.text_normalizer(text)
 #output:
 
 আজব এক ধর্ম। অবমাননার অর্থ কি? কেউ বলবেন? মেধাহীন জাতি তা আর একবার প্রমাণ করলো।
+```
+
+```py
+text = "সে যা-ই হোক, সত্যিকারের এমন পাকা পোনা শেষ বার নেমন্তন্ন বাড়িতে খেয়েছি ১৯৮৭-র এপ্রিলে।"
+text = nrml.text_normalizer(text)
+print(f"{text}")
+
+#output:
+সে যা ই হোক, সত্যিকারের এমন পাকা পোনা শেষ বার নেমন্তন্ন বাড়িতে খেয়েছি উনিশশো সাতাশি এর এপ্রিলে।
+```
+
+```py
+text = "আজকের তাপমাত্রা ৪৪°F"
+text = nrml.text_normalizer(text)
+print(f"{text}")
+
+#output:
+আজকের তাপমাত্রা চুয়াল্লিশ ডিগ্রী ফারেনহাইট
+```
+
+```py
+text = "নতুন নীতিমালায় ২০২৬-২৭ অর্থবছরে দেশের রপ্তানি আয় ১১ হাজার কোটি মার্কিন ডলারে উন্নীত করার ১৯৯৫ সালে লক্ষ্যমাত্রা নির্ধারণ করা হয়েছে।"
+text = nrml.text_normalizer(text)
+print(f"{text}")
+
+#output:
+নতুন নীতিমালায় দুই হাজার ছাব্বিশ সাতাশ অর্থবছরে দেশের রপ্তানি আয় এগারো হাজার কোটি মার্কিন ডলারে উন্নীত করার উনিশশো পঁচানব্বই সালে লক্ষ্যমাত্রা নির্ধারণ করা হয়েছে।
+```
+
+```py
+text = "আজকের তাপমাত্রা ৪৪°F"
+text = nrml.text_normalizer(text)
+print(f"{text}")
+
+#output:
+আজকের তাপমাত্রা চুয়াল্লিশ ডিগ্রী ফারেনহাইট
+```
+
+```py
+text = "আজকের তাপমাত্রা ৪৪°C"
+text = nrml.text_normalizer(text)
+print(f"{text}")
+
+#output:
+আজকের তাপমাত্রা চুয়াল্লিশ ডিগ্রী সেলসিয়াস
 ```
 
 Supported
@@ -342,6 +394,8 @@ dates = nrml.date_extraction(text)
 ]
 
 ```
+
+<h1 style='color:LightGreen'> New Feature </h1>
 
 ## 4. Emoji Removal
 ### Now our normalizer can be used for removing emojis.
