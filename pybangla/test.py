@@ -5,10 +5,10 @@ if __name__ == "__main__":
 
 
     # # Testing Date format
-    date_list = [
+    # date_list = [
     #     "০১-এপ্রিল/২০২৩",
     #     "সেপ্টেম্বর ০৫ ২০২৩",
-        "01-Apr/2023"
+        # "01-Apr/2023"
         # "এপ্রিল ২০২৩" 
         # "2023-04-05",  
         # "06-04-2023", 
@@ -22,27 +22,27 @@ if __name__ == "__main__":
         # "20042024",
         # "20230401",
         # ["1", "4", "2025"]
-    ]
+    # ]
     # # # # number = "123456" or "২০২৩"
     # # number = "২০২৩"
     nrml = Normalizer()
-    # # # # print("++++++++++++++++++++ Date testing ++++++++++++++++++++++")
-    # # # print("Date format Testing : ", end ="", flush=True)
-    for date_ in date_list:
-        start_time = time.time()
-        print("date_:", date_)
-        formated_date = nrml.date_format(date_, language="en")
-        print(formated_date)
-    # print("++++++++++++++++++++ end of Date testing ++++++++++++++++++++++")
+    # # # # # print("++++++++++++++++++++ Date testing ++++++++++++++++++++++")
+    # # # # print("Date format Testing : ", end ="", flush=True)
+    # for date_ in date_list:
+    #     start_time = time.time()
+    #     print("date_:", date_)
+    #     formated_date = nrml.date_format(date_, language="en")
+    #     print(formated_date)
+    # # print("++++++++++++++++++++ end of Date testing ++++++++++++++++++++++")
 
-    # print("++++++++++++++++++++ en number to bn number convert ++++++++++++++++++++++")
-    number = "1234"
-    number = nrml.number_convert(number, language="en")
+    # # print("++++++++++++++++++++ en number to bn number convert ++++++++++++++++++++++")
+    # number = "1234"
+    # number = nrml.number_convert(number, language="en")
     
     
     # number = nrml.number_convert(number, language="bn")
 
-    print("Bn Number : ", number)
+    # print("Bn Number : ", number)
     # print("++++++++++++++++++++ stop number convert ++++++++++++++++++++++")
 
     # # print("++++++++++++++++ Today +++++++++++++++++++++")
@@ -220,21 +220,22 @@ if __name__ == "__main__":
     # ]
 
     # # solving steps is have number need to give extra space both side
-    # issue = [
+    issue = [
     # "[১৯৯৬]-সালের-৬:তারিখে-নির্ধারিত করা হয়েছে.",
     # "১৯৯৬সালের ৬ সেপ্টেম্বররণ ভ্রমণ পরিকল্পনা করছি ২০৩০সালের ৬সেপ্টেম্বর",
     # "আজকের তাপমাত্রা ৪৪°F",
     # "আজকের তাপমাত্রা ৪৪°C",
     # "যেমন ১৯৬১ সালে দেশটির তৎকালীন প্রেসিডেন্ট ডোয়াইট ডি আইজেনহাওয়ার শিক্ষা খাতে সামরিক শিল্পের প্রবেশের বিপদ নিয়ে সতর্ক করেছিলেন।",
-    # "১৯৯৬সালের ৬ সেপ্টেম্বররণ ভ্রমণ পরিকল্পনা করছি ২০৩০সালের ৬সেপ্টেম্বর"
-    # ]
+    # "১৯৯৬সালের ৬ সেপ্টেম্বররণ ভ্রমণ পরিকল্পনা করছি ২০৩০সালের ৬সেপ্টেম্বর",
+    "উদাহরণস্বরূপ, আপনার মোটরযানের রেজিস্ট্রেশন নাম্বার ঢাকা মেট্রো-গ-12-1212 এবং টাকা জমা রশিদের ট্রানজেকশন নাম্বার 2001011325989"
+    ]
 
 
 
-    # for i in issue:
+    for i in issue:
 
-    #     print("input : ", i)
-    #     text = nrml.text_normalizer(i)
-    #     print("output : ", text)
-    #     print("+"*40)
+        print("input : ", i)
+        text = nrml.text_normalizer(i)
+        print("output : ", text)
+        print("+"*40)
 

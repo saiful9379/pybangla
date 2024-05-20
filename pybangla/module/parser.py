@@ -131,7 +131,7 @@ class NumberParser:
         if language=="en":
             extracted_number = list(re.finditer(self.bn_regex, str(number), re.UNICODE))
             if extracted_number:
-                print("language", number)
+                # print("language", number)
                 # [i[1] for i in number if i[0]=="0"]
                 if number[0]=="0":
                     number = number[1:]
@@ -155,22 +155,29 @@ class NumberParser:
         Get weekday name Bangla or English
         
         """
-        if date_[0] is None or date_[1] is None or  date_[2] is None:
-            return None
-        
-        d, y = list(re.finditer(self.bn_regex, str(date_[0]), re.UNICODE)), list(re.finditer(self.bn_regex, str(date_[2]), re.UNICODE))
-        
-        if d:
-            date_[0] = self._digit_converter(date_[0], language="bn")
-        if y:
-            date_[2] = self._digit_converter(date_[2], language="bn")
 
-        current_date_object = datetime.datetime(int(date_[2]), int(date_[1]), int(date_[0]))
-        if language in data:
-            weekday = data[language]["weekdays"][current_date_object.weekday()]
-        else:
-            print("language not handel")
-            weekday = ""
+        # print("date_", date_)
+        try:
+            if date_[0] is None or date_[1] is None or  date_[2] is None:
+                return None
+            elif date_[1].isdigit():
+                if int(date_[1])> 12:
+                    return None
+            d, y = list(re.finditer(self.bn_regex, str(date_[0]), re.UNICODE)), list(re.finditer(self.bn_regex, str(date_[2]), re.UNICODE))
+            
+            if d:
+                date_[0] = self._digit_converter(date_[0], language="bn")
+            if y:
+                date_[2] = self._digit_converter(date_[2], language="bn")
+
+            current_date_object = datetime.datetime(int(date_[2]), int(date_[1]), int(date_[0]))
+            if language in data:
+                weekday = data[language]["weekdays"][current_date_object.weekday()]
+            else:
+                print("language not handel")
+                weekday = ""
+        except:
+            weekday = None
         # print("weekday : ", weekday)
         return weekday
     
@@ -189,11 +196,13 @@ class NumberParser:
             The list contains [month_name, season_name, number_of_days].
             If the month or abbreviation is not found, returns [None, None, None].
         """
-        search_key = int(self._replace_starting_zero(search_key))-1
-        month = data[language]["months"][search_key]
-        seasons = data[language]["seasons"][search_key//2]
-        option_name = data[language]["option_name"][search_key]
-
+        try:
+            search_key = int(self._replace_starting_zero(search_key))-1
+            month = data[language]["months"][search_key]
+            seasons = data[language]["seasons"][search_key//2]
+            option_name = data[language]["option_name"][search_key]
+        except:
+            month, option_name, seasons = None, None, None
         return [month, option_name, seasons]
     
     
@@ -356,6 +365,8 @@ class DateParser:
         return [day, month, year]
     
     def date_processing(self, date_, language="bn"):
+
+        # print(date_)
         if isinstance(date_, list):
             if len(date_):
                 formatted_date = date_
@@ -601,6 +612,8 @@ class TextParser:
         r_text = text
         # print("original_text : ", original_text)
         dates = dt.get_dates(text)
+
+        # print("dates : ", dates)
         # print("+++++++++++++++++++++++++++ date :++++++++++++++++++++++++", dates)
         for date in dates:
             r_date = date
@@ -623,13 +636,20 @@ class TextParser:
                         date_list[index] = formated_date[key]
 
                 process_date = " ".join(date_list).strip()
-                original_text = original_text.replace(r_date, " "+process_date+" ")
+                # print("process_date", process_date)
+                if process_date.isdigit():
+                    continue
+                else:
+                    original_text = original_text.replace(r_date, " "+process_date+" ")
                 # search for only year
         
         _only_years = re.findall(self.year_pattern, original_text)
         # print(_only_years)
         for y in _only_years:
-            original_text = original_text.replace(y, " " +self.npr.year_in_number(y) + " ")
+            if y.isdigit():
+                continue
+            else:
+                original_text = original_text.replace(y, " " +self.npr.year_in_number(y) + " ")
         return original_text
 
     
@@ -643,8 +663,9 @@ class TextParser:
         text = self.extract_currency_amounts(text)
         text = self.replance_date_processing(text)
         # handel the exception year like 2017-18
-        
 
+        # print("text : ", text)
+        
         text = self.npr.number_processing(text)
         text = self.collapse_whitespace(text)
         return text
