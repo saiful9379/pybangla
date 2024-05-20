@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pybangla',
-    version='1.3.0',
+    version='1.3.1-dev',
     packages=find_packages(),
     # entry_points={
     #     'console_scripts': [
