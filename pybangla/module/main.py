@@ -111,8 +111,13 @@ class Normalizer:
         return : 
                 Dictonary :  {"date":day, "month": month[0], "year": year, "weekday" : weekday, "ls_month": month[1], "seasons" : month[2]}       
         """
-        formated_date = dp.date_processing(date_, language=language)
-        return formated_date
+        date = dt.get_dates(date_)
+        # print(date)
+        if len(date):
+            formated_date = dp.date_processing(date_, language=language)
+            return formated_date
+        else:
+            print("No date found")
 
     def number_convert(self, number, language="bn"):
         """
@@ -159,7 +164,10 @@ class Normalizer:
         dates = dt.get_dates(text)
         formated_date = [self.date_format(i)for i in dates]
         # print(f"Input: {sentence}: Output: {dates}")
-        return formated_date
+        if len(formated_date):
+            return formated_date
+        else:
+            print("No date found")
 
     
 if __name__ == "__main__":
