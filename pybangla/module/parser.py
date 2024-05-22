@@ -626,7 +626,7 @@ class TextParser:
             # spanning_position = self.npr.find_word_index(text, date)
             # print(spanning_position)
             date = self.add_spaces_to_numbers(date)
-            print("date:", self.dp.date_processing(date))
+            # print("date:", date)
             status = True
             if " " in date:
                 status, text = self.date_formate_validation(date, text)
