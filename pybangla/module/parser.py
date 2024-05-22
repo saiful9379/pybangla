@@ -463,6 +463,9 @@ class TextParser:
             return match[0] + (" " if " " in match else "")
 
         _redundent_punc_removal = r"[!\"#$%&\'()*+,\-.\/:;<=>?@\[\\\]^_`।{|}~ ]{2,}"
+        _remove_hyphen_slash = r'(?<!\d)[-/](?!\d)'
+        _remove_comma = r'(?<=\d),(?=\d)'
+        _remove_space_in_punctuations = r'(?<=[^\w\s])\s+(?=[^\w\s])'
         
         text = _STANDARDIZE_ZW.sub('\u200D', text)
         text = re.sub(r'\u200d', '', text)
@@ -470,15 +473,18 @@ class TextParser:
         
         text = text.replace("'র" , " এর")
         text = text.replace("-র" , " এর")
-        text = text.replace("-" , " ")
+        # text = text.replace("-" , " ")
         text = text.replace("°F", "° ফারেনহাইট")
         text = text.replace("° F", "° ফারেনহাইট")
         text = text.replace("°C", "° সেলসিয়াস")
         text = text.replace("° C", "° সেলসিয়াস")
         
         
-        text = re.sub(r'(?<=[^\w\s])\s+(?=[^\w\s])', '', text) # deleting space between two punctuations
+        text = re.sub(_remove_space_in_punctuations, '', text) 
         text = re.sub(_redundent_punc_removal, my_replace, text, 0) # only keep the first punctuation
+        
+        text = re.sub(_remove_comma, '', text) 
+        text = re.sub(_remove_hyphen_slash, ' ', text)
         
         translation_table = str.maketrans(_punctuations)
         text = text.translate(translation_table)
@@ -620,7 +626,7 @@ class TextParser:
             # spanning_position = self.npr.find_word_index(text, date)
             # print(spanning_position)
             date = self.add_spaces_to_numbers(date)
-            # print("date:", date)
+            print("date:", self.dp.date_processing(date))
             status = True
             if " " in date:
                 status, text = self.date_formate_validation(date, text)
@@ -641,15 +647,15 @@ class TextParser:
                     continue
                 else:
                     original_text = original_text.replace(r_date, " "+process_date+" ")
-                # search for only year
+                
         
         _only_years = re.findall(self.year_pattern, original_text)
         # print(_only_years)
         for y in _only_years:
-            if y.isdigit():
-                continue
-            else:
-                original_text = original_text.replace(y, " " +self.npr.year_in_number(y) + " ")
+            # if y.isdigit():
+            #     continue
+            # else:
+            original_text = original_text.replace(y, " " +self.npr.year_in_number(y) + " ")
         return original_text
 
     
