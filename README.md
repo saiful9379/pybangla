@@ -52,9 +52,9 @@ print(text)
 'আমাকে 102001 টাকা দেয় এন্ড তুমি 20000 টাকা নিও এন্ড 104201 টাকা 122 '
 
 ```
-Number conversion more information or example check the [link](./docs/Number_Conversion.md)
+Number conversion more information or examples check the [link](./docs/Number_Conversion.md)
 
-# 4. [Date Format](./docs/Date_Formating.md)
+# 3. [Date Format](./docs/Date_Formating.md)
 
 Example:
 ```py
@@ -69,7 +69,7 @@ print(date)
 {'date': '০১', 'month': '৪', 'year': '২০২৩', 'txt_date': 'এক', 'txt_month': 'এপ্রিল', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'শনিবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
 
 ```
-Date Format more information or example check the [link](./docs/Date_Formating.md)
+Date Format for more information or example check the [link](./docs/Date_Formating.md)
 
 # 4. [Emoji Removal](./docs/Emoji_Remove.md)
 
@@ -82,10 +82,7 @@ print(f"{text}")
 #output:
 দয়া করে পবিত্র কুরআনুল কারিম বলেন,,,,পবিত্র কথাটা অবশ্যই বলবেন,,, প্লিজ
 ```
-
-
-
-
+For Emoji Removal more information or example check the [link](./docs/Emoji_Remove.md)
 # 5. [Today, Months, Weekdays, Seasons](./docs/Day_Weeks_Months.md)
 
 ```py
@@ -98,7 +95,7 @@ print(today)
 {'date': '৩০', 'month': 'এপ্রিল', 'year': '২০২৪', 'txt_date': 'ত্রিশ', 'txt_year': 'দুই হাজার চব্বিশ', 'weekday': 'মঙ্গলবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
 ```
 
-
+Today, Months, Weekdays, Seasons more information or examples check the [link](./docs/Day_Weeks_Months.md)
 
 <h1 style='color:LightGreen'> New Feature </h1>
 
