@@ -4,11 +4,11 @@ Available Features
 
 Features available in PYBANGLA:
 
-1. Text Normalization
-2. Number Conversion
-3. Date Format
-4. Emoji Removal
-5. Months, Weekdays, Seasons
+1. [Text Normalization](./docs/Text_Normalizer.md)
+2. [Number Conversion](./docs/Number_Conversion.md)
+3. [Date Format](./docs/Date_Formating.md)
+4. [Emoji Removal](./docs/Emoji_Remove.md)
+5. [Months, Weekdays, Seasons](./docs/Day_Weeks_Months.md)
 <h4 style='color:LightGreen'> [N.B: Here listed Every Feature has implemented Text Normalization as well as Isolated Uses feature]
  </h4>
 
