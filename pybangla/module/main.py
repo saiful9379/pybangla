@@ -2,18 +2,57 @@
 import re
 import time
 import datetime
+import difflib
 from .config import Config as cfg
 from .parser import DateParser, TextParser, NumberParser, EmojiRemoval
 from .number_parser import Word2NumberMap
 from .date_extractor import DateExtractor
+from .phone_number_extractor import PhoneNumberExtractor
 dp, tp, npr, wnmp, emr = DateParser(), TextParser(), NumberParser(), Word2NumberMap(), EmojiRemoval()
+pne = PhoneNumberExtractor()
 dt = DateExtractor()
 data = cfg.data
 
+class CheckDiff:
+    def __init__(self):
+        pass
+    def diff_text(self, org_text, pro_text):
+        # Split the strings into words
+        org_words, pro_words = org_text.split(),  pro_text.split()
+        # Use difflib to find differences
+        diff = difflib.ndiff(org_words, pro_words)
+        removed_chunk, added_chunk, added_chunks, removed_chunks = [], [], [], []
+        for change in diff:
+            if change.startswith('+ '):
+                added_chunk.append(change[2:])
+                if removed_chunk:
+                    removed_chunks.append(" ".join(removed_chunk))
+                    removed_chunk = []
+            elif change.startswith('- '):
+                removed_chunk.append(change[2:])
+                if added_chunk:
+                    added_chunks.append(" ".join(added_chunk))
+                    added_chunk = []
+            else:
+                if added_chunk:
+                    added_chunks.append(" ".join(added_chunk))
+                    added_chunk = []
+                if removed_chunk:
+                    removed_chunks.append(" ".join(removed_chunk))
+                    removed_chunk = []
+        # Append any remaining chunks
+        if added_chunk:
+            added_chunks.append(" ".join(added_chunk))
+        if removed_chunk:
+            removed_chunks.append(" ".join(removed_chunk))
+        return removed_chunks, added_chunks
+
 class Normalizer:
     def __init__(self):
+        # self.supper()
 
         self.bn_regex = cfg.bn_regex
+        self.cdiff = CheckDiff()
     
     def today(self, language="bn"):
 
@@ -168,6 +207,16 @@ class Normalizer:
             return formated_date
         else:
             print("No date found")
+
+    def text_diff(self, text1, text2):
+        remove_chunk, add_chunk = self.cdiff.diff_text(text1, text2)
+        return remove_chunk, add_chunk
+    
+    def process_phone_number(self, text):
+
+        text = pne.phn_num_extractor(text)
+
+        return text
 
     
 if __name__ == "__main__":
