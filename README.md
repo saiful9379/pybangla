@@ -4,11 +4,11 @@ Available Features
 
 Features available in PYBANGLA:
 
-1. [Text Normalization](./docs/Text_Normalizer.md)
-2. [Number Conversion](./docs/Number_Conversion.md)
-3. [Date Format](./docs/Date_Formating.md)
-4. [Emoji Removal](./docs/Emoji_Remove.md)
-5. [Months, Weekdays, Seasons](./docs/Day_Weeks_Months.md)
+1. [Text Normalization](https://github.com/saiful9379/pybangla/blob/main/docs/Text_Normalizer.md)
+2. [Number Conversion](https://github.com/saiful9379/pybangla/blob/main/docs/Number_Conversion.md)
+3. [Date Format](https://github.com/saiful9379/pybangla/blob/main/docs/Date_Formating.md)
+4. [Emoji Removal](https://github.com/saiful9379/pybangla/blob/main/docs/Emoji_Remove.md)
+5. [Months, Weekdays, Seasons](https://github.com/saiful9379/pybangla/blob/main/docs/Day_Weeks_Months.md)
 <h4 style='color:LightGreen'> [N.B: Here listed Every Feature has implemented Text Normalization as well as Isolated Uses feature]
  </h4>
 
@@ -23,7 +23,7 @@ pip install pybangla
 
 # Usage
 
-# 1. [Text Normalization](./docs/Text_Normalizer.md)
+# 1. [Text Normalization](https://github.com/saiful9379/pybangla/blob/main/docs/Text_Normalizer.md)
 It supports converting Bangla abbreviations, symbols, and currencies to Bangla textual format.
 
 Example:
@@ -39,7 +39,7 @@ print(text)
 'রাহিম ক্লাস ওয়ান এ প্রথম, এন্ড বাসার ক্লাস এ তেত্রিশতম, সে জন্য দুই হাজার ত্রিশ শতাব্দীতে দুই হাজার ত্রিশ দশমিক এক দুই তিন চার ইয়েন দিতে হয়েছে'
 ```
 Normalizer more information or example check the [link](./docs/Text_Normalizer.md)
-# 2. [Number Conversion](./docs/Number_Conversion.md)
+# 2. [Number Conversion](https://github.com/saiful9379/pybangla/blob/main/docs/Number_Conversion.md)
 Example:
 
 ```py
@@ -54,7 +54,7 @@ print(text)
 ```
 Number conversion more information or examples check the [link](./docs/Number_Conversion.md)
 
-# 3. [Date Format](./docs/Date_Formating.md)
+# 3. [Date Format](https://github.com/saiful9379/pybangla/blob/main/docs/Date_Formating.md)
 
 Example:
 ```py
@@ -71,7 +71,7 @@ print(date)
 ```
 Date Format for more information or example check the [link](./docs/Date_Formating.md)
 
-# 4. [Emoji Removal](./docs/Emoji_Remove.md)
+# 4. [Emoji Removal](https://github.com/saiful9379/pybangla/blob/main/docs/Emoji_Remove.md)
 
 
 ```py
@@ -83,7 +83,7 @@ print(f"{text}")
 দয়া করে পবিত্র কুরআনুল কারিম বলেন,,,,পবিত্র কথাটা অবশ্যই বলবেন,,, প্লিজ
 ```
 For Emoji Removal more information or example check the [link](./docs/Emoji_Remove.md)
-# 5. [Today, Months, Weekdays, Seasons](./docs/Day_Weeks_Months.md)
+# 5. [Today, Months, Weekdays, Seasons](https://github.com/saiful9379/pybangla/blob/main/docs/Day_Weeks_Months.md)
 
 ```py
 import pybangla
