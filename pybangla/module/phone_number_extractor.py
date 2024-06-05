@@ -12,37 +12,51 @@ class PhoneNumberExtractor:
 
     # def checking_prefix()
 
+    def contains_only_english(self, input_string):
+        # Check if all characters in the string are English (ASCII) characters
+        return all(ord(char) < 128 for char in input_string)
+
 
     def get_number2word(self, num):
-
         num_mapping = {** cfg.data["en"]["number_mapping"], ** cfg.data["bn"]["number_mapping"]}
-
         if num in num_mapping:
 
             return num_mapping[num]
-
         return num
 
-    def label_repeats(self, numbers):
-        temp_number_list, index = [], 0
-        for num in numbers:
-            if index==0:
-                temp_number_list.append(num)
-            else:
-                if temp_number_list[-1] == num:
-                    if temp_number_list[-2] == "ডাবল":
-                        del temp_number_list[-2]
-                        temp_number_list[-1] = "ট্রিপল"
-                        temp_number_list.append(num)
-                    else:
-                        temp_number_list[-1] = "ডাবল"
-                        temp_number_list.append(num)
+    def label_repeats(self, number):
+        result = []
+        digit_map = cfg.data["en"]["number_mapping"]
+        c_number = []
+        for i in number:
+            status = self.contains_only_english(i)
+            if status == False:
+                if i in cfg._bangla2english_digits_mapping:
+                    c_n = cfg._bangla2english_digits_mapping[i]
+                    c_number.append(c_n)
                 else:
-                    temp_number_list.append(num)
-            index+=1
-        # print(temp_number_list)
-        word_numbers = " ".join([self.get_number2word(i) for i in temp_number_list])
-        return word_numbers.strip()
+                    c_number.append(i)
+            else:
+                c_number.append(i)
+        number = c_number
+        i = 0
+        n = len(number)
+        while i < n:
+            if i + 2 < n and number[i] == number[i + 1] == number[i + 2]:
+                result.append(cfg.special_map[number[i] * 3])
+                i += 3
+            elif i + 1 < n and number[i] == number[i + 1]:
+                result.append(cfg.special_map[number[i] * 2])
+                i += 2
+            else:
+                if number[i] in digit_map:
+                    # print("number[i] : ", number[i], type(number[i]))
+                    result.append(digit_map[number[i]])
+                elif number[i] == '-':
+                    result.append(' ')
+                i += 1
+        
+        return ' '.join(result)
 
 
     def phn_num_extractor(self, text):
@@ -61,11 +75,14 @@ class PhoneNumberExtractor:
 
                 temp_string = ""
                 if "+" == modify_phone_number[0]:
-                    temp_string += "প্লাস"
+                    # print(modify_phone_number[1:])
+                    temp_string = "প্লাস"+" "+self.label_repeats(modify_phone_number[1:])
                 else:
                     repate_string = self.label_repeats(modify_phone_number)
                     # print(repate_number)
                     temp_string = " "+repate_string
+
+
             phone_number_string = temp_string.strip()
 
             text = text.replace(phone_number, phone_number_string)
@@ -74,7 +91,7 @@ class PhoneNumberExtractor:
         return text
 if __name__ == "__main__":
 
-    text = "ডিজিটাল রেজিস্ট্রেশন সার্টিফিকেট সংক্রান্ত 01790540211124562 যোগাযোগ করতে হলে 01790-540211 অথবা 01790-540211 নম্বরে যোগাযোগ করতে হবে 01790540211, +8801790540211, ০১৭৯০৫৪০২১১, +৮৮০১৭৯০৫৪০২১১"
+    text = "ডিজিটাল রেজিস্ট্রেশন সার্টিফিকেট সংক্রান্ত 01790540211124562 যোগাযোগ করতে হলে 01790-540211 অথবা 01790-541111 নম্বরে যোগাযোগ করতে হবে 01790540211, +8801790540211, ০১৭৯০৫৪০২১১, +৮৮০১৭৯০৫৪০২১১"
     pne = PhoneNumberExtractor()
     process_text = pne.phn_num_extractor(text)
     print("input : ", text)

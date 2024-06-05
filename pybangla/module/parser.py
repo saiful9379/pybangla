@@ -439,7 +439,7 @@ class TextParser:
         self.year_pattern = r'(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে|এর)+'
         self.currency_pattern = r'(?:\$|£|৳|€|¥|₹|₽|₺)?(?:\d+(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)'
         self.npr = NumberParser()
-        self.dp = DateParser() 
+        self.dp = DateParser()
 
     def collapse_whitespace(self, text):
         return re.sub(_whitespace_re, " ", text)
@@ -454,6 +454,8 @@ class TextParser:
         # _year_with_hyphen = re.findall(r'(\d{4}(?:-|–|—|―)\d{2})', text)
         # print(_year_with_hyphen)
         _year_with_hyphen = re.findall(r'\s+(\d{4}(?:-|–|—|―)\d{2})\s+', text)
+
+        # print("_year_with_hyphen : ", _year_with_hyphen)
         replce_map = {}
         for year in _year_with_hyphen:
             print("year : ", year)
@@ -730,13 +732,13 @@ class TextParser:
         text = self.exception_year_processing(text)
         text = pne.phn_num_extractor(text)
         text = self.unwanted_puntuation_removing(text)
+        text = self.collapse_whitespace(text)
+        text = self.year_formation(text)
         text = self.expand_symbols(text)
         text = self.expand_abbreviations(text)
         text = self.expand_position(text)
         text = self.extract_currency_amounts(text)
-        # print(text)
         text = self.replance_date_processing(text)
-        # print(text)
         text = self.npr.number_processing(text)
         text = self.collapse_whitespace(text)
         return text
