@@ -247,7 +247,7 @@ class NumberParser:
         for n in sorted_matches:
             p_status = self.check_comma_dot_dari(n)
             if p_status:
-                text = text.replace(n, n+" ")
+                text = text.replace(n, " "+n+" ")
                 # print("p_status : ", text)
             else:
                 status = self.contains_only_english(n)
@@ -258,14 +258,14 @@ class NumberParser:
                         bn_m= self.fraction_number_conversion(m_re)
                     else:
                         bn_m= self.number_to_words(self._digit_converter(m_re))
-                    text = text.replace(n, bn_m)
+                    text = text.replace(n, " "+str(bn_m)+" ")
                 else:
                     if "." in m_re:
                         bn_m= self.fraction_number_conversion(m_re, language="bn")
                     else:
                         bn_m= self.number_to_words(m_re)
                     # print("else : bn_m ", n, bn_m)
-                    text = text.replace(n, bn_m)
+                    text = text.replace(str(n), " "+str(bn_m)+" ")
         return text
 
 class DateParser:
@@ -527,19 +527,23 @@ class TextParser:
             if matches:
                 for i in matches:
                     word = self.npr.number_to_words(i)
-                    text = text.replace(i+"তম", word+"তম")
-                    text = text.replace(i+" তম", word+"তম")
+                    text = text.replace(i+"তম", word+" তম")
+                    text = text.replace(i+" তম", word+" তম")
         return text
 
     def year_formation(self, text):
         matches = re.findall(self.year_pattern, text)
 
-        # print(matches)
+        # print(" matches : ", matches)
         """
         Need to correct year format extraction
         """
         for i in matches:
-            text = text.replace(i, self.npr.year_in_number(i))
+            process_year =  self.npr.year_in_number(i)
+            # print("input : ", i)
+            # print("process year: ", process_year)
+            text = text.replace(i, " "+process_year+" ")
+        # print("text : ", text)
         return text
     
 
@@ -589,7 +593,10 @@ class TextParser:
         return status, (None, None)
     
     def date_formate_validation(self, date, text):
+
+        # print("data format validation : ", date,"====", text)
         n_data =date.strip().split(" ")
+        # print("n_data : ", n_data)
         for n_d in n_data:
             status, text_replacer = self.matching_similariy_of_months(n_d)
             if status:
@@ -607,7 +614,7 @@ class TextParser:
         pattern = r'(?<![০-৯0-9])[\u09E6-\u09EF0-9]+(?![০-৯0-9])'
         # Use re.sub to find and replace matches with spaces around them
         result = re.sub(pattern, lambda x: ' ' + x.group(0) + ' ', text)
-        # print(result)
+        # print("result : ", result)
         result = " ".join([i for i in result.split(" ") if i.strip()]).strip()
         return result
     
@@ -656,52 +663,98 @@ class TextParser:
                 bn_data_list.append(d_l)
         # print("bn_data_list : ", bn_data_list)
         return  bn_data_list
-
     
+
+    def month_spliting_issue_solver(self, org_text, reference_data):
+        date = reference_data
+        text = org_text
+        # Find all occurrences of the date in the text
+        matches = [match.start() for match in re.finditer(date, text)]
+        extracted_text_list = []
+        for m in matches:
+            start = m
+            end = m + len(date)
+            # Extend the end position until the next space or end of the text
+            while end < len(text) and text[end] != " ":
+                end += 1
+            # Print the start and end positions and the extracted text
+            # print(f"Start: {start}, End: {end}")
+            # print(f"Extracted Text: '{text[start:end]}'")
+            # extracted_text_list.append(text[start:end])
+            return text[start:end]
+        # Print the positions of the date occurrences
+        return None
+    
+    def validate_may_connected_with_charater_and_is_year(self, org_text, reference_data):
+
+        date = reference_data
+        text = org_text
+        # Find all occurrences of the date in the text
+        matches = [match.start() for match in re.finditer(date, text)]
+        status = True
+        for m in matches:
+            start = m
+            end = m + len(date)
+            while start > 0 and text[start-1] != " ":
+                start -= 1
+            matches = re.findall(self.year_pattern, text[start:end])
+
+            if " " in text[start:end]:
+                chunk_d = text[start:end].split()
+                for c_d in chunk_d:
+                    if c_d in cfg.data["bn"]["months"] or c_d in cfg.data["bn"]["option_name"]:
+                        return True
+                    else:
+                        return False
+            else:
+                return True
+        
     def replance_date_processing(self, text):
         text = self.extract_year(text)
+        # print(text)
         original_text = text
         r_text = text
         # print("original_text : ", original_text)
         dates = dt.get_dates(text)
-
-        # print("dates : ", dates)
-        # print("+++++++++++++++++++++++++++ date :++++++++++++++++++++++++", dates)
         for date in dates:
-            r_date = date
+            # print("date1 : ", date)
+            r_date = self.month_spliting_issue_solver(original_text, date)
+            # print("r_date ", r_date)
+            n_status = self.validate_may_connected_with_charater_and_is_year(original_text, r_date)
+            # print(n_status)
+            if n_status== False:
+                continue
+            if r_date is  None:
+                r_data = date
+            # r_date = date
             date_list = self.check_date_format_exception_case(date.strip())
-
             # print("date_list : ", date_list)
             if date_list:
                 formated_date = self.dp.date_processing(date_list)
 
                 bn_data_list = self.english_date_to_bangla_date(date_list)
-
-                # print("formated_date : ", formated_date)
-
                 for k, v in formated_date.items():
                     if v in bn_data_list:
-                        # print("v : ", v)
                         key = k if "txt" in k else f"txt_{k}"
                         index = bn_data_list.index(v)
                         bn_data_list[index] = formated_date[key]
                 process_date = " ".join(bn_data_list).strip()
                 original_text = original_text.replace(r_date, " "+process_date+" ")
             else:
-                # else:
                 date = self.add_spaces_to_numbers(date)
-                # print("date:", date)
+                # print("date : ", date)
                 status = True
                 if " " in date:
+
+                    # print("space here", text)
+
                     status, text = self.date_formate_validation(date, text)
+
+                    # print("after date formate validation: ", text)
                 if status:
                     formated_date = self.dp.date_processing(date)
                     original_date = date
                     date_list = [i for i in date.split(" ") if i.strip()]
-                    # print(date_list)
-
-                    # print("formated_date : ", formated_date)
-
                     bn_data_list = self.english_date_to_bangla_date(date_list)
                     for k, v in formated_date.items():
                         if v in bn_data_list:
@@ -710,15 +763,11 @@ class TextParser:
                             bn_data_list[index] = formated_date[key]
 
                     process_date = " ".join(bn_data_list).strip()
-                    # print("process_date", process_date)
                     if process_date.isdigit():
                         continue
                     else:
                         original_text = original_text.replace(r_date, " "+process_date+" ")
-                
-        
         _only_years = re.findall(self.year_pattern, original_text)
-        # print(_only_years)
         for y in _only_years:
             if y.isdigit():
                 continue
@@ -729,16 +778,21 @@ class TextParser:
     
 
     def processing(self, text):
+        # print(text)
         text = self.exception_year_processing(text)
+        # print(text)
         text = pne.phn_num_extractor(text)
         text = self.unwanted_puntuation_removing(text)
         text = self.collapse_whitespace(text)
+
         text = self.year_formation(text)
         text = self.expand_symbols(text)
         text = self.expand_abbreviations(text)
         text = self.expand_position(text)
         text = self.extract_currency_amounts(text)
+        # print(text)
         text = self.replance_date_processing(text)
+        # print(text)
         text = self.npr.number_processing(text)
         text = self.collapse_whitespace(text)
         return text
