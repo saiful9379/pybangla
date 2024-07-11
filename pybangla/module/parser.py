@@ -530,20 +530,38 @@ class TextParser:
                     text = text.replace(i+"তম", word+" তম")
                     text = text.replace(i+" তম", word+" তম")
         return text
+    
+    def extract_year_blocks_with_positions(self, text):
+        matches = re.finditer(self.year_pattern, text)
+        
+        results = []
+        for match in matches:
+            block = match.group(0)
+            start_pos = match.start()
+            end_pos = match.end()
+            results.append((block, start_pos, end_pos))
+        
+        return results
 
     def year_formation(self, text):
-        matches = re.findall(self.year_pattern, text)
+
+        for i in self.year_patterns:
+            if i in text:
+                text = text.replace(i, " "+i)
+        text = self.collapse_whitespace(text)
+        matches = self.extract_year_blocks_with_positions(text)[::-1]
 
         # print(" matches : ", matches)
         """
         Need to correct year format extraction
         """
         for i in matches:
-            process_year =  self.npr.year_in_number(i)
-            # print("input : ", i)
-            # print("process year: ", process_year)
-            text = text.replace(i, " "+process_year+" ")
-        # print("text : ", text)
+            # print(i)
+            extract_year = [y for y in i[0].split(" ") if y.isnumeric() and len(y)==4]
+            # print(extract_year)
+            start_pos, end_pos =  i[1], i[1]+len(extract_year[0])
+            process_year =  self.npr.year_in_number(extract_year[0])
+            text = text[:start_pos] + process_year + text[end_pos:]
         return text
     
 
@@ -778,24 +796,32 @@ class TextParser:
     
 
     def processing(self, text):
-        # print(text)
         text = self.exception_year_processing(text)
-        # print(text)
         text = pne.phn_num_extractor(text)
         text = self.unwanted_puntuation_removing(text)
         text = self.collapse_whitespace(text)
-
         text = self.year_formation(text)
         text = self.expand_symbols(text)
         text = self.expand_abbreviations(text)
         text = self.expand_position(text)
         text = self.extract_currency_amounts(text)
-        # print(text)
         text = self.replance_date_processing(text)
-        # print(text)
         text = self.npr.number_processing(text)
         text = self.collapse_whitespace(text)
         return text
+    
+    def data_normailization(self, text):
+
+        text = self.exception_year_processing(text)
+        text = self.unwanted_puntuation_removing(text)
+        text = self.collapse_whitespace(text)
+        text = self.year_formation(text)
+        text = self.replance_date_processing(text)
+        text = self.collapse_whitespace(text)
+        return text
+
+
+
     
 
 class EmojiRemoval:

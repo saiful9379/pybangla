@@ -186,6 +186,11 @@ class Normalizer:
         text = tp.processing(text)
         return text
     
+    def data_normalizer(self, text):
+
+        text = tp.data_normailization(text)
+        return text
+    
     def remove_emoji(self, text):
         text = emr.remove_emoji(text)
         return text
