@@ -455,18 +455,22 @@ class TextParser:
         # print(_year_with_hyphen)
         # _year_with_hyphen = re.findall(r'\s+(\d{4}(?:-|–|—|―)\d{2})\s+', text)
         _year_with_hyphen =  re.findall(r'\b(\d{4}[-–—―]\d{2})\b', text)
-        # _year_with_hyphen =  re.findall(r'(\d{4}[-–—―]\d{2})$', text)
-        # print("_year_with_hyphen : ", _year_with_hyphen)
-        # print("Exception Year :  ", _year_with_hyphen)
         replce_map = {}
         for year in _year_with_hyphen:
-
-            # print("exception_year_processing year : ", year)
-
             rep_year = year.replace('–', '-')
             rep_year = rep_year.replace('—', '-')
             rep_year = rep_year.replace('―', '-')
             four_digit_year, two_digit_year = rep_year.split('-')
+
+            en_status_four = self.npr.is_english_digit_string(four_digit_year)
+            en_status_two = self.npr.is_english_digit_string(two_digit_year)
+
+            if en_status_four:
+                four_digit_year= self.npr._digit_converter(four_digit_year, language="bn")
+            if en_status_two:
+                two_digit_year = self.npr._digit_converter(two_digit_year, language="bn")
+
+
             rep_year = self.npr.year_in_number(four_digit_year) + " " + self.npr.number_to_words(two_digit_year)
             text = text.replace(year, rep_year)
         return text
