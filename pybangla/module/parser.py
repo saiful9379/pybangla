@@ -453,12 +453,16 @@ class TextParser:
         # s+(\d{4}(?:-|–|—|―)\d{2})\s+
         # _year_with_hyphen = re.findall(r'(\d{4}(?:-|–|—|―)\d{2})', text)
         # print(_year_with_hyphen)
-        _year_with_hyphen = re.findall(r'\s+(\d{4}(?:-|–|—|―)\d{2})\s+', text)
-
+        # _year_with_hyphen = re.findall(r'\s+(\d{4}(?:-|–|—|―)\d{2})\s+', text)
+        _year_with_hyphen =  re.findall(r'\b(\d{4}[-–—―]\d{2})\b', text)
+        # _year_with_hyphen =  re.findall(r'(\d{4}[-–—―]\d{2})$', text)
         # print("_year_with_hyphen : ", _year_with_hyphen)
+        # print("Exception Year :  ", _year_with_hyphen)
         replce_map = {}
         for year in _year_with_hyphen:
-            print("year : ", year)
+
+            # print("exception_year_processing year : ", year)
+
             rep_year = year.replace('–', '-')
             rep_year = rep_year.replace('—', '-')
             rep_year = rep_year.replace('―', '-')
@@ -726,8 +730,32 @@ class TextParser:
                         return False
             else:
                 return True
+            
+    def check_date_format(self, text):
+        pattern1 = r'^\d{4}\s*-\s*\d{1,2}\s*-\s*\d{1,2}$'  # e.g., 2023 - 04 - 05 or 2023-4-5
+        pattern2 = r'^\d{1,2}\s*-\s*\d{1,2}\s*-\s*\d{4}$'  # e.g., 06 - 04 - 2023 or 6-4-2023
+        pattern3 = r'^\d{1,2}/\d{1,2}/\d{4}$'              # e.g., 04/01/2023 or 4/1/2023
+        pattern4 = r'^\d{4}\s*/\s*\d{1,2}\s*/\s*\d{1,2}$'  # e.g., 2023 / 04 / 01 or 2023/4/1
+
+        # Check if the text matches any of the patterns
+        if re.match(pattern1, text) or re.match(pattern2, text) or \
+        re.match(pattern3, text) or re.match(pattern4, text):
+            return True
+        return False
+    
+
+    def extract_between_dashes(text):
+        # Define the regex pattern
+        # pattern = r'^.{4}-(.{2})$'
+        pattern = r'^\d{4}\s*-\s*\d{2}$'
+        match = re.match(pattern, text)
+
+        print(match[0])
+
+
+
         
-    def replance_date_processing(self, text):
+    def replace_date_processing(self, text):
         text = self.extract_year(text)
         # print(text)
         original_text = text
@@ -739,7 +767,7 @@ class TextParser:
             r_date = self.month_spliting_issue_solver(original_text, date)
             # print("r_date ", r_date)
             n_status = self.validate_may_connected_with_charater_and_is_year(original_text, r_date)
-            # print(n_status)
+            # print(n_status, r_date)
             if n_status== False:
                 continue
             if r_date is  None:
@@ -760,17 +788,18 @@ class TextParser:
                 original_text = original_text.replace(r_date, " "+process_date+" ")
             else:
                 date = self.add_spaces_to_numbers(date)
-                # print("date : ", date)
+                
                 status = True
                 if " " in date:
 
-                    # print("space here", text)
-
                     status, text = self.date_formate_validation(date, text)
 
-                    # print("after date formate validation: ", text)
+                    status = self.check_date_format(date)
+
+                # print(f"status {status} date : {date}")
                 if status:
                     formated_date = self.dp.date_processing(date)
+                    # print("formated_date : ", formated_date)
                     original_date = date
                     date_list = [i for i in date.split(" ") if i.strip()]
                     bn_data_list = self.english_date_to_bangla_date(date_list)
@@ -791,6 +820,23 @@ class TextParser:
                 continue
             else:
                 original_text = original_text.replace(y, " " +self.npr.year_in_number(y) + " ")
+
+        f_index = 0
+        for full_name in cfg.data["en"]["months"]:
+            if full_name in original_text or full_name.capitalize() in original_text:
+                bn_name = cfg.data["bn"]["months"][f_index]
+                original_text = original_text.replace(full_name, bn_name)
+                original_text = original_text.replace(full_name.capitalize(), bn_name)
+            f_index+= 1
+        s_index = 0
+        for short_name in cfg.data["en"]["option_name"]:
+            # print(short_name)
+            if short_name in original_text or short_name.capitalize() in original_text:
+                 bn_name = cfg.data["bn"]["months"][s_index]
+                 original_text = original_text.replace(short_name, bn_name)
+                 original_text = original_text.replace(short_name.capitalize(), bn_name)
+
+            s_index += 1
         return original_text
 
     
@@ -805,7 +851,8 @@ class TextParser:
         text = self.expand_abbreviations(text)
         text = self.expand_position(text)
         text = self.extract_currency_amounts(text)
-        text = self.replance_date_processing(text)
+        text = self.replace_date_processing(text)
+
         text = self.npr.number_processing(text)
         text = self.collapse_whitespace(text)
         return text
@@ -816,7 +863,7 @@ class TextParser:
         text = self.unwanted_puntuation_removing(text)
         text = self.collapse_whitespace(text)
         text = self.year_formation(text)
-        text = self.replance_date_processing(text)
+        text = self.replace_date_processing(text)
         text = self.collapse_whitespace(text)
         return text
 
