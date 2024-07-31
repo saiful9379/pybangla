@@ -97,6 +97,9 @@ class NumberParser:
             Bangla year in words. Example: "উনিশশো চুরানব্বই"
 
         """
+        english_status = self.contains_only_english(year_in_number)
+        if english_status:
+            year_in_number = "".join([cfg._english2bangla2_digits_mapping[i] for i in year_in_number])
         if language=="bn":
             mid_text = "শো "
         else:
@@ -554,6 +557,7 @@ class TextParser:
     def year_formation(self, text):
 
         for i in self.year_patterns:
+            # print(i)
             if i in text:
                 text = text.replace(i, " "+i)
         text = self.collapse_whitespace(text)
@@ -564,7 +568,7 @@ class TextParser:
         Need to correct year format extraction
         """
         for i in matches:
-            # print(i)
+            # print("match", i)
             extract_year = [y for y in i[0].split(" ") if y.isnumeric() and len(y)==4]
             # print(extract_year)
             start_pos, end_pos =  i[1], i[1]+len(extract_year[0])
@@ -856,7 +860,6 @@ class TextParser:
         text = self.expand_position(text)
         text = self.extract_currency_amounts(text)
         text = self.replace_date_processing(text)
-
         text = self.npr.number_processing(text)
         text = self.collapse_whitespace(text)
         return text
@@ -901,6 +904,7 @@ class EmojiRemoval:
         self.tp = TextParser()
     
     def remove_emoji(self, text):
+        text = text.replace(" , ", ", ")
         text = re.sub(self.regex_to_remove_emoji, ' ', text)
         text = self.tp.collapse_whitespace(text)
         return text
