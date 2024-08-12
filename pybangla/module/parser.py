@@ -445,7 +445,9 @@ class TextParser:
         self.dp = DateParser()
 
     def collapse_whitespace(self, text):
-        return re.sub(_whitespace_re, " ", text)
+        text = re.sub(_whitespace_re, " ", text)
+        text = re.sub(r'\s*,\s*', ', ', text)
+        return text
     
     def phone_number_processing(self):
         pass
@@ -502,13 +504,11 @@ class TextParser:
         text = text.replace("°C", "° সেলসিয়াস")
         text = text.replace("° C", "° সেলসিয়াস")
         text = text.replace("-সালের", " সালের")
-
+        text = text.replace("-সাল", " সাল")
         text = re.sub(_remove_space_in_punctuations, '', text) 
         text = re.sub(_redundent_punc_removal, my_replace, text, 0) # only keep the first punctuation
-        
         text = re.sub(_remove_comma, '', text) 
         text = re.sub(_remove_hyphen_slash, ' ', text)
-        
         translation_table = str.maketrans(_punctuations)
         text = text.translate(translation_table)
         return text
