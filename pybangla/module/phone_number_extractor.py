@@ -1,14 +1,28 @@
 import re
 from .config import Config as cfg
+
+
 class PhoneNumberExtractor:
 
     def __init__(self):
         self.number_extention = ["+88", "+৮৮"]
-        self.phn_number = ["017", "015", "013", "016", "018", "019", '০১৭', '০১৫', '০১৩', '০১৬', '০১৮', '০১৯']
+        self.phn_number = [
+            "017",
+            "015",
+            "013",
+            "016",
+            "018",
+            "019",
+            "০১৭",
+            "০১৫",
+            "০১৩",
+            "০১৬",
+            "০১৮",
+            "০১৯",
+        ]
         # self.pattern = r'(?:\+?৮৮)?০১[৩-৯][০-৯]{2}-?[০-৯]{6}|(?:\+88)?01[3-9]\d{2}-?\d{6}'
-        self.pattern = r'(?:\+?৮৮)?০১[৩-৯][০-৯]{2}-?[০-৯]{6}(?=[, ]|$)|(?:\+88)?01[3-9]\d{2}-?\d{6}(?=[, ]|$)'
-        self.plux = {"+" : "প্লাস"}
-
+        self.pattern = r"(?:\+?৮৮)?০১[৩-৯][০-৯]{2}-?[০-৯]{6}(?=[, ]|$)|(?:\+88)?01[3-9]\d{2}-?\d{6}(?=[, ]|$)"
+        self.plux = {"+": "প্লাস"}
 
     # def checking_prefix()
 
@@ -16,9 +30,11 @@ class PhoneNumberExtractor:
         # Check if all characters in the string are English (ASCII) characters
         return all(ord(char) < 128 for char in input_string)
 
-
     def get_number2word(self, num):
-        num_mapping = {** cfg.data["en"]["number_mapping"], ** cfg.data["bn"]["number_mapping"]}
+        num_mapping = {
+            **cfg.data["en"]["number_mapping"],
+            **cfg.data["bn"]["number_mapping"],
+        }
         if num in num_mapping:
 
             return num_mapping[num]
@@ -52,12 +68,11 @@ class PhoneNumberExtractor:
                 if number[i] in digit_map:
                     # print("number[i] : ", number[i], type(number[i]))
                     result.append(digit_map[number[i]])
-                elif number[i] == '-':
-                    result.append(' ')
+                elif number[i] == "-":
+                    result.append(" ")
                 i += 1
-        
-        return ' '.join(result)
 
+        return " ".join(result)
 
     def phn_num_extractor(self, text):
         phone_numbers = re.findall(self.pattern, text)
@@ -65,23 +80,28 @@ class PhoneNumberExtractor:
         sorted_matches = sorted(phone_numbers, key=len, reverse=True)
         for phone_number in sorted_matches:
 
-            modify_phone_number = "".join(re.split(r'[- ]', phone_number))
+            modify_phone_number = "".join(re.split(r"[- ]", phone_number))
 
             # print(modify_phone_number)
 
             first_3_character = modify_phone_number.strip()[:3]
-            if first_3_character in self.number_extention or first_3_character in self.phn_number or \
-                11 <= len(modify_phone_number) or len(modify_phone_number)  <=14:
+            if (
+                first_3_character in self.number_extention
+                or first_3_character in self.phn_number
+                or 11 <= len(modify_phone_number)
+                or len(modify_phone_number) <= 14
+            ):
 
                 temp_string = ""
                 if "+" == modify_phone_number[0]:
                     # print(modify_phone_number[1:])
-                    temp_string = "প্লাস"+" "+self.label_repeats(modify_phone_number[1:])
+                    temp_string = (
+                        "প্লাস" + " " + self.label_repeats(modify_phone_number[1:])
+                    )
                 else:
                     repate_string = self.label_repeats(modify_phone_number)
                     # print(repate_number)
-                    temp_string = " "+repate_string
-
+                    temp_string = " " + repate_string
 
             phone_number_string = temp_string.strip()
 
@@ -89,6 +109,8 @@ class PhoneNumberExtractor:
             # print(phone_number_string)
         # print(text)
         return text
+
+
 if __name__ == "__main__":
 
     text = "ডিজিটাল রেজিস্ট্রেশন সার্টিফিকেট সংক্রান্ত 01790540211124562 যোগাযোগ করতে হলে 01790-540211 অথবা 01790-541111 নম্বরে যোগাযোগ করতে হবে 01790540211, +8801790540211, ০১৭৯০৫৪০২১১, +৮৮০১৭৯০৫৪০২১১"

@@ -1,37 +1,33 @@
-
 import re
 from .parser import NumberParser, TextParser
 from .config import Config as cfg
 
 npr, tp = NumberParser(), TextParser()
 
+
 class Word2NumberMap:
 
     def __init__(self):
         pass
-    def equation_of_sare_and_der(self, value:str, fraction:float)->float:
 
+    def equation_of_sare_and_der(self, value: str, fraction: float) -> float:
         """
-        Convert word if start bangla word like "সাড়ে", সারে, দেড়, দের 
+        Convert word if start bangla word like "সাড়ে", সারে, দেড়, দের
         and return numerical value
         """
         re_value = int(value.replace(value[0], "1"))
-        return (re_value*fraction)+int(value)
+        return (re_value * fraction) + int(value)
 
-    def equation_of_arai(self, value:str, fraction:float)->float:
-
+    def equation_of_arai(self, value: str, fraction: float) -> float:
         """
-        Convert word if the start bangla word like "আড়াই" or "আরাই" 
-        and return numerical value   
+        Convert word if the start bangla word like "আড়াই" or "আরাই"
+        and return numerical value
         """
-        return int(value)*fraction
-
+        return int(value) * fraction
 
     # def call_function()
-    
-    
-    def adjust_value_conversion(self, value, sum_status= False):
 
+    def adjust_value_conversion(self, value, sum_status=False):
         """
         Convert adjust value with numerical representation
 
@@ -44,8 +40,8 @@ class Word2NumberMap:
                 status, sum_status = True, False
                 break
         if status:
-            if len(value)==3 and value[1].isdigit() and  value[2].isdigit():
-                number = str(int(value[1])+int(value[2]))
+            if len(value) == 3 and value[1].isdigit() and value[2].isdigit():
+                number = str(int(value[1]) + int(value[2]))
             else:
                 number = str(value[1])
 
@@ -56,11 +52,10 @@ class Word2NumberMap:
                 func = getattr(self, function_name)
                 return_value = func(number, fraction_value)
                 return str(int(return_value)), sum_status
-            
+
         return value, sum_status
 
-    def check_last_chars(self, word:str)->bool:
-
+    def check_last_chars(self, word: str) -> bool:
         """
         Checking last character match with target character
         """
@@ -69,23 +64,24 @@ class Word2NumberMap:
                 return True, char
         return False, None
 
-    def sum_status(self, lst:list)->bool:
-
+    def sum_status(self, lst: list) -> bool:
         """
-        Cheching the group word sum status 
-        
+        Cheching the group word sum status
+
         """
         status_list = []
         for sublist in lst:
-            x = ["1" if i in sublist else "0" for i in cfg.checking_hunderds+cfg.checking_adjust]
+            x = [
+                "1" if i in sublist else "0"
+                for i in cfg.checking_hunderds + cfg.checking_adjust
+            ]
             if "1" in x:
                 status_list.append(True)
             else:
                 status_list.append(False)
         return status_list
 
-    def word_clustering(self, input_list:list)->list:
-
+    def word_clustering(self, input_list: list) -> list:
         """
         Grouping of the word from the list of text
         """
@@ -95,8 +91,8 @@ class Word2NumberMap:
             input_list[i] = input_list[i].replace("শত00", "শত")
             input_list[i] = input_list[i].replace("শো00", "শত")
             if input_list[i].isdigit():
-                if len(input_list[i])==2 and len(input_list)-1 != i:
-                    if input_list[i+1] in cfg.checking_hunderds:
+                if len(input_list[i]) == 2 and len(input_list) - 1 != i:
+                    if input_list[i + 1] in cfg.checking_hunderds:
                         temp_sequence.append(input_list[i])
                         output.append(temp_sequence)
                     else:
@@ -104,12 +100,15 @@ class Word2NumberMap:
                         output.append(temp_sequence)
                         temp_sequence = []
 
-                elif len(input_list)-1 == i:
+                elif len(input_list) - 1 == i:
                     temp_sequence.append(input_list[i])
                     output.append(temp_sequence)
                 else:
                     temp_sequence.append(input_list[i])
-            elif input_list[i] in cfg.decimale_chunks or input_list[i] in cfg.fraction_int:
+            elif (
+                input_list[i] in cfg.decimale_chunks
+                or input_list[i] in cfg.fraction_int
+            ):
                 temp_sequence.append(input_list[i])
             elif input_list[i] in cfg.hundreds:
                 temp_sequence.append(input_list[i])
@@ -117,36 +116,38 @@ class Word2NumberMap:
                 temp_sequence.append(input_list[i])
             elif input_list[i] in cfg.en_doshok_map:
                 temp_sequence.append(input_list[i])
-            elif  input_list[i] in cfg.adjust_number:
+            elif input_list[i] in cfg.adjust_number:
                 temp_sequence.append(input_list[i])
             else:
                 if temp_sequence:
                     output.append(temp_sequence)
                     temp_sequence = []
-            i+=1
+            i += 1
         return output
 
-    def checking_hundreds_only(self, input_list:list)->bool:
-
+    def checking_hundreds_only(self, input_list: list) -> bool:
         """
         Checking status if all are handerds word
-        
+
         """
         all_numeric_status = all(item.isdigit() for item in input_list)
         if all_numeric_status:
             return False
         for item in input_list:
-            if item in cfg.decimale_chunks or item in cfg.adjust_number \
-                or item in cfg.fraction_int or item in cfg.conjugative_number or item in cfg.en_doshok_map:
+            if (
+                item in cfg.decimale_chunks
+                or item in cfg.adjust_number
+                or item in cfg.fraction_int
+                or item in cfg.conjugative_number
+                or item in cfg.en_doshok_map
+            ):
                 return False
         return True
 
-    def clustring_consecutive_hunderd(self, input_list:list)->[list, list]:
-
-
+    def clustring_consecutive_hunderd(self, input_list: list) -> [list, list]:
         """
         Clustering consecutinve handerd with sum status
-        
+
         """
         temp, output_list, output_status = [], [], []
         for i, value in enumerate(input_list):
@@ -161,7 +162,7 @@ class Word2NumberMap:
                     output_list.append(temp), output_status.append(True)
                     temp = []
             else:
-                output_list.append([value]), output_status.append(False)  
+                output_list.append([value]), output_status.append(False)
         return output_list, output_status
 
     # def find_word_index(self, text:str, word:str)->list:
@@ -175,13 +176,13 @@ class Word2NumberMap:
     # def replace_text_at_position(self, text:str, replacement:str, start_pos:int, end_pos:int)->str:
     #     """
     #     Replance text using text position
-        
+
     #     """
     #     return text[:start_pos] + replacement + text[end_pos:]
 
-    def converting_condition(self, word:str, final_value:list, c_data:list, index:int)-> [list, int]:
-
-
+    def converting_condition(
+        self, word: str, final_value: list, c_data: list, index: int
+    ) -> [list, int]:
         """
         Convert word to conditional mapping with digits
         """
@@ -193,7 +194,7 @@ class Word2NumberMap:
                 value = final_value[-1]
                 d_c = int(cfg.decimale_chunks[word])
                 if value.isdigit():
-                    final_value.append(str((d_c*int(value))-int(value)))
+                    final_value.append(str((d_c * int(value)) - int(value)))
                 else:
                     final_value.append(d_c)
             else:
@@ -205,9 +206,9 @@ class Word2NumberMap:
         elif word in cfg.fraction_int:
             final_value.append(cfg.fraction_int[word])
         elif word in cfg.conjugative_number:
-            c_n = int(cfg.conjugative_number[word])-1
-            if len(c_data) > index+1:
-                l_value = [str(c_data[index+1])]*c_n
+            c_n = int(cfg.conjugative_number[word]) - 1
+            if len(c_data) > index + 1:
+                l_value = [str(c_data[index + 1])] * c_n
             else:
                 l_value = cfg.conjugative_number[word]
             final_value.extend(l_value)
@@ -215,24 +216,25 @@ class Word2NumberMap:
             final_value.append(word)
         return final_value, index
 
-    def converting2digits(self, results:list, text_list:list, sum_status_list:list)->str:
-
-
+    def converting2digits(
+        self, results: list, text_list: list, sum_status_list: list
+    ) -> str:
         """
-        
+
         Converting word to digit and if have hunderds only then cluster again
-        
+
         """
         original_text = " ".join(text_list)
         for result_chunk, status in zip(results, sum_status_list):
-
 
             # checking hunderds only and return status
             hundreds_status = self.checking_hundreds_only(result_chunk)
 
             # generate number clustring
             if hundreds_status:
-                clustring_data, clustring_status = self.clustring_consecutive_hunderd(result_chunk)
+                clustring_data, clustring_status = self.clustring_consecutive_hunderd(
+                    result_chunk
+                )
             else:
                 clustring_data, clustring_status = [result_chunk], [status]
             for c_data, c_status in zip(clustring_data, clustring_status):
@@ -240,9 +242,13 @@ class Word2NumberMap:
                 word_spanning = npr.find_word_index(original_text, replance_text)
                 index, final_value = 0, []
                 for c_d in c_data:
-                    final_value, index = self.converting_condition(c_d, final_value, c_data, index)
+                    final_value, index = self.converting_condition(
+                        c_d, final_value, c_data, index
+                    )
                     index += 1
-                value, status = self.adjust_value_conversion(final_value, sum_status= c_status)
+                value, status = self.adjust_value_conversion(
+                    final_value, sum_status=c_status
+                )
                 if status:
                     numbers = str(sum(int(num) for num in value))
                 elif isinstance(value, str):
@@ -250,14 +256,15 @@ class Word2NumberMap:
                 else:
                     numbers = "".join(value)
 
-                original_text = npr.replace_text_at_position(original_text, numbers, word_spanning[0], word_spanning[1])
+                original_text = npr.replace_text_at_position(
+                    original_text, numbers, word_spanning[0], word_spanning[1]
+                )
         return original_text
 
-    def replace_word_to_number(self, text:list)-> list:
-
+    def replace_word_to_number(self, text: list) -> list:
         """
         Word to numerical digit conversation
-        
+
         """
         index = 0
         for t in text:
@@ -267,10 +274,10 @@ class Word2NumberMap:
                 text[index] = cfg.en_number_mapping[t]
             else:
                 pass
-            index+=1
+            index += 1
         return text
 
-    def normalize(self, text:str)->list:
+    def normalize(self, text: str) -> list:
         """
 
         This funcation normalize the text like white space and decimal number
@@ -279,7 +286,7 @@ class Word2NumberMap:
             text{string}    : input string
 
         Return:
-            text_list{list} : process text list space spliting   
+            text_list{list} : process text list space spliting
 
         """
         text = tp.collapse_whitespace(text)
@@ -290,7 +297,9 @@ class Word2NumberMap:
             if status:
                 if word not in cfg.bn_word_map:
                     if word[:-2] in cfg.bn_word_map:
-                        rword = npr.number_processing(str(int(cfg.bn_word_map[word[:-2]])*100))
+                        rword = npr.number_processing(
+                            str(int(cfg.bn_word_map[word[:-2]]) * 100)
+                        )
                         rword = rword.replace(" শত", "শত")
                         text_list.extend(rword.split(" "))
                     else:
@@ -302,15 +311,12 @@ class Word2NumberMap:
         return text_list
 
     def convert_word2number(self, text):
-        text = self.normalize(text+" ")
+        text = self.normalize(text + " ")
         text_list = self.replace_word_to_number(text)
-
-        # print("text_list : ", text_list)
         results = self.word_clustering(text_list)
         sum_status_list = self.sum_status(results)
         text = self.converting2digits(results, text_list, sum_status_list)
         return text
-
 
 
 if __name__ == "__main__":
@@ -390,15 +396,15 @@ if __name__ == "__main__":
         "ডের আউটস্ট্যান্ডিং কত",
         "ডাবল",
         "নাইন ডাবল এইট",
-        "দশ বারো এ এগুলা একশ একশ দুই"
-        ]
-    
+        "দশ বারো এ এগুলা একশ একশ দুই",
+    ]
+
     # texts = ["দশ বারো এ এগুলা একশ একশ দুই"]
 
     wnm = Word2NumberMap()
     for i in texts:
-        print("="*40)
+        print("=" * 40)
         print("input : ", i)
         text = wnm.convert_word2number(i)
         print("output : ", text)
-        print("="*40)
+        print("=" * 40)

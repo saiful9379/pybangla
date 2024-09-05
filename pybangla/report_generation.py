@@ -1,4 +1,3 @@
-
 import pandas as pd
 import time
 import csv
@@ -10,8 +9,7 @@ from module.main import Normalizer
 nrml = Normalizer()
 
 
-
-def read_test_file(file_path, lj_speach = True):
+def read_test_file(file_path, lj_speach=True):
     """
     read txt file
     """
@@ -28,6 +26,7 @@ def read_test_file(file_path, lj_speach = True):
         data_list = data
     return data_list
 
+
 def read_excel_file(file_path, sheet_names):
 
     # Read the specified sheets from the Excel file
@@ -39,32 +38,34 @@ def read_excel_file(file_path, sheet_names):
     # Display the DataFrames
     text_list = []
     for i, df in enumerate(sheets_list):
-        df_filled = df.fillna('')
+        df_filled = df.fillna("")
         # print(f"\nData from {sheet_names[i]}:")
         texts = df_filled.Sentences.tolist()
         text_list.extend(texts)
     text_list = [i for i in text_list if i]
     return text_list
 
-def csv_log_generation(data, header, output_path = "report/pybangla_report_csv.csv"):
-    with open(output_path, mode='w', newline='') as file:
+
+def csv_log_generation(data, header, output_path="report/pybangla_report_csv.csv"):
+    with open(output_path, mode="w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(header)  # Write the header row
         writer.writerows(data)  # Write the data rows`
+
 
 def find_changes(string1, string2):
     # Split the strings into words
     words1, words2 = string1.split(), string2.split()
     # Use difflib to find differences
     diff = difflib.ndiff(words1, words2)
-    added_chunk, added_chunks,  removed_chunk, removed_chunks = [], [], [], []
+    added_chunk, added_chunks, removed_chunk, removed_chunks = [], [], [], []
     for change in diff:
-        if change.startswith('+ '):
+        if change.startswith("+ "):
             added_chunk.append(change[2:])
             if removed_chunk:
                 removed_chunks.append(" ".join(removed_chunk))
                 removed_chunk = []
-        elif change.startswith('- '):
+        elif change.startswith("- "):
             removed_chunk.append(change[2:])
             if added_chunk:
                 added_chunks.append(" ".join(added_chunk))
@@ -84,6 +85,7 @@ def find_changes(string1, string2):
 
     return removed_chunks, added_chunks
 
+
 # # Example usage
 # string1 = "উদাহরণস্বরূপ, আপনার মোটরযানের রেজিস্ট্রেশন নাম্বার ঢাকা মেট্রো-গ-12-1212 এবং টাকা জমা রশিদের ট্রানজেকশন নাম্বার 2001011325989"
 # string2 = "উদাহরণস্বরূপ, আপনার মোটরযানের রেজিস্ট্রেশন নাম্বার ঢাকা মেট্রো গ-বারো-বারোবারো এবং টাকা জমা রশিদের ট্রানজেকশন নাম্বার দুই লক্ষ এক শত এক কোটি তেরো লক্ষ পঁচিশ হাজার নয় শত ঊননব্বই"
@@ -97,7 +99,7 @@ if __name__ == "__main__":
     # file_path = "./test_data/evaluation_data.xlsx"
     file_path = "./test_data/metadata_udoy_lj.txt"
     # sheet_names = [
-    #     'saiful', 
+    #     'saiful',
     # ]
     # texts = read_excel_file(file_path, sheet_names)
     texts = read_test_file(file_path)
@@ -115,7 +117,9 @@ if __name__ == "__main__":
         # Output the results
         print(f"Removed chunks: {removed_chunks}")
         print(f"Added chunks: {added_chunks}")
-        process_list.append([text, p_text, text==p_text, removed_chunks, added_chunks])
+        process_list.append(
+            [text, p_text, text == p_text, removed_chunks, added_chunks]
+        )
         index += 1
-    print("time : ", time.time()-s_time)
+    print("time : ", time.time() - s_time)
     csv_log_generation(process_list, header)
