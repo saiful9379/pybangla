@@ -253,16 +253,17 @@ if __name__ == "__main__":
         4.1 ডাল"""
     ]
 
-    for i in issue:
-        print("input : ", i)
-        text = nrml.text_normalizer(i)
-        print("output : ", text)
-        print("=" * 2)
-        print(nrml.text_diff(i, text))
-        # print()
-        print("+" * 40)
+    # for i in issue:
+    #     print("input : ", i)
+    #     text = nrml.text_normalizer(i)
+    #     print("output : ", text)
+    #     print("=" * 2)
+    #     print(nrml.text_diff(i, text))
+    #     # print()
+    #     print("+" * 40)
 
     n = "জিরো ওয়ান ডাবল সেভেন থ্রি ডাবল ফাইভ নাইন থ্রি সেভেন নাইন"
+    # n = "আমাকে এক লক্ষ দুই হাজার এক টাকা দেয় এন্ড তুমি বিশ হাজার টাকা নিও এন্ড এক লক্ষ চার হাজার দুইশ এক টাকা এক ডবল দুই"
 
     number_string = nrml.word2number(n)
     print(number_string)

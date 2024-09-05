@@ -33,6 +33,8 @@ class Word2NumberMap:
 
         """
 
+        # print("adjust_value_conversion : ", value, sum_status)
+
         status, adjust_name = False, ""
         for v in value:
             if v in cfg.adjust_number:
@@ -51,8 +53,10 @@ class Word2NumberMap:
             if hasattr(self, function_name) and callable(getattr(self, function_name)):
                 func = getattr(self, function_name)
                 return_value = func(number, fraction_value)
+                # print("return value : ", str(int(return_value)), sum_status)
                 return str(int(return_value)), sum_status
-
+            
+        # print("return value : ", value, sum_status)
         return value, sum_status
 
     def check_last_chars(self, word: str) -> bool:
@@ -214,6 +218,8 @@ class Word2NumberMap:
             final_value.extend(l_value)
         else:
             final_value.append(word)
+
+        # print("final_value : ", final_value)
         return final_value, index
 
     def converting2digits(
@@ -225,10 +231,13 @@ class Word2NumberMap:
 
         """
         original_text = " ".join(text_list)
+
+        replance_text_and_spaning_number = []
         for result_chunk, status in zip(results, sum_status_list):
 
             # checking hunderds only and return status
             hundreds_status = self.checking_hundreds_only(result_chunk)
+            # print("hundreds_status : ", hundreds_status, result_chunk, status)
 
             # generate number clustring
             if hundreds_status:
@@ -238,8 +247,12 @@ class Word2NumberMap:
             else:
                 clustring_data, clustring_status = [result_chunk], [status]
             for c_data, c_status in zip(clustring_data, clustring_status):
+                # print(c_data, c_status)
                 replance_text = " ".join(c_data)
                 word_spanning = npr.find_word_index(original_text, replance_text)
+
+                # print(word_spanning, original_text[word_spanning[0]:word_spanning[1]])
+
                 index, final_value = 0, []
                 for c_d in c_data:
                     final_value, index = self.converting_condition(
@@ -249,6 +262,7 @@ class Word2NumberMap:
                 value, status = self.adjust_value_conversion(
                     final_value, sum_status=c_status
                 )
+                # print("return value2 : ", value, status)
                 if status:
                     numbers = str(sum(int(num) for num in value))
                 elif isinstance(value, str):
@@ -256,9 +270,19 @@ class Word2NumberMap:
                 else:
                     numbers = "".join(value)
 
-                original_text = npr.replace_text_at_position(
-                    original_text, numbers, word_spanning[0], word_spanning[1]
-                )
+                replance_text_and_spaning_number.append([numbers, (word_spanning[0], word_spanning[1])])
+        sorted_data = sorted(replance_text_and_spaning_number, key=lambda x: x[1][0], reverse=True)
+        unique_data = []
+        seen = set()
+        for item in sorted_data:
+            if (item[0], item[1]) not in seen:
+                unique_data.append(item)
+                seen.add((item[0], item[1]))
+
+        for value in unique_data:
+            original_text = npr.replace_text_at_position(original_text, value[0], value[1][0], value[1][1])
+        # print(original_text)
+
         return original_text
 
     def replace_word_to_number(self, text: list) -> list:
