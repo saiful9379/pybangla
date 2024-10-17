@@ -517,7 +517,17 @@ class DateParser:
 class TextParser:
 
     def __init__(self):
-        self.year_patterns = ["সালের", "সালে", "শতাব্দী", "শতাব্দীর", "শতাব্দীতে"]
+        self.year_patterns = [
+            "সালের",
+            "সালে",
+            "শতাব্দী",
+            "শতাব্দীর",
+            "শতাব্দীতে",
+            "সাল",
+            "খ্রিস্টাব্দ",
+            "খ্রিস্টাব্দের",
+            "খ্রিস্টপূর্বাব্দের",
+        ]
         self.year_pattern = (
             r"(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে|এর)+"
         )
@@ -643,6 +653,55 @@ class TextParser:
             results.append((block, start_pos, end_pos))
 
         return results
+
+    def year_to_year(self, text):
+        connectors = ["থেকে", "হতে", "চেয়ে"]
+        suffixes = [
+            "সালে",
+            "সাল",
+            "শতাব্দী",
+            "শতাব্দীর",
+            "শতাব্দীতে",
+            "খ্রিস্টাব্দ",
+            "খ্রিস্টাব্দের",
+            "খ্রিস্টপূর্বাব্দের",
+        ]
+
+        # Create patterns
+        digit_pattern = r"[0-9০-৯]{4}"
+        connector_pattern = "|".join(connectors)
+        suffix_pattern = "|".join(suffixes)
+
+        # Regular expression pattern
+        pattern = rf"({digit_pattern})\s*({connector_pattern})\s*({digit_pattern})\s*({suffix_pattern})"
+
+        # Compile the regex
+        regex = re.compile(pattern)
+
+        # Find all matches with positions
+        matches = regex.finditer(text)
+
+        # List comprehension to collect match details
+        result = [
+            (
+                match.start(),  # start position
+                match.end(),  # end position
+                match.group(),  # original text
+                match.group()
+                .replace(match.group(1), self.npr.year_in_number(match.group(1)))
+                .replace(
+                    match.group(3), self.npr.year_in_number(match.group(3))
+                ),  # transformed text
+            )
+            for match in matches
+        ]
+
+        # Sort result in reverse order by start position
+        result.sort(key=lambda x: x[0], reverse=True)
+        # Replace matched text in reverse order to avoid index shifting
+        for start, end, original, replacement in result:
+            text = text[:start] + replacement + text[end:]
+        return text
 
     def year_formation(self, text):
 
@@ -958,28 +1017,48 @@ class TextParser:
         return original_text
 
     def processing(self, text):
-        text = self.exception_year_processing(text)
-        text = pne.phn_num_extractor(text)
-        text = self.unwanted_puntuation_removing(text)
-        text = self.collapse_whitespace(text)
-        text = self.year_formation(text)
-        text = self.expand_symbols(text)
-        text = self.expand_abbreviations(text)
-        text = self.expand_position(text)
-        text = self.extract_currency_amounts(text)
-        text = self.replace_date_processing(text)
-        text = self.npr.number_processing(text)
-        text = self.collapse_whitespace(text)
+        processing_steps = [
+            self.exception_year_processing,
+            self.year_to_year,
+            pne.phn_num_extractor,
+            self.unwanted_puntuation_removing,
+            self.collapse_whitespace,
+            self.year_formation,
+            self.expand_symbols,
+            self.expand_abbreviations,
+            self.expand_position,
+            self.extract_currency_amounts,
+            self.replace_date_processing,
+            self.npr.number_processing,
+            self.collapse_whitespace
+        ]
+        
+        for step in processing_steps:
+            try:
+                text = step(text)
+            except Exception as e:
+                print(f"An error occurred in {step.__name__}: {e}")
+                continue  # Skip the function that raised the exception
         return text
 
     def data_normailization(self, text):
+        # Define a list of processing functions
+        processing_steps = [
+            self.exception_year_processing,
+            self.unwanted_puntuation_removing,
+            self.collapse_whitespace,
+            self.year_formation,
+            self.replace_date_processing,
+            self.collapse_whitespace  # Called again after replace_date_processing
+        ]
 
-        text = self.exception_year_processing(text)
-        text = self.unwanted_puntuation_removing(text)
-        text = self.collapse_whitespace(text)
-        text = self.year_formation(text)
-        text = self.replace_date_processing(text)
-        text = self.collapse_whitespace(text)
+        # Iterate over the list of functions and apply each one with try-except
+        for step in processing_steps:
+            try:
+                text = step(text)
+            except Exception as e:
+                print(f"Error in {step.__name__}: {e}")
+                continue  # Skip the function that raised an exception
         return text
 
 
@@ -1016,16 +1095,6 @@ class EmojiRemoval:
         text = re.sub(self.regex_to_remove_emoji, " ", text)
         text = self.tp.collapse_whitespace(text)
         return text
-
-
-# class EmojiReplacer:
-#     def __init__(self):
-#         self.translator = Translator()
-
-#     def replace_emoji(self, text):
-#         txt = self.translator.translate(text).text
-#         # print(txt)
-#         return text if len(txt)==0 else txt
 
 if __name__ == "__main__":
 
