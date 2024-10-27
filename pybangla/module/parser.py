@@ -580,12 +580,34 @@ class TextParser:
             text = text.replace(year, rep_year)
         return text
 
+    def time_conversion(self, text):
+        _find_time_stamp = r"[0-9০-৯]{1,2}:[0-9০-৯]{1,2} (?:মিঃ|মিনিট)"
+        matches = re.findall(_find_time_stamp, text)
+
+        if matches:
+            for i in matches:
+                t = i
+                parts = re.split(r":", t)
+                t1 = self.npr.number_to_words(parts[0]) + 'টা'
+
+                t2 = re.sub(r"(মিঃ|মিনিট)", "", parts[1]).strip()
+                t2 = self.npr.number_to_words(t2) + ' মিনিট'
+                
+                t = t1 + ' ' + t2
+                text = text.replace(i, t, 1)
+
+        return text
+
     def unwanted_puntuation_removing(self, text):
 
         # https://stackoverflow.com/questions/63256077/how-to-remove-redundant-punctuations-keep-only-the-first-one-in-text
         def my_replace(match):
             match = match.group()
             return match[0] + (" " if " " in match else "")
+
+        _keep_percentage = r"([0-9০-৯]{+})%"
+
+        text = re.sub(_keep_percentage, " শতাংশ", text)
 
         _redundent_punc_removal = r"[!\"#$%&\'()*+,\-.\/:;<=>?@\[\\\]^_`।{|}~ ]{2,}"
         _remove_hyphen_slash = r"(?<!\d)[-/](?!\d)"
@@ -605,6 +627,7 @@ class TextParser:
         text = text.replace("° C", "° সেলসিয়াস")
         text = text.replace("-সালের", " সালের")
         text = text.replace("-সাল", " সাল")
+        text = self.time_conversion(text)
         text = re.sub(_remove_space_in_punctuations, "", text)
         text = re.sub(
             _redundent_punc_removal, my_replace, text, 0
