@@ -19,12 +19,42 @@ class PhoneNumberExtractor:
             "০১৬",
             "০১৮",
             "০১৯",
+            "096",
+            "০৯৬"
         ]
         # self.pattern = r'(?:\+?৮৮)?০১[৩-৯][০-৯]{2}-?[০-৯]{6}|(?:\+88)?01[3-9]\d{2}-?\d{6}'
         self.pattern = r"(?:\+?৮৮)?০১[৩-৯][০-৯]{2}-?[০-৯]{6}(?=[, ]|$)|(?:\+88)?01[3-9]\d{2}-?\d{6}(?=[, ]|$)"
         self.plux = {"+": "প্লাস"}
+        self.ip_phone_number_patter = r"(?:০৯৬\d{2}-?[০-৯]{6})|(?:096\d{2}-?\d{6})"  # Pattern to match numbers starting with 096 (English) or ০৯৬ (Bengali)
 
-    # def checking_prefix()
+        self.postfix_pattern = r"\[\d{5}-PHN_NUMBER\]|\[[০-৯]{5}-PHN_NUMBER\]" 
+
+    def checking_postfix_phn_number(self, text):
+        # Pattern to match both English and Bengali patterns for PHN_NUMBER
+        
+        # Input text
+        # text = """
+        # Here are some patterns:[16622-PHN_NUMBER]patterns, [১৬৬৭৮-PHN_NUMBER], and some other text without the pattern.
+        # """
+        # Extract matches for the specific pattern
+        matches = re.findall(self.postfix_pattern, text)
+        for phn_n in matches:
+            r_phn = (phn_n.replace("[", "")).split("-PHN_NUMBER")[0]
+            textual_phn_num = self.label_repeats(r_phn)
+            text = text.replace(phn_n, " "+textual_phn_num+" ")
+        return text
+
+    def ip_phone_number(self, text):
+
+        # # Pattern to match numbers starting with 096 (English) or ০৯৬ (Bengali)
+        # pattern = r"(?:০৯৬\d{2}-?[০-৯]{6})|(?:096\d{2}-?\d{6})"
+        # # Input text
+        # text = """
+        # ডিজিটাল রেজিস্ট্রেশন ০৯৬১২৩৪৫৬৭৮, ডিজিটাল রেজিস্ট্রেশন ০৯৬১০-০১০৬১৬, ডিজিটাল রেজিস্ট্রেশন 09612745678, ডিজিটাল রেজিস্ট্রেশন 09610-010616, 01790540211, +8801790540211, ০১৭৯০৫৪০২১১
+        # """
+        # Extract matches for the specific pattern
+        phone_number = re.findall(self.ip_phone_number_patter, text)
+        return phone_number
 
     def contains_only_english(self, input_string):
         # Check if all characters in the string are English (ASCII) characters
@@ -73,11 +103,55 @@ class PhoneNumberExtractor:
                 i += 1
 
         return " ".join(result)
+    
+    def add_space_into_text(self, text):
+        # Find all number blocks with their positions
+        number_blocks = [(match.group(), match.start(), match.end()) for match in re.finditer(r'\d+[-,./]?\d*', text)]
+        # print(number_blocks)
+
+        extracted_data = []
+        for number, start, end in number_blocks:
+            extracted_data.append((number, start, end))
+
+        sorted_data_reverse = sorted(extracted_data, key=lambda x: x[1], reverse=True)
+
+        # print(sorted_data_reverse)
+
+        for number, start, end in sorted_data_reverse:
+            first_3_character = number.strip()[:3]
+            # print("first_3_character : ", first_3_character)
+            if first_3_character in self.number_extention or first_3_character in self.phn_number:
+                if len(number)<=11 or len(number)<= 14: 
+                    # print("number1 : ", number)
+                    if start !=0 and text[start-1]!=" ":
+                        if text[start-1]=="+":
+                            text = text[:start-1] + ' ' + text[start-1:]
+                            end = end+1
+                        elif text[start-1]=="." or text[start-1]==",":
+                            text = text 
+                        else:
+                            text = text[:start] + ' ' + text[start:]
+                            end = end+1
+                    if end !=len(text) and text[end+1]!=" ":
+                        if text[end+1]=="." or text[end+1]==",":
+                            text = text
+                        else:
+                            text = text[:end] + ' ' + text[end:]
+        text = re.sub(r'\s+', ' ', text).strip()
+        # print(text)
+        return text
 
     def phn_num_extractor(self, text):
-        phone_numbers = re.findall(self.pattern, text)
 
-        sorted_matches = sorted(phone_numbers, key=len, reverse=True)
+        # add spance numerical value staring and ending point
+        text = self.checking_postfix_phn_number(text)
+        text = self.add_space_into_text(text)
+        # print("adding space : ", text)
+        phone_numbers = re.findall(self.pattern, text)
+        #handel 096 patter phone number
+        ip_phone_number = self.ip_phone_number(text)
+
+        sorted_matches = sorted(phone_numbers+ip_phone_number, key=len, reverse=True)
         for phone_number in sorted_matches:
 
             modify_phone_number = "".join(re.split(r"[- ]", phone_number))
