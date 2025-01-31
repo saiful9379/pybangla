@@ -70,21 +70,32 @@ class NumberParser:
                     .split()
                 ]
             return " ".join(bangla_num_to_words_list)
+            print("number_string : ", number_string)
         except Exception as e:
             print(e)
             return
 
-    def number_to_words(self, number: str, chunk_millions=7):
+    def number_to_words(self, number: str, chunk_millions=7, language="bn"):
 
         en_extraction = list(re.finditer(self.en_regex, number, re.UNICODE))
+        # print("en_extraction : ", en_extraction[1])
+        # print("number_to_words : ", number)
+        if en_extraction and language != "en":
+            number = self._digit_converter(number)
+
+
+        # self._digit_converter
         number = number[::-1]
+        # print("number : ", number)
         chunks = [
             number[i : i + chunk_millions]
             for i in range(0, len(number), chunk_millions)
         ]
         chunks = [c[::-1] for c in chunks]
         chunks = chunks[::-1]
-        if en_extraction:
+
+        # print("en_extraction : ", en_extraction)
+        if en_extraction and language=="en":
             number = " crore ".join(
                 [
                     self.number_to_words_converting_process(chunk, lang="en")
@@ -101,16 +112,15 @@ class NumberParser:
             )
             # print(number)
             number = number.replace("শূন্য", "")
+        # print("number.split() : ", number.split())
 
-        return " ".join(number.split())
+        return (" ".join(number.split())).replace(" শো", "শো")
 
     def digit_number_to_digit_word(self, number, language="bn"):
 
         number = re.sub(_whitespace_re, " ", number)
         s_n = ""
         for i in number:
-            # print("language : ", language, i)
-
             n = data[language]["number_mapping"][i]
             s_n += " " + n
         return s_n.strip()
@@ -280,6 +290,7 @@ class NumberParser:
                 n_n += i
 
         s_m = n_n.split(".")
+        # print("sm : ", s_m)
         before_dot_word, after_dot_word = self.number_to_words(
             s_m[0]
         ), self.digit_number_to_digit_word(s_m[1], language=language)
@@ -296,6 +307,7 @@ class NumberParser:
         return False
 
     def number_processing(self, text):
+        # print("text : ", text)
         pattern = r"[\d,\.]+"
         matches = re.findall(pattern, text)
         sorted_matches = sorted(matches, key=len, reverse=True)
@@ -532,8 +544,9 @@ class TextParser:
             r"(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে|এর)+"
         )
         self.currency_pattern = (
-            r"(?:\$|£|৳|€|¥|₹|₽|₺)?(?:\d+(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)"
+            r"(?:\$|£|৳|€|¥|₹|₽|₺|₽)?(?:\d+(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)"
         )
+        # self.currency_pattern = re.compile(r"(?:\$|£|৳|€|¥|₹|₽|₺)?(?:[\d০-৯]+(?:,[\d০-৯]{3})*(?:\.[\d০-৯]+)?|[\d০-৯]+(?:\.[\d০-৯]+)?)")
         self.npr = NumberParser()
         self.dp = DateParser()
 
@@ -582,12 +595,14 @@ class TextParser:
 
     def unwanted_puntuation_removing(self, text):
 
+        # print("text pun : ", text)
+
         # https://stackoverflow.com/questions/63256077/how-to-remove-redundant-punctuations-keep-only-the-first-one-in-text
         def my_replace(match):
             match = match.group()
             return match[0] + (" " if " " in match else "")
 
-        _redundent_punc_removal = r"[!\"#$%&\'()*+,\-.\/:;<=>?@\[\\\]^_`।{|}~ ]{2,}"
+        _redundent_punc_removal = r"[!\"#%&\'()*+,\-.\/:;<=>?@\[\\\]^_`।{|}~ ]{2,}"
         _remove_hyphen_slash = r"(?<!\d)[-/](?!\d)"
         _remove_comma = r"(?<=\d),(?=\d)"
         _remove_space_in_punctuations = r"(?<=[^\w\s])\s+(?=[^\w\s])"
@@ -605,25 +620,46 @@ class TextParser:
         text = text.replace("° C", "° সেলসিয়াস")
         text = text.replace("-সালের", " সালের")
         text = text.replace("-সাল", " সাল")
+        # print("text pun1.1 : ", text)
         text = re.sub(_remove_space_in_punctuations, "", text)
+        # print("text pun1.2 : ", text)
         text = re.sub(
             _redundent_punc_removal, my_replace, text, 0
         )  # only keep the first punctuation
+        # print("text pun1.3 : ", text)
         text = re.sub(_remove_comma, "", text)
         text = re.sub(_remove_hyphen_slash, " ", text)
+
+        # print("text pun1.5 : ", text)
         translation_table = str.maketrans(_punctuations)
         text = text.translate(translation_table)
+
+        # print("text pun2 : ", text)
         return text
 
     def expand_symbols(self, text, lang="bn"):
+        # print("text 1", text)
         for key, replacement in _symbols[lang]:
             text = text.replace(key, replacement)
+        # print("text : ", text)
         return text.strip()
 
     def expand_abbreviations(self, text, lang="bn"):
-        for key, replacement in _abbreviations[lang]:
-            text = text.replace(key, replacement)
+        # for key, replacement in _abbreviations[lang]:
+        #     text = text.replace(key, replacement)
+        # return text
+
+        """Replace abbreviations in Bangla text with full forms."""
+        # print("text : ", text)
+
+
+        """Replace abbreviations in the given text based on the specified language."""
+        if lang in _abbreviations:
+            for pattern, replacement in _abbreviations[lang]:
+                # print("patter : ", pattern)
+                text = pattern.sub(replacement, text)
         return text
+
 
     def expand_position(self, text, lang="bn"):
         """
@@ -644,12 +680,13 @@ class TextParser:
 
     def extract_year_blocks_with_positions(self, text):
         matches = re.finditer(self.year_pattern, text)
-
         results = []
         for match in matches:
             block = match.group(0)
             start_pos = match.start()
             end_pos = match.end()
+            if text[start_pos]!= 0 and text[start_pos-1] in cfg.currency_list:
+                continue
             results.append((block, start_pos, end_pos))
 
         return results
@@ -700,19 +737,24 @@ class TextParser:
         result.sort(key=lambda x: x[0], reverse=True)
         # Replace matched text in reverse order to avoid index shifting
         for start, end, original, replacement in result:
-            text = text[:start] + replacement + text[end:]
+            text = text[:start] + " "+replacement + text[end:]
         return text
 
     def year_formation(self, text):
+        # print("text year in : ", text)
 
         for i in self.year_patterns:
             # print(i)
             if i in text:
+                # print("i in text")
                 text = text.replace(i, " " + i)
+        # print("text year1 : ", text)
+
         text = self.collapse_whitespace(text)
+        # print("text year2 : ", text)
         matches = self.extract_year_blocks_with_positions(text)[::-1]
 
-        # print(" matches : ", matches)
+        # print(" year matches : ", matches)
         """
         Need to correct year format extraction
         """
@@ -723,29 +765,43 @@ class TextParser:
             start_pos, end_pos = i[1], i[1] + len(extract_year[0])
             process_year = self.npr.year_in_number(extract_year[0])
             text = text[:start_pos] + process_year + text[end_pos:]
+        # print("text year : ", text)
         return text
 
     def extract_currency_amounts(self, text):
-
+        split_text = (text.replace("\t", " ")).split(" ")
         matches = re.findall(self.currency_pattern, text)
-        pattern = r"[৳$£€¥₹₽₺]"
-
+        pattern = r"[৳$£€¥₹₽₺₽]"
         sorted_matches = sorted(matches, key=len, reverse=True)
-
         for m in sorted_matches:
+            index = next((i for i, item in enumerate(split_text) if m in item), None)
             currency = re.findall(pattern, m)
             if currency:
                 n_m = m.replace(currency[0], "")
                 n_m = n_m.replace(",", "")
                 language = "en" if self.npr.contains_only_english(n_m) else "bn"
+
+                # print("language : ", language)
                 if "." in n_m:
                     word = self.npr.fraction_number_conversion(n_m, language=language)
-                    r_word = " " + word + " " + _currency[currency[0]] + " "
-                    text = text.replace(m, r_word)
+                    if index != len(split_text)-1 and split_text[index+1].strip() in cfg.decimale_chunks:
+                        r_word = " " + word + " "+split_text[index+1] +" "+ _currency[currency[0]] + ", "
+                        r_m = m + " "+ split_text[index+1]
+                        text = text.replace(r_m, r_word)
+                    else:
+                        r_word = " " + word + " " + _currency[currency[0]] + " "
+                        text = text.replace(m, r_word)
                 else:
                     word = self.npr.number_to_words(n_m)
-                    n_word = " " + word + " " + _currency[currency[0]] + " "
-                    text = text.replace(m, n_word)
+                    if index != len(split_text)-1 and split_text[index+1].strip() in cfg.decimale_chunks:
+                        n_word = " " + word + " "+split_text[index+1] +" "+ _currency[currency[0]] + ", "
+                        r_m = m+" "+split_text[index+1]
+                        text = text.replace(r_m, n_word)
+
+                    else:
+                        n_word = " " + word + " " + _currency[currency[0]] + " "
+                        text = text.replace(m, n_word)
+        # print("text1 : ", text)
         return text
 
     def matching_similariy_of_months(self, input_word):
@@ -924,7 +980,7 @@ class TextParser:
         pattern = r"^\d{4}\s*-\s*\d{2}$"
         match = re.match(pattern, text)
 
-        print(match[0])
+        # print(match[0])
 
     def replace_date_processing(self, text):
         text = self.extract_year(text)
@@ -957,6 +1013,7 @@ class TextParser:
                         key = k if "txt" in k else f"txt_{k}"
                         index = bn_data_list.index(v)
                         bn_data_list[index] = formated_date[key]
+                # print(bn_data_list)
                 process_date = " ".join(bn_data_list).strip()
                 original_text = original_text.replace(r_date, " " + process_date + " ")
             else:
@@ -982,6 +1039,7 @@ class TextParser:
                             index = bn_data_list.index(v)
                             bn_data_list[index] = formated_date[key]
 
+                    # print("bn_data_list : ", bn_data_list)
                     process_date = " ".join(bn_data_list).strip()
                     if process_date.isdigit():
                         continue
@@ -991,6 +1049,7 @@ class TextParser:
                         )
         _only_years = re.findall(self.year_pattern, original_text)
         for y in _only_years:
+            # print(y)
             if y.isdigit():
                 continue
             else:
@@ -1002,6 +1061,7 @@ class TextParser:
         for full_name in cfg.data["en"]["months"]:
             if full_name in original_text or full_name.capitalize() in original_text:
                 bn_name = cfg.data["bn"]["months"][f_index]
+                # print("bn_name : ", bn_name)
                 original_text = original_text.replace(full_name, bn_name)
                 original_text = original_text.replace(full_name.capitalize(), bn_name)
             f_index += 1
@@ -1017,7 +1077,10 @@ class TextParser:
         return original_text
 
     def processing(self, text):
+
+        # print("text : ", text)
         processing_steps = [
+            self.expand_abbreviations,
             self.exception_year_processing,
             self.year_to_year,
             pne.phn_num_extractor,
@@ -1025,7 +1088,7 @@ class TextParser:
             self.collapse_whitespace,
             self.year_formation,
             self.expand_symbols,
-            self.expand_abbreviations,
+            # self.expand_abbreviations,
             self.expand_position,
             self.extract_currency_amounts,
             self.replace_date_processing,
@@ -1034,11 +1097,11 @@ class TextParser:
         ]
         
         for step in processing_steps:
-            try:
-                text = step(text)
-            except Exception as e:
-                print(f"An error occurred in {step.__name__}: {e}")
-                continue  # Skip the function that raised the exception
+            # try:
+            text = step(text)
+            # except Exception as e:
+            #     print(f"An error occurred in {step.__name__}: {e}")
+            #     continue  # Skip the function that raised the exception
         return text
 
     def data_normailization(self, text):

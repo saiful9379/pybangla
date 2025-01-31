@@ -61,6 +61,16 @@ class Config:
                 "7": "সেভেন",
                 "8": "এইট",
                 "9": "নাইন",
+                "০": "শূন্য",
+                "১": "এক",
+                "২": "দুই",
+                "৩": "তিন",
+                "৪": "চার",
+                "৫": "পাঁচ",
+                "৬": "ছয়",
+                "৭": "সাত",
+                "৮": "আট",
+                "৯": "নয়",
             },
         },
         "bn": {
@@ -147,6 +157,35 @@ class Config:
     bn_regex = r"[০-৯.,]+"
     en_regex = r"[0-9]+"
     samples = ["-", ",", "/", " "]
+
+
+    currency_list = [
+        "$",  # US Dollar, Canadian Dollar, Australian Dollar, etc.
+        "€",  # Euro
+        "£",  # British Pound
+        "¥",  # Japanese Yen
+        "₹",  # Indian Rupee
+        "₽",  # Russian Ruble
+        "₣",  # French Franc (historical)
+        "₩",  # South Korean Won
+        "₺",  # Turkish Lira
+        "₴",  # Ukrainian Hryvnia
+        "₱",  # Philippine Peso
+        "₮",  # Mongolian Tugrik
+        "฿",  # Thai Baht
+        "₫",  # Vietnamese Dong
+        "₭",  # Laotian Kip
+        "៛",  # Cambodian Riel
+        "₨",  # Pakistani Rupee, Sri Lankan Rupee, Nepalese Rupee
+        "₼",  # Azerbaijani Manat
+        "ƒ",  # Netherlands Antillean Gulden, Aruban Florin
+        "﷼",  # Iranian Rial
+        "₯",  # Greek Drachma (historical)
+        "₲",  # Paraguayan Guarani
+        "₡",  # Costa Rican Colón
+        "₾",  # Georgian Lari
+    ]
+
     _currency = {
         "৳": "টাকা",
         "$": "ডলার",
@@ -350,6 +389,8 @@ class Config:
         "হাজার": "1000",
     }
 
+    
+
     adjust_number = {
         "সাড়ে": 0.5,
         "সারে": 0.5,
@@ -414,7 +455,7 @@ class Config:
         "দের": "equation_of_sare_and_der",
     }
 
-    bn_hundreds_2 = {i.replace(i[-1], "শত"): v for i, v in bn_hundreds_1.items()}
+    bn_hundreds_2 = {i.replace(i[-1], "শো"): v for i, v in bn_hundreds_1.items()}
     bn_hundreds_3 = {i.replace(i[-1], "শো"): v for i, v in bn_hundreds_1.items()}
 
     bn_hundreds = {**bn_hundreds_1, **bn_hundreds_2, **bn_hundreds_3}
@@ -422,50 +463,56 @@ class Config:
     checking_adjust = list(adjust_number.keys())
     checking_conjugative_number = list(conjugative_number.keys())
 
+    import re
+
+    # Define abbreviation replacement pairs
     _abbreviations = {
         "en": [
-            ("mrs", "misess"),
-            ("mr", "mister"),
-            ("dr", "doctor"),
-            ("st", "saint"),
-            ("co", "company"),
-            ("jr", "junior"),
-            ("maj", "major"),
-            ("gen", "general"),
-            ("drs", "doctors"),
-            ("rev", "reverend"),
-            ("lt", "lieutenant"),
-            ("hon", "honorable"),
-            ("sgt", "sergeant"),
-            ("capt", "captain"),
-            ("esq", "esquire"),
-            ("ltd", "limited"),
-            ("col", "colonel"),
-            ("ft", "fort"),
+            (re.compile(r"\b%s\.?" % x[0], re.IGNORECASE), x[1])
+            for x in [
+                ("mrs", "misess"),
+                ("mr", "mister"),
+                ("dr", "doctor"),
+                ("st", "saint"),
+                ("co", "company"),
+                ("jr", "junior"),
+                ("maj", "major"),
+                ("gen", "general"),
+                ("drs", "doctors"),
+                ("rev", "reverend"),
+                ("lt", "lieutenant"),
+                ("hon", "honorable"),
+                ("sgt", "sergeant"),
+                ("capt", "captain"),
+                ("esq", "esquire"),
+                ("ltd", "limited"),
+                ("col", "colonel"),
+                ("ft", "fort"),
+            ]
         ],
         "bn": [
-            ("সাঃ", "সাল্লাল্লাহু আলাইহি ওয়া সাল্লাম"),
-            ("আঃ", "আলাইহিস সালাম"),
-            ("রাঃ", "রাদিআল্লাহু আনহু"),
-            ("রহঃ", "রহমাতুল্লাহি আলাইহি"),
-            ("রহিঃ", "রহিমাহুল্লাহ"),
-            ("হাফিঃ", "হাফিযাহুল্লাহ"),
-            ("দাঃবাঃ", "দামাত বারাকাতুহুম,দামাত বারাকাতুল্লাহ"),
-            ("মোঃ", "মোহাম্মদ"),
-            ("মো.", "মোহাম্মদ"),
-            ("মোসাঃ", "মোসাম্মত"),
-            ("মোসা.", "মোসাম্মত"),
-            ("মোছাঃ", "মোছাম্মত"),
-            ("আ:", "আব্দুর"),
-            ("ডাঃ", "ডাক্তার"),
-            ("ড.", "ডক্টর"),
-            (" কিমি ", " কিলোমিটার "),
-            ("কিমি.", " কিলোমিটার "),
-            (" সেমি ", " সেন্টিমিটার "),
-            ("সেমি.", " সেন্টিমিটার "),
-            (" বিডি ", " বাংলাদেশ "),
-            ("মো:", "মোহাম্মদ"),
-        ],
+            (re.compile(r"%s" % x[0]), x[1])
+            for x in [
+                ("মোসাঃ", "মোসাম্মত"),
+                ("মোছাঃ", "মোছাম্মত"),
+                ("মোছা:", "মোছাম্মত"),
+                (" সাঃ", "সাল্লাল্লাহু আলাইহি ওয়া সাল্লাম"),
+                ("আঃ", "আলাইহিস সালাম"),
+                ("রাঃ", "রাদিআল্লাহু আনহু"),
+                ("রহঃ", "রহমাতুল্লাহি আলাইহি"),
+                ("রহিঃ", "রহিমাহুল্লাহ"),
+                ("হাফিঃ", "হাফিযাহুল্লাহ"),
+                ("দাঃবাঃ", "দামাত বারাকাতুল্লাহ"),
+                ("মোঃ", "মোহাম্মদ"),
+                ("আ:", "আব্দুর"),
+                ("ডাঃ", "ডাক্তার"),
+                ("কিমি", "কিলোমিটার"),
+                ("কিমি.", "কিলোমিটার"),
+                ("সেমি", "সেন্টিমিটার"),
+                ("সেমি.", "সেন্টিমিটার"),
+                ("মো:", "মোহাম্মদ"),
+            ]
+        ]
     }
 
     _symbols = {
@@ -517,7 +564,7 @@ class Config:
         "seven": "সাত",
         "eight": "আট",
         "nine": "নয়",
-        "hundred": "শত",
+        "hundred": "শো",
         "thousand": "হাজার",
         "lakh": "লক্ষ",
         "crore": "কোটি",

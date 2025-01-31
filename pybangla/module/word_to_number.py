@@ -292,7 +292,8 @@ def normalize(text):
                     value = bn_word_map[word[:-2]]
                     rword = str(int(value) * 100)
                     rword = np.number_processing(rword)
-                    rword = rword.replace(" শত", "শত")
+                    # rword = rword.replace(" শত", "শত")
+                    rword = rword.replace(" শত", "শো")
                     text_list.extend(rword.split(" "))
                 else:
                     text_list.append(word)

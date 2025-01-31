@@ -92,8 +92,8 @@ class Word2NumberMap:
         output, temp_sequence = [], []
         i = 0
         while i < len(input_list):
-            input_list[i] = input_list[i].replace("শত00", "শত")
-            input_list[i] = input_list[i].replace("শো00", "শত")
+            input_list[i] = input_list[i].replace("শত00", "শো")
+            input_list[i] = input_list[i].replace("শো00", "শো")
             if input_list[i].isdigit():
                 if len(input_list[i]) == 2 and len(input_list) - 1 != i:
                     if input_list[i + 1] in cfg.checking_hunderds:
@@ -324,7 +324,7 @@ class Word2NumberMap:
                         rword = npr.number_processing(
                             str(int(cfg.bn_word_map[word[:-2]]) * 100)
                         )
-                        rword = rword.replace(" শত", "শত")
+                        rword = rword.replace(" শত", "শো")
                         text_list.extend(rword.split(" "))
                     else:
                         text_list.append(word)
