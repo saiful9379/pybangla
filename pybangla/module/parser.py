@@ -333,6 +333,8 @@ class NumberParser:
                         bn_m = self.number_to_words(m_re)
                     # print("else : bn_m ", n, bn_m)
                     text = text.replace(str(n), " " + str(bn_m) + " ")
+
+        text = text.replace(" টি", "টি")
         return text
 
 
