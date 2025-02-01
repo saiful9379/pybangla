@@ -595,6 +595,8 @@ class TextParser:
 
     def unwanted_puntuation_removing(self, text):
 
+        # print("text : ", text)
+
         # print("text pun : ", text)
 
         # https://stackoverflow.com/questions/63256077/how-to-remove-redundant-punctuations-keep-only-the-first-one-in-text
@@ -602,14 +604,21 @@ class TextParser:
             match = match.group()
             return match[0] + (" " if " " in match else "")
 
-        _redundent_punc_removal = r"[!\"#%&\'()*+,\-.\/:;<=>?@\[\\\]^_`।{|}~ ]{2,}"
+        # _redundent_punc_removal = r"[!\"#%&\'()*+,\-.\/:;<=>?@\[\\\]^_`।{|}~ ]{2,}"
+        _redundant_punc_removal = r"([!\"#%&'()*+,\-./:;<=>?@\[\\\]^_`।{|}~ ])\1+"
         _remove_hyphen_slash = r"(?<!\d)[-/](?!\d)"
         _remove_comma = r"(?<=\d),(?=\d)"
         _remove_space_in_punctuations = r"(?<=[^\w\s])\s+(?=[^\w\s])"
 
         text = _STANDARDIZE_ZW.sub("\u200D", text)
-        text = re.sub(r"\u200d", "", text)
+
+        # print("text 0.2 : ", text)
+        
+        # text = re.sub(r"\u200d", "", text)
+        # print("text 0.3 : ", text)
         text = _DELETE_ZW.sub("", text)
+
+        # print("text 1 : ", text)
 
         text = text.replace("'র", " এর")
         text = text.replace("-র", " এর")
@@ -620,12 +629,15 @@ class TextParser:
         text = text.replace("° C", "° সেলসিয়াস")
         text = text.replace("-সালের", " সালের")
         text = text.replace("-সাল", " সাল")
+
+        # print("text : ", text)
         # print("text pun1.1 : ", text)
         text = re.sub(_remove_space_in_punctuations, "", text)
         # print("text pun1.2 : ", text)
-        text = re.sub(
-            _redundent_punc_removal, my_replace, text, 0
-        )  # only keep the first punctuation
+        # text = re.sub(
+        #     _redundent_punc_removal, my_replace, text, 0
+        # )  # only keep the first punctuation
+        text = re.sub(_redundant_punc_removal, r"\1", text).strip()
         # print("text pun1.3 : ", text)
         text = re.sub(_remove_comma, "", text)
         text = re.sub(_remove_hyphen_slash, " ", text)
@@ -633,7 +645,7 @@ class TextParser:
         # print("text pun1.5 : ", text)
         translation_table = str.maketrans(_punctuations)
         text = text.translate(translation_table)
-
+        # text = re.sub('\u200C', '', text)
         # print("text pun2 : ", text)
         return text
 
@@ -674,8 +686,8 @@ class TextParser:
             if matches:
                 for i in matches:
                     word = self.npr.number_to_words(i)
-                    text = text.replace(i + "তম", word + " তম")
-                    text = text.replace(i + " তম", word + " তম")
+                    text = text.replace(i + "তম", word + "তম")
+                    text = text.replace(i + " তম", word + "তম")
         return text
 
     def extract_year_blocks_with_positions(self, text):
