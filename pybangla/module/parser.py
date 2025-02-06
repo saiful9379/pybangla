@@ -656,8 +656,9 @@ class TextParser:
 
     def expand_symbols(self, text, lang="bn"):
         # print("text 1", text)
+        text = text.replace(".com", " ডট কম ")
         for key, replacement in _symbols[lang]:
-            text = text.replace(key, replacement)
+            text = text.replace(key, replacement+" ")
         # print("text : ", text)
         return text.strip()
 
