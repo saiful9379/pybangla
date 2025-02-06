@@ -312,6 +312,7 @@ class NumberParser:
         matches = re.findall(pattern, text)
         sorted_matches = sorted(matches, key=len, reverse=True)
         for n in sorted_matches:
+            # print(n)
             p_status = self.check_comma_dot_dari(n)
             if p_status:
                 text = text.replace(n, " " + n + " ")
@@ -541,9 +542,11 @@ class TextParser:
             "খ্রিস্টাব্দ",
             "খ্রিস্টাব্দের",
             "খ্রিস্টপূর্বাব্দের",
+            "তারিখের",
+            "তারিখ"
         ]
         self.year_pattern = (
-            r"(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে|এর)+"
+            r"(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে|এর||তারিখের|তারিখ)+"
         )
         self.currency_pattern = (
             r"(?:\$|£|৳|€|¥|₹|₽|₺|₽)?(?:\d+(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)"
@@ -694,6 +697,8 @@ class TextParser:
 
     def extract_year_blocks_with_positions(self, text):
         matches = re.finditer(self.year_pattern, text)
+
+        # print("matches : ", matches)
         results = []
         for match in matches:
             block = match.group(0)
@@ -760,7 +765,6 @@ class TextParser:
         for i in self.year_patterns:
             # print(i)
             if i in text:
-                # print("i in text")
                 text = text.replace(i, " " + i)
         # print("text year1 : ", text)
 
@@ -842,15 +846,14 @@ class TextParser:
             sorted_similar_months = sorted(
                 similar_months, key=lambda x: x[2], reverse=True
             )
-            # print("+++++++", sorted_similar_months)
+            # print("+++++++", sorted_similar_months, status)
             return status, (sorted_similar_months[0][0], sorted_similar_months[0][1])
+        # print("status : ", True)
         return status, (None, None)
+    
 
     def date_formate_validation(self, date, text):
-
-        # print("data format validation : ", date,"====", text)
         n_data = date.strip().split(" ")
-        # print("n_data : ", n_data)
         for n_d in n_data:
             status, text_replacer = self.matching_similariy_of_months(n_d)
             if status:
@@ -998,7 +1001,7 @@ class TextParser:
 
     def replace_date_processing(self, text):
         text = self.extract_year(text)
-        # print(text)
+        # print("text date", text)
         original_text = text
         r_text = text
         # print("original_text : ", original_text)
@@ -1038,9 +1041,11 @@ class TextParser:
 
                     status, text = self.date_formate_validation(date, text)
 
+                    # print(f"status {status} date : {date}")
+
                     status = self.check_date_format(date)
 
-                # print(f"status {status} date : {date}")
+                    # print(f"status {status} date : {date}")
                 if status:
                     formated_date = self.dp.date_processing(date)
                     # print("formated_date : ", formated_date)
@@ -1063,7 +1068,7 @@ class TextParser:
                         )
         _only_years = re.findall(self.year_pattern, original_text)
         for y in _only_years:
-            # print(y)
+            # print("y", y)
             if y.isdigit():
                 continue
             else:
@@ -1081,8 +1086,9 @@ class TextParser:
             f_index += 1
         s_index = 0
         for short_name in cfg.data["en"]["option_name"]:
-            # print(short_name)
+            
             if short_name in original_text or short_name.capitalize() in original_text:
+                # print(short_name)
                 bn_name = cfg.data["bn"]["months"][s_index]
                 original_text = original_text.replace(short_name, bn_name)
                 original_text = original_text.replace(short_name.capitalize(), bn_name)
@@ -1090,10 +1096,39 @@ class TextParser:
             s_index += 1
         return original_text
 
+    
+    def number_plate_processing(self, text):
+        # Compile the regex
+        regex = re.compile(cfg.number_regex_pattern)
+        
+        # Find all matches with positions
+        matches = regex.finditer(text)
+        for m in matches:
+            # print(m.group(0))
+            t = m.group(0)
+            x = t.split('-')
+        
+            second_last = str(x[-2])
+            last = str("." + str(x[-1]))
+        
+            # print(second_last, last)
+        
+            x[-2] = self.npr.number_to_words(second_last) # replace with number conversion function
+            x[-1] = self.npr.number_to_words(last) # replace with number conversion function
+        
+            x[-1] = x[-1].replace(' দশমিক', '')
+            replace_text = " ".join(x)
+            replace_text = " ".join(replace_text.split())
+        
+            text = text.replace(t, replace_text)
+        
+        return text
+    
     def processing(self, text):
 
         # print("text : ", text)
         processing_steps = [
+            self.number_plate_processing,
             self.expand_abbreviations,
             self.exception_year_processing,
             self.year_to_year,

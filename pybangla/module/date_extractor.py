@@ -103,6 +103,8 @@ class DateExtractor:
 
     def get_dates(self, sentence):
         dates = re.finditer(self.date_regex, sentence, re.IGNORECASE)
+
+        # print("dates : ", dates)
         return [date.group() for date in dates]
 
 
