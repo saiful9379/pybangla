@@ -9,7 +9,7 @@ from module.main import Normalizer
 nrml = Normalizer()
 
 
-def read_test_file(file_path, lj_speach=True):
+def read_test_file(file_path, lj_speach=False):
     """
     read txt file
     """
@@ -21,6 +21,7 @@ def read_test_file(file_path, lj_speach=True):
         data_list = []
         for i in data:
             audio, text = i.split("|")[0], i.split("|")[1:]
+            # text = i
             data_list.append((" ".join(text)).strip())
     else:
         data_list = data
@@ -97,7 +98,7 @@ def find_changes(string1, string2):
 if __name__ == "__main__":
 
     # file_path = "./test_data/evaluation_data.xlsx"
-    file_path = "./test_data/metadata_udoy_lj.txt"
+    file_path = "./test_data/test_data.txt"
     # sheet_names = [
     #     'saiful',
     # ]

@@ -811,4 +811,11 @@ class Config:
     number_regex_pattern = rf"({districts_pattern})(\s|)(মেট্রো|)-(অ|ই|উ|এ|ক|খ|গ|ঘ|ঙ|চ|ছ|জ|ঝ|ট|ঠ|ড|ঢ|ত|থ|দ|ন|প|ফ|ব|ভ|ম|য|র|ল|শ|স|হ)-\d{{2}}-\d{{4}}"
 
 
+    # Create regex pattern for Bengali months
+    months_pattern = "|".join(data["bn"]["months"]+data["bn"]["months"])
+
+    # Regular expression pattern to match both formats
+    date_pattern = fr'\b(?:\d{{1,2}} ({months_pattern}) \d{{4}}|({months_pattern}) \d{{1,2}}, \d{{4}})\b'
+
+
 

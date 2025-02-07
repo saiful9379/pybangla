@@ -45,6 +45,8 @@ class NumberParser:
 
     def number_to_words_converting_process(self, number_string: str, lang="bn"):
         number_string = number_string.strip()
+
+        # print("number_string 1: ", number_string)
         num = int(
             "".join(
                 [
@@ -202,6 +204,10 @@ class NumberParser:
                     if n.strip() in data[language]["digits_mapping"]:
                         b_n = data[language]["digits_mapping"][n.strip()]
                         c_number += b_n
+                    # else:
+                    #     print("else: ", n)
+                    #     c_number += n
+        # print(c_number)
         return c_number
 
     def get_weekday(self, date_: list = [], language="bn"):
@@ -546,7 +552,7 @@ class TextParser:
             "তারিখ"
         ]
         self.year_pattern = (
-            r"(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে|এর||তারিখের|তারিখ)+"
+            r"(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে|এর|তারিখের|তারিখ)+"
         )
         self.currency_pattern = (
             r"(?:\$|£|৳|€|¥|₹|₽|₺|₽)?(?:\d+(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)"
@@ -570,6 +576,7 @@ class TextParser:
         # _year_with_hyphen = re.findall(r'(\d{4}(?:-|–|—|―)\d{2})', text)
         # print(_year_with_hyphen)
         # _year_with_hyphen = re.findall(r'\s+(\d{4}(?:-|–|—|―)\d{2})\s+', text)
+        # print("text : ", text)
         _year_with_hyphen = re.findall(r"\b(\d{4}[-–—―]\d{2})\b", text)
         replce_map = {}
         for year in _year_with_hyphen:
@@ -596,6 +603,7 @@ class TextParser:
                 + self.npr.number_to_words(two_digit_year)
             )
             text = text.replace(year, rep_year)
+        # print("text 1: ", text)
         return text
 
     def unwanted_puntuation_removing(self, text):
@@ -634,6 +642,7 @@ class TextParser:
         text = text.replace("° C", "° সেলসিয়াস")
         text = text.replace("-সালের", " সালের")
         text = text.replace("-সাল", " সাল")
+        text = text.replace(".com", " ডট কম ")
 
         # print("text : ", text)
         # print("text pun1.1 : ", text)
@@ -656,7 +665,6 @@ class TextParser:
 
     def expand_symbols(self, text, lang="bn"):
         # print("text 1", text)
-        text = text.replace(".com", " ডট কম ")
         for key, replacement in _symbols[lang]:
             text = text.replace(key, replacement+" ")
         # print("text : ", text)
@@ -676,6 +684,7 @@ class TextParser:
             for pattern, replacement in _abbreviations[lang]:
                 # print("patter : ", pattern)
                 text = pattern.sub(replacement, text)
+        # print("text : ", text)
         return text
 
 
@@ -697,8 +706,11 @@ class TextParser:
         return text
 
     def extract_year_blocks_with_positions(self, text):
-        matches = re.finditer(self.year_pattern, text)
-
+        # matches = re.finditer(cfg.date_pattern, text)
+        # print("matches : ", matches)
+        # matches = re.finditer(self.year_pattern, text)
+        combined_pattern = f"({cfg.date_pattern})|({self.year_pattern})"
+        matches = re.finditer(combined_pattern, text)
         # print("matches : ", matches)
         results = []
         for match in matches:
@@ -707,6 +719,7 @@ class TextParser:
             end_pos = match.end()
             if text[start_pos]!= 0 and text[start_pos-1] in cfg.currency_list:
                 continue
+
             results.append((block, start_pos, end_pos))
 
         return results
@@ -762,28 +775,31 @@ class TextParser:
 
     def year_formation(self, text):
         # print("text year in : ", text)
-
         for i in self.year_patterns:
             # print(i)
             if i in text:
                 text = text.replace(i, " " + i)
         # print("text year1 : ", text)
-
         text = self.collapse_whitespace(text)
         # print("text year2 : ", text)
         matches = self.extract_year_blocks_with_positions(text)[::-1]
-
         # print(" year matches : ", matches)
         """
         Need to correct year format extraction
         """
         for i in matches:
             # print("match", i)
-            extract_year = [y for y in i[0].split(" ") if y.isnumeric() and len(y) == 4]
+            start_pos, end_pos = i[1], i[2]
+            for y in i[0].split(" "):
+                if y.isnumeric() and len(y) == 4:
+                    process_year = self.npr.year_in_number(y)
+                    i = i[0].replace(y, process_year)
+            # print(i)
+            # extract_year = [y for y in i[0].split(" ") if y.isnumeric() and len(y) == 4]
             # print(extract_year)
-            start_pos, end_pos = i[1], i[1] + len(extract_year[0])
-            process_year = self.npr.year_in_number(extract_year[0])
-            text = text[:start_pos] + process_year + text[end_pos:]
+            # start_pos, end_pos = i[1], i[1] + len(extract_year[0])
+            # process_year = self.npr.year_in_number(extract_year[0])
+            text = text[:start_pos] + i + text[end_pos:]
         # print("text year : ", text)
         return text
 
@@ -877,9 +893,11 @@ class TextParser:
         return result
 
     def extract_year(self, text):
+        # print("year : ", text)
         pattern = re.findall(self.year_pattern, text)
         for p in pattern:
             text = text.replace(p, f" {p} ")
+        # print("year p : ", text)
         return text
 
     def check_date_format(self, date_string):
@@ -1099,30 +1117,30 @@ class TextParser:
 
     
     def number_plate_processing(self, text):
+
+
+        # print("text : ", text)
         # Compile the regex
         regex = re.compile(cfg.number_regex_pattern)
         
         # Find all matches with positions
         matches = regex.finditer(text)
         for m in matches:
-            # print(m.group(0))
+            print(m.group(0))
             t = m.group(0)
             x = t.split('-')
-        
+            y = t
+
             second_last = str(x[-2])
-            last = str("." + str(x[-1]))
-        
-            # print(second_last, last)
-        
-            x[-2] = self.npr.number_to_words(second_last) # replace with number conversion function
-            x[-1] = self.npr.number_to_words(last) # replace with number conversion function
-        
-            x[-1] = x[-1].replace(' দশমিক', '')
-            replace_text = " ".join(x)
-            replace_text = " ".join(replace_text.split())
-        
-            text = text.replace(t, replace_text)
-        
+            last = str(x[-1])
+
+            combaine_number = second_last+"."+last
+            replance_number = second_last+"-"+last
+            replace_text  = self.npr.fraction_number_conversion(combaine_number, language="bn") # replace with number conversion function
+
+            y = y.replace(replance_number, replace_text)
+            text = text.replace(t, y)
+
         return text
     
     def processing(self, text):
