@@ -314,11 +314,33 @@ class NumberParser:
 
     def number_processing(self, text):
         # print("text : ", text)
-        pattern = r"[\d,\.]+"
-        matches = re.findall(pattern, text)
-        sorted_matches = sorted(matches, key=len, reverse=True)
-        for n in sorted_matches:
-            # print(n)
+        # pattern = r"[\d,\.]+"
+        
+        # matches = re.findall(pattern, text)
+        # # print("matches : ", matches)
+        # sorted_matches = sorted(matches, key=len, reverse=True)
+
+        pattern = r"[\d,\.]+"  # Matches numbers with commas and periods
+        matches = [(match.group(), match.start(), match.end()) for match in re.finditer(pattern, text)]
+        
+        # Sort matches based on length (longest first)
+        sorted_matches = sorted(matches, key=lambda x: len(x[0]), reverse=True)
+
+
+        org_text = text
+        # print("text : ", org_text)
+        
+        for n_with_p in sorted_matches:
+            # print(n_with_p)
+            n = n_with_p[0]
+            end_position = n_with_p[2]
+            ti_status = False
+            if len(org_text)-2 >= end_position:
+                if org_text[end_position:end_position+2]=="টি":
+                    ti_status = True
+                # print("index + text", org_text[end_position:end_position+2])
+            # print("position : ", end_position)
+
             p_status = self.check_comma_dot_dari(n)
             if p_status:
                 text = text.replace(n, " " + n + " ")
@@ -332,16 +354,25 @@ class NumberParser:
                         bn_m = self.fraction_number_conversion(m_re)
                     else:
                         bn_m = self.number_to_words(self._digit_converter(m_re))
-                    text = text.replace(n, " " + str(bn_m) + " ")
+                    # if ti_status= ""
+                    if ti_status:
+                        text = text.replace(n, " " + str(bn_m))
+                    else:
+                        text = text.replace(n, " " + str(bn_m) + " ")
                 else:
                     if "." in m_re:
                         bn_m = self.fraction_number_conversion(m_re, language="bn")
                     else:
                         bn_m = self.number_to_words(m_re)
                     # print("else : bn_m ", n, bn_m)
-                    text = text.replace(str(n), " " + str(bn_m) + " ")
+                    if ti_status:
+                        text = text.replace(str(n), " " + str(bn_m))
+                    else:
+                        text = text.replace(str(n), " " + str(bn_m)+" ")
 
-        text = text.replace(" টি", "টি")
+            # if ti_status:
+                # text = text.replace(" টি", "টি")
+
         return text
 
 
@@ -1165,11 +1196,11 @@ class TextParser:
         ]
         
         for step in processing_steps:
-            # try:
-            text = step(text)
-            # except Exception as e:
-            #     print(f"An error occurred in {step.__name__}: {e}")
-            #     continue  # Skip the function that raised the exception
+            try:
+                text = step(text)
+            except Exception as e:
+                print(f"An error occurred in {step.__name__}: {e}")
+                continue
         return text
 
     def data_normailization(self, text):
