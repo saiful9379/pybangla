@@ -709,13 +709,18 @@ class TextParser:
         """Replace abbreviations in Bangla text with full forms."""
         # print("text : ", text)
 
+        text = text.replace("মোছা:", "মোছাম্মত")
+        text = text.replace("মোসা:", "মোছাম্মত")
+        text = text.replace("মো:", "মোহাম্মদ")
+        text = re.sub(r'\bসেমি[ .]', 'সেন্টিমিটার ', text)
+        text = re.sub(r'\bকিমি[ .]', 'কিলোমিটার ', text)
 
         """Replace abbreviations in the given text based on the specified language."""
         if lang in _abbreviations:
             for pattern, replacement in _abbreviations[lang]:
                 # print("patter : ", pattern)
                 text = pattern.sub(replacement, text)
-        # print("text : ", text)
+        # print("text output : ", text)
         return text
 
 
@@ -1168,7 +1173,7 @@ class TextParser:
             combaine_number = second_last+"."+last
             replance_number = second_last+"-"+last
             replace_text  = self.npr.fraction_number_conversion(combaine_number, language="bn") # replace with number conversion function
-
+            replace_text = replace_text.replace("দশমিক", "")
             y = y.replace(replance_number, replace_text)
             text = text.replace(t, y)
 
