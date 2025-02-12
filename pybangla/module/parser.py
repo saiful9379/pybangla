@@ -674,7 +674,9 @@ class TextParser:
         text = text.replace("-সালের", " সালের")
         text = text.replace("-সাল", " সাল")
         text = text.replace(".com", " ডট কম ")
-
+        text = re.sub(r'(?<=\s)সেমি(?=\s)', 'সেন্টিমিটার', text)
+        # Case 2: "সেমি" at the end of the sentence (followed by the end of the string or punctuation)
+        text = re.sub(r'(?<=\s)সেমি(?=$|\s|[.,!?])', 'সেন্টিমিটার', text)
         # print("text : ", text)
         # print("text pun1.1 : ", text)
         text = re.sub(_remove_space_in_punctuations, "", text)
@@ -711,15 +713,19 @@ class TextParser:
 
         text = text.replace("মোছা:", "মোছাম্মত")
         text = text.replace("মোসা:", "মোছাম্মত")
+        text = text.replace("মোসা.", "মোছাম্মত")
         text = text.replace("মো:", "মোহাম্মদ")
+        # text = text.replace("ড. ", "ডক্টর ")
         text = re.sub(r'\bসেমি[ .]', 'সেন্টিমিটার ', text)
         text = re.sub(r'\bকিমি[ .]', 'কিলোমিটার ', text)
+        text = re.sub(r"\bড\.\s*(?=[অ-৺])", "ডক্টর ", text)
+
 
         """Replace abbreviations in the given text based on the specified language."""
         if lang in _abbreviations:
             for pattern, replacement in _abbreviations[lang]:
                 # print("patter : ", pattern)
-                text = pattern.sub(replacement, text)
+                text = pattern.sub(replacement+" ", text)
         # print("text output : ", text)
         return text
 
