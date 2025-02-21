@@ -39,7 +39,7 @@ class NIDNumber:
     # Updated pattern to match both Bengali and English digits
     NID_PATTERNS = [
         r'\b(?:NID|NID নম্বর|জাতীয় পরিচয়পত্র নং|জাতীয় পরিচয়পত্র নম্বর|'
-        r'জাতীয় পরিচয় নম্বর|NID Number|NID নং|এনআইডি|এনআইডি নম্বর)\s*[:ঃ]?\s*([০-৯\d]{10,17})\b'
+        r'জাতীয় পরিচয় নম্বর|NID Number|NID নং|এনআইডি|এনআইডি নম্বর|এনআইডি Number|এনআইডি নং)\s*[:ঃ]?\s*([০-৯\d]{10,17})\b'
     ]
 
     def __post_init__(self) -> None:
@@ -99,9 +99,10 @@ class NIDNormalizer:
     def normalize(self, text: str) -> str:
         """Normalize NID numbers in the given text to Bengali digits"""
         result = text
+        # print("result----> ", result)
         # Process matches in reverse order to avoid position shifts
         for match in reversed(self.extract_nids(text)):
-            print("match----> ", match)
+            # print("match----> ", match)
             result = result[:match.start] + match.bengali_value + result[match.end:]
         return result
     
@@ -125,7 +126,7 @@ def main() -> None:
     for text in sample_texts:
         print(f"\nOriginal: {text}")
         # Extract and print NID matches with positions
-        matches = normalizer.extract_nids(text)
+        # matches = normalizer.extract_nids(text)
         normalized = normalizer.normalize(text)
         print(f"Normalized: {normalized}")
 

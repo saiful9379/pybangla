@@ -77,15 +77,26 @@ class PassportFormatter:
         return str(passport)
 
     @staticmethod
-    def replace_in_text(text: str, passports: List[PassportNumber], format_type: str = 'bengali_digits') -> str:
+    def normalize(text: str, format_type: str = 'bengali_words') -> str:
         """Replace all passport numbers in the text with their formatted versions."""
         # Sort passports by span position in reverse order to avoid position shifts
+        # print("input text for passport number----> ", text)
+        passports = PassportParser.parse(text)
+        # print("passports parsed----> ", passports)
         passports = sorted(passports, key=lambda x: x.span[0], reverse=True)
+        # passports = sorted(passports, key=lambda x: x.span[0], reverse=True)
         result = text
         for passport in passports:
             start, end = passport.span
+            span_text = text[start:end]
+            # print("span text----> ", span_text)
+            # print("passport----> ", passport)
             formatted = PassportFormatter.format_passport(passport, format_type)
-            result = result[:start] + formatted + result[end:]
+            # print("formatted----> ", formatted)
+            span_text = span_text.replace(passport.prefix+passport.number, formatted)
+            # print("span text after replace----> ", span_text)
+            result = result[:start] + " " + span_text + " " + result[end:]
+        # print("result----> ", result)
         return result
 
 if __name__ == "__main__":
@@ -96,6 +107,7 @@ if __name__ == "__main__":
     তিনি পুরাতন পাসপোর্ট নম্বর 1234567 ব্যবহার করেছেন।
     মেশিন রিডেবল পাসপোর্ট নম্বর B76543210।
     তার পাসপোর্ট নম্বর P87654321 ছিল।
+    তার পাসপোর্ট নম্বর P০১২৩৪৫৬৭ ছিল।
     বাংলা নম্বর হিসেবে পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও ই১২৩৪৫৬৭৮।
     পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও ই১২৩৪৫৬৭৮।       
     """
@@ -104,15 +116,10 @@ if __name__ == "__main__":
     for text in texts.split("\n"):
         if text.strip() == "":
             continue
-        passports = PassportParser.parse(text)
-        passports = sorted(passports, key=lambda x: x.span[0], reverse=True)
-        # Print original text and normalized versions
-        print("\nOriginal Text:")
-        print(text)
-        for passport in passports:
-            text = text[:passport.span[0]] + " " + PassportFormatter.format_passport(passport, 'bengali_words') + " "  + text[passport.span[1]:]
-
-        print("\nNormalized Text:", text)
+        print("input text----> ", text)
+        PassportFormatter.normalize(text, 'bengali_words')
+        # print("\nNormalized Text:", PassportFormatter.normalize(text, 'bengali_words'))
+        # print("\nNormalized Text:", text)
         print("-----------------------------")
             # text = PassportFormatter.replace_in_text(text, passport, 'bengali_words')
         # print(PassportFormatter.replace_in_text(text, passports, 'bengali_words'))

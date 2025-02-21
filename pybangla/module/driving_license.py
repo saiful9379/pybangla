@@ -86,9 +86,10 @@ class DrivingLicenseFormatter:
                 f"{NumberNormalizer.to_bengali_words(license.second_part)}")
         # return str(license)
 
-    def replace_in_text(text: str, licenses: List[DrivingLicense], format_type: str = 'bengali_digits') -> str:
+    def replace_in_text(text: str, format_type: str = 'bengali_digits') -> str:
         """Replace all license numbers in the text with their formatted versions."""
         # Sort licenses by span position in reverse order to avoid position shifts
+        licenses = DrivingLicenseParser.parse(text)
         licenses = sorted(licenses, key=lambda x: x.span[0], reverse=True)
         result = text
         for license in licenses:
@@ -129,14 +130,9 @@ if __name__ == "__main__":
     for text in texts.split("\n"):
         if text.strip():
             print("text : ", text)
-            licenses = parser.parse(text)
-            print("Extracted licenses : ", licenses)
-            for license in licenses:
-                print(f"\nPosition {license.span}:")
-                print("extracted Original:", str(license))
-                # normalized_license = parser.format_license(license, 'bengali_words')
-                # print("normalized_license: ", normalized_license, license)
-                text = DrivingLicenseFormatter.replace_in_text(text, [license], 'bengali_words')
+            # normalized_license = parser.format_license(license, 'bengali_words')
+             # print("normalized_license: ", normalized_license, license)
+            text = DrivingLicenseFormatter.replace_in_text(text, 'bengali_words')
             # print("normalized_license: ", normalized_license)
             print("replaced_text: ", text)
             print("--------------------------------")   

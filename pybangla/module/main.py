@@ -7,6 +7,7 @@ from .parser import DateParser, TextParser, NumberParser, EmojiRemoval
 from .number_parser import Word2NumberMap
 from .date_extractor import DateExtractor
 from .phone_number_extractor import PhoneNumberExtractor
+# from .nid_num_normalize import NIDNormalizer
 
 dp, tp, npr, wnmp, emr = (
     DateParser(),
@@ -18,7 +19,7 @@ dp, tp, npr, wnmp, emr = (
 pne = PhoneNumberExtractor()
 dt = DateExtractor()
 data = cfg.data
-
+# nid_normalizer = NIDNormalizer()
 
 class CheckDiff:
     def __init__(self):
@@ -209,11 +210,11 @@ class Normalizer:
         }
         return data
 
-    def text_normalizer(self, text):
+    def text_normalizer(self, text, operation=None):
         """
         this is the text normalizer fucntion
         """
-        text = tp.processing(text)
+        text = tp.processing(text, operation)
         return text
 
     def data_normalizer(self, text):

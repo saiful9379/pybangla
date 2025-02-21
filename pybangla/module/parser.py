@@ -8,10 +8,13 @@ from fuzzywuzzy import fuzz
 
 # from bnemo import Translator
 from .phone_number_extractor import PhoneNumberExtractor
+from .nid_num_normalize import NIDNormalizer
+from .passport_num_normalize import PassportFormatter
 
 
 dt = DateExtractor()
 pne = PhoneNumberExtractor()
+nid_normalizer = NIDNormalizer()
 data = cfg.data
 
 _abbreviations = cfg._abbreviations
@@ -591,7 +594,7 @@ class TextParser:
         # self.currency_pattern = re.compile(r"(?:\$|£|৳|€|¥|₹|₽|₺)?(?:[\d০-৯]+(?:,[\d০-৯]{3})*(?:\.[\d০-৯]+)?|[\d০-৯]+(?:\.[\d০-৯]+)?)")
         self.npr = NumberParser()
         self.dp = DateParser()
-
+        self.nid_normalizer = NIDNormalizer()
     def collapse_whitespace(self, text):
         text = re.sub(_whitespace_re, " ", text)
         text = re.sub(r"\s*,\s*", ", ", text)
@@ -1188,33 +1191,53 @@ class TextParser:
 
         return text
     
-    def processing(self, text):
+    def processing(self, text, operation=None):
+
 
         # print("text : ", text)
-        processing_steps = [
-            self.number_plate_processing,
-            self.expand_abbreviations,
-            self.exception_year_processing,
-            self.year_to_year,
-            pne.phn_num_extractor,
-            self.unwanted_puntuation_removing,
-            self.collapse_whitespace,
-            self.year_formation,
-            self.expand_symbols,
-            # self.expand_abbreviations,
-            self.expand_position,
-            self.extract_currency_amounts,
-            self.replace_date_processing,
-            self.npr.number_processing,
-            self.collapse_whitespace
-        ]
-        
-        for step in processing_steps:
-            try:
-                text = step(text)
-            except Exception as e:
-                print(f"An error occurred in {step.__name__}: {e}")
-                continue
+        processing_steps = {
+            "number_plate": self.number_plate_processing,
+            "abbreviations": self.expand_abbreviations,
+
+            "year_processing": self.exception_year_processing,
+            "year_to_year": self.year_to_year,
+
+            "phone_number": pne.phn_num_extractor,
+
+            "puntuation": self.unwanted_puntuation_removing,
+            "whitespace": self.collapse_whitespace,
+
+            "year": self.year_formation,
+
+            "symbols": self.expand_symbols,
+            "ordinals": self.expand_position,
+            "currency": self.extract_currency_amounts,
+
+            "date": self.replace_date_processing,
+            
+            "nid": nid_normalizer.normalize,
+            "passport": PassportFormatter.normalize,
+            "number": self.npr.number_processing,
+            "collapse_whitespace": self.collapse_whitespace
+        }
+
+        if operation is None:
+            for key, step in processing_steps.items():
+                try:
+                    text = step(text)
+                except Exception as e:
+                    print(f"An error occurred in {step.__name__}: {e}")
+                    continue
+        elif operation:
+            for key, step in processing_steps.items():
+                if key not in operation and operation["key"]==True:
+                    continue
+                else:
+                    try:
+                        text = step(text)
+                    except Exception as e:
+                        print(f"An error occurred in {step.__name__}: {e}")
+                        continue
         return text
 
     def data_normailization(self, text):
