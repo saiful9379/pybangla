@@ -210,10 +210,68 @@ class Normalizer:
         }
         return data
 
-    def text_normalizer(self, text, operation=None):
+    def text_normalizer(self, text, 
+                        number_plate=True, 
+                        abbreviations=True, 
+                        year=True, 
+                        puntuation=True,
+                        phone_number=True, 
+                        symbols=True, 
+                        ordinals=True, 
+                        currency=True, 
+                        date=True, 
+                        nid=True, 
+                        passport=True, 
+                        number=True,
+                        emoji=True):
         """
-        this is the text normalizer fucntion
+        Processes a given text by applying various normalization techniques based on specified boolean parameters.
+
+        Parameters:
+        - `text` (str): The input text to be normalized.
+        - `number_plate` (bool, default=True): Converts or normalizes vehicle number plates if present in the text.
+        - `abbreviations` (bool, default=True): Expands common abbreviations into their full forms.
+        - `year` (bool, default=True): Handles and formats years correctly. 
+        - `punctuation` (bool, default=True): Removes or standardizes unwanted punctuation marks.
+        - `phone_number` (bool, default=True): Extracts and normalizes phone numbers.
+        - `symbols` (bool, default=True): Expands common symbols into their textual representation.
+        - `ordinals` (bool, default=True): Converts ordinal numbers.
+        - `currency` (bool, default=True): Converts currency values into words.
+        - `date` (bool, default=True): Standardizes and normalizes date formats.
+        - `nid` (bool, default=True): Converts national identification numbers (NID) into a textual format.
+        - `passport` (bool, default=True): Normalizes passport numbers.
+        - `number` (bool, default=True): Processes and converts numeric values into textual form.
+        - `emoji` (bool, default=True): Removes emojis from text.
+
+        Returns:
+        - str: The normalized text after applying the selected transformations.
+
+        This function is useful for preprocessing text in speech-to-text systems, NLP applications, and text-to-speech (TTS) models where textual consistency is crucial.
         """
+        processing_map = {
+            "number_plate": number_plate,
+            "abbreviations": abbreviations,
+            "year_processing": year,
+            "year_to_year": year,
+            "phone_number": phone_number,
+            "puntuation": puntuation,
+            "whitespace": True,  # Always included
+            "year": year,
+            "symbols": symbols,
+            "ordinals": ordinals,
+            "currency": currency,
+            "date": date,
+            "nid": nid,
+            "passport": passport,
+            "number": number,
+            "collapse_whitespace": True  # Always included
+        }
+
+        if emoji:
+            text = emr.remove_emoji(text)
+
+        # Filter only the enabled operations
+        operation = [key for key, enabled in processing_map.items() if enabled]
         text = tp.processing(text, operation)
         return text
 
@@ -222,9 +280,9 @@ class Normalizer:
         text = tp.data_normailization(text)
         return text
 
-    def remove_emoji(self, text):
-        text = emr.remove_emoji(text)
-        return text
+    # def remove_emoji(self, text):
+    #     text = emr.remove_emoji(text)
+    #     return text
 
     # def emoji2text(self, text):
     #     text = emrp.replace_emoji(text)
