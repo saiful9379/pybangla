@@ -26,6 +26,27 @@ pip install pybangla
 # 1. [Text Normalization](https://github.com/saiful9379/pybangla/blob/main/docs/Text_Normalizer.md)
 It supports converting Bangla abbreviations, symbols, and currencies to Bangla textual format.
 
+Processes a given text by applying various normalization techniques based on specified boolean parameters.
+
+Parameters:
+- `text` (str): The input text to be normalized.
+- `number_plate` (bool, default=True): Converts or normalizes vehicle number plates if present in the text into texual format.
+- `abbreviations` (bool, default=True): Expands common abbreviations into their full forms.
+- `year` (bool, default=True): Handles and formats years in texual format. 
+- `punctuation` (bool, default=True): Removes or standardizes unwanted punctuation marks.
+- `phone_number` (bool, default=True): Extracts and normalizes phone numbers into textual format.
+- `symbols` (bool, default=True): Expands common symbols into their textual representation.
+- `ordinals` (bool, default=True): Converts ordinal numbers into words.
+- `currency` (bool, default=True): Converts currency values into words.
+- `date` (bool, default=True): Standardizes and normalizes date formats.
+- `nid` (bool, default=True): Converts national identification numbers (NID) into a textual format.
+- `passport` (bool, default=True): Normalizes passport numbers into words.
+- `number` (bool, default=True): Processes and converts numeric values into textual form.
+- `emoji` (bool, default=True): Removes emojis from text.
+
+Returns:
+- str: The normalized text after applying the selected transformations.
+
 Example:
 ```py
 import pybangla
