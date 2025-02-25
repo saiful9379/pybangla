@@ -13,7 +13,7 @@ class DrivingLicense:
         return f"{self.region}-{self.first_part}-{self.second_part}"
 
 class NumberNormalizer:
-    BENGALI_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
+    BENGALI_DIGITS = str.maketrans("0123456789|০১২৩৪৫৬৭৮৯")
     
     # Dictionary for number to word conversion (Bengali)
     BENGALI_NUMBERS = {
@@ -50,6 +50,13 @@ class DrivingLicenseParser:
         (?P<region>
             DHA|CHT|CTG|KHU|RAJ|BAR|SYL|RAN|MAY|SYN|MGM|COM  # English region codes
             |ঢাকা|চট্টগ্রাম|খুলনা|রাজশাহী|বরিশাল|সিলেট|রংপুর|ময়মনসিংহ|কুমিল্লা
+            |ফেনী|ব্রাহ্মণবাড়িয়া|রাঙ্গামাটি|নোয়াখালী|চাঁদপুর|লক্ষ্মীপুর|কক্সবাজার
+            |খাগড়াছড়ি|বান্দরবান|সিরাজগঞ্জ|পাবনা|বগুড়া|নাটোর|জয়পুরহাট|চাঁপাইনবাবগঞ্জ 
+            |নওগাঁ|যশোর|সাতক্ষীরা|মেহেরপুর|নড়াইল|চুয়াডাঙ্গা|কুষ্টিয়া|মাগুরা|বাগেরহাট
+            |ঝিনাইদহ|ঝালকাঠি|পটুয়াখালী|পিরোজপুর|ভোলা|বরগুনা|মৌলভীবাজার
+            |হবিগঞ্জ|সুনামগঞ্জ|নরসিংদী|গাজীপুর|শরীয়তপুর|নারায়ণগঞ্জ|টাঙ্গাইল|কিশোরগঞ্জ|মানিকগঞ্জ
+            |মুন্সিগঞ্জ|রাজবাড়ী|মাদারীপুর|গোপালগঞ্জ|ফরিদপুর|পঞ্চগড়|দিনাজপুর|লালমনিরহাট
+            |নীলফামারী|গাইবান্ধা|ঠাকুরগাঁও|কুড়িগ্রাম|শেরপুর|ময়মনসিংহ|জামালপুর|নেত্রকোণা
         )
         [-_]?                              # Optional hyphen or underscore
         (?P<first>\d{5})[-_]              # First part (5 digits)

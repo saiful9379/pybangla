@@ -1174,7 +1174,7 @@ class TextParser:
         # Find all matches with positions
         matches = regex.finditer(text)
         for m in matches:
-            print(m.group(0))
+            # print(m.group(0))
             t = m.group(0)
             x = t.split('-')
             y = t
@@ -1191,8 +1191,7 @@ class TextParser:
 
         return text
     
-    def processing(self, text, operation=None):
-
+    def processing(self, text, operation):
 
         # print("text : ", text)
         processing_steps = {
@@ -1221,23 +1220,17 @@ class TextParser:
             "collapse_whitespace": self.collapse_whitespace
         }
 
-        if operation is None:
-            for key, step in processing_steps.items():
+        
+        for key, step in processing_steps.items():
+            if key not in operation:
+                continue
+            else:
                 try:
                     text = step(text)
                 except Exception as e:
                     print(f"An error occurred in {step.__name__}: {e}")
                     continue
-        elif operation:
-            for key, step in processing_steps.items():
-                if key not in operation and operation["key"]==True:
-                    continue
-                else:
-                    try:
-                        text = step(text)
-                    except Exception as e:
-                        print(f"An error occurred in {step.__name__}: {e}")
-                        continue
+        
         return text
 
     def data_normailization(self, text):
