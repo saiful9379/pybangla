@@ -19,7 +19,7 @@ __Features available in PyBangla:__
 
 
 
-# Installation
+## Installation
 
 The easiest way to install pybangla is to use pip:
 
@@ -33,10 +33,10 @@ cd pybangla
 pip install -e .
 ```
 
-# Evaluation
+## Evaluation
 For the evaluation, we selected 200 sentences. The dataset contains numerical values and has been normalized using PyBangla. We generated AI-based ground truth (GT) text and had it corrected by human annotators. The performance of our tool is evaluated using three key metrics: Word Error Rate (WER), Character Error Rate (CER), and Match Error Rate (MER).
 
-## PyBangla Evaluation
+### PyBangla Evaluation
 
 The performance of PyBangla was evaluated using 200 sentences. However, no evaluation report is available for versions earlier than **V2.0.9**.
 
@@ -47,14 +47,14 @@ The performance of PyBangla was evaluated using 200 sentences. However, no evalu
 
 For more detail please check : [link](./test_data/PyBangla_Evalution_V2.0.9.xlsx)
 
-# Usage
+## Usage
 
-# 1. [Text Normalization](https://github.com/saiful9379/pybangla/blob/main/docs/Text_Normalizer.md)
+### 1. [Text Normalization](https://github.com/saiful9379/pybangla/blob/main/docs/Text_Normalizer.md)
 It supports converting Bangla abbreviations, symbols, and currencies to Bangla textual format.
 
 Processes a given text by applying various normalization techniques based on specified boolean parameters.
 
-Parameters:
+__Parameters:__
 - `text` (str): The input text to be normalized.
 - `number_plate` (bool, default=True): Converts or normalizes vehicle number plates if present in the text into texual format.
 - `abbreviations` (bool, default=True): Expands common abbreviations into their full forms.
@@ -70,10 +70,10 @@ Parameters:
 - `number` (bool, default=True): Processes and converts numeric values into textual form.
 - `emoji` (bool, default=True): Removes emojis from text.
 
-Returns:
+__Returns:__
 - str: The normalized text after applying the selected transformations.
 
-Example:
+__Example:__
 ```py
 import pybangla
 nrml = pybangla.Normalizer()
@@ -86,7 +86,7 @@ print(text)
 'রাহিম ক্লাস ওয়ান এ প্রথম, এন্ড বাসার ক্লাস এ তেত্রিশতম, সে জন্য দুই হাজার ত্রিশ শতাব্দীতে দুই হাজার ত্রিশ দশমিক এক দুই তিন চার ইয়েন দিতে হয়েছে'
 ```
 Normalizer more information or example check the [link](./docs/Text_Normalizer.md)
-# 2. [Number Conversion](https://github.com/saiful9379/pybangla/blob/main/docs/Number_Conversion.md)
+## 2. [Number Conversion](https://github.com/saiful9379/pybangla/blob/main/docs/Number_Conversion.md)
 Example:
 
 ```py
@@ -101,7 +101,7 @@ print(text)
 ```
 Number conversion more information or examples check the [link](./docs/Number_Conversion.md)
 
-# 3. [Date Format](https://github.com/saiful9379/pybangla/blob/main/docs/Date_Formating.md)
+## 3. [Date Format](https://github.com/saiful9379/pybangla/blob/main/docs/Date_Formating.md)
 
 Example:
 ```py
@@ -118,7 +118,7 @@ print(date)
 ```
 Date Format for more information or example check the [link](./docs/Date_Formating.md)
 
-# 4. [Emoji Removal](https://github.com/saiful9379/pybangla/blob/main/docs/Emoji_Remove.md)
+## 4. [Emoji Removal](https://github.com/saiful9379/pybangla/blob/main/docs/Emoji_Remove.md)
 
 
 ```py
@@ -126,11 +126,11 @@ text = 'দয়া করে পবিত্র কুরআনুল কার�
 text = nrml.remove_emoji(text)
 print(f"{text}")
 
-#output:
+output:
 দয়া করে পবিত্র কুরআনুল কারিম বলেন,,,,পবিত্র কথাটা অবশ্যই বলবেন,,, প্লিজ
 ```
 For Emoji Removal more information or example check the [link](./docs/Emoji_Remove.md)
-# 5. [Today, Months, Weekdays, Seasons](https://github.com/saiful9379/pybangla/blob/main/docs/Day_Weeks_Months.md)
+## 5. [Today, Months, Weekdays, Seasons](https://github.com/saiful9379/pybangla/blob/main/docs/Day_Weeks_Months.md)
 
 ```py
 import pybangla
@@ -194,16 +194,16 @@ print(nrml.text_diff(input1, input2))
 
 <h2> </h2>
 
-# Next Upcoming Features
+## Next Upcoming Features
 
 1. Bangla lemmatization and stemming algorithm
 2. Bangla Tokenizer
 
 
-# Contact
+## Contact
 If you have any suggestions: Email: saifulbrur79@gmail.com
 
-# Contributor
+## Contributor
 
 ```
 @misc{pybangla,
@@ -213,5 +213,3 @@ If you have any suggestions: Email: saifulbrur79@gmail.com
   year={2024}
 }
 ```
-If you face any problems feel free to open an issue.
-
