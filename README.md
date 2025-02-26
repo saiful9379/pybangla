@@ -20,6 +20,16 @@ The easiest way to install pybangla is to use pip:
 pip install pybangla
 ```
 
+# Evaluation
+
+| Metric | Value |
+|--------|-------|
+| **WER** (Word Error Rate) | 0.1291 |
+| **CER** (Character Error Rate) | 0.0319 |
+| **MER** (Match Error Rate) | 0.0975 |
+| **Number of Sentences** | 200 |
+
+Report Link : [link](https://docs.google.com/spreadsheets/d/1VkSXH9TTEhHEq30I56yh4-kBZirPtH6Di89ZiQU_YOQ/edit?gid=1044112948#gid=1044112948)
 
 # Usage
 
