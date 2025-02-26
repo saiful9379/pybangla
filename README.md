@@ -21,13 +21,13 @@ pip install pybangla
 ```
 
 # Evaluation
+For the evaluation, we selected 200 sentences. The dataset contains numerical values and has been normalized using PyBangla. We generated AI-based ground truth (GT) text and had it corrected by human annotators. The performance of our tool is evaluated using three key metrics: Word Error Rate (WER), Character Error Rate (CER), and Match Error Rate (MER).
 
 | Metric | Value |
 |--------|-------|
 | **WER** (Word Error Rate) | 0.1291 |
 | **CER** (Character Error Rate) | 0.0319 |
 | **MER** (Match Error Rate) | 0.0975 |
-| **Number of Sentences** | 200 |
 
 Report Link : [link](https://docs.google.com/spreadsheets/d/1VkSXH9TTEhHEq30I56yh4-kBZirPtH6Di89ZiQU_YOQ/edit?gid=1044112948#gid=1044112948)
 
