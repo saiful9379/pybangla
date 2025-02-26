@@ -38,7 +38,7 @@ The performance of PyBangla was evaluated using 200 sentences. However, no evalu
 | **<= V2.0.8** | 200            | _No evaluation report_ | _No evaluation report_ | _No evaluation report_ |
 | **V2.0.9**    | 200            | 0.1291               | 0.0319               | 0.0975               |
 
-Report Link : [link](https://docs.google.com/spreadsheets/d/1VkSXH9TTEhHEq30I56yh4-kBZirPtH6Di89ZiQU_YOQ/edit?gid=1044112948#gid=1044112948)
+For more detail please check : [link](./test_data/PyBangla_Evalution_V2.0.9.xlsx)
 
 # Usage
 
