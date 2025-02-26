@@ -16,8 +16,14 @@ Features available in PYBANGLA:
 
 The easiest way to install pybangla is to use pip:
 
-```
+```py
 pip install pybangla
+#or
+pip install git+https://github.com/saiful9379/pybangla.git
+#or
+git clone https://github.com/saiful9379/pybangla.git
+cd pybangla
+pip install -e .
 ```
 
 # Evaluation
