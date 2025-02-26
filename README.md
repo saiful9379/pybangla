@@ -138,7 +138,7 @@ nrml = pybangla.Normalizer()
 today = nrml.today()
 print(today)
 
-# Output: 
+Output: 
 {'date': '৩০', 'month': 'এপ্রিল', 'year': '২০২৪', 'txt_date': 'ত্রিশ', 'txt_year': 'দুই হাজার চব্বিশ', 'weekday': 'মঙ্গলবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
 ```
 
@@ -146,19 +146,19 @@ Today, Months, Weekdays, Seasons more information or examples check the [link](.
 
 <h1 style='color:LightGreen'> New Feature </h1>
 
-<h2 style='color:LightBlue'>(UPDATE TEXT NORMALIZATION) It supports year conversion like </h2>
+## <h2 style='color:LightBlue'>(UPDATE TEXT NORMALIZATION) It supports year conversion like </h2>
 
 * "১৯৮৭-র" to "উনিশশো সাতাশি এর"
 * "১৯৯৫ সালে" to "উনিশশো পঁচানব্বই সালে"
 * "২০২৬-২৭" to "দুই হাজার ছাব্বিশ সাতাশ"
 
-<h3 style='color:LightBlue'> Now it also has the abbreviation for units of temperature </h3>
+## <h3 style='color:LightBlue'> Now it also has the abbreviation for units of temperature </h3>
 
 * "৪৪°F" to "চুয়াল্লিশ ডিগ্রী ফারেনহাইট"
 * "৪৪°C" to "চুয়াল্লিশ ডিগ্রী সেলসিয়াস"
 
 
-<h2 style='color:LightBlue'>Phone Number Processing </h2>
+## <h2 style='color:LightBlue'>Phone Number Processing </h2>
 
 * "01790-540211" to "জিরো ওয়ান সেভেন নাইন জিরো ফাইভ ফোর জিরো টু ডাবল ওয়ান"
 
@@ -171,7 +171,7 @@ Output:
 ```
 
 
-<h2 style='color:LightBlue'> Compare Two String Changes </h2>
+## <h2 style='color:LightBlue'> Compare Two String Changes </h2>
 
 ```py
 import pybangla
@@ -194,7 +194,7 @@ print(nrml.text_diff(input1, input2))
 
 <h2> </h2>
 
-## Next Upcoming Features
+### Next Upcoming Features
 
 1. Bangla lemmatization and stemming algorithm
 2. Bangla Tokenizer
