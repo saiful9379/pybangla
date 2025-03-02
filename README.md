@@ -100,7 +100,7 @@ import pybangla
 nrml = pybangla.Normalizer()
 text = "রাহিম ক্লাস ওয়ান এ ১ম, এন্ড বাসার ক্লাস এ ৩৩ তম, সে জন্য ২০৩০ শতাব্দীতে ¥২০৩০.১২৩৪ দিতে হয়েছে"
 print(f"Input: {text} \nOutput {nrml.text_normalizer(text,
-                                                     all_operation=True
+                                                     all_operation=False
                                                      year=True)}")
 
 print(text)
@@ -116,7 +116,7 @@ import pybangla
 nrml = pybangla.Normalizer()
 text = "রাহিম ক্লাস ওয়ান এ ১ম, এন্ড বাসার ক্লাস এ ৩৩ তম, সে জন্য ২০৩০ শতাব্দীতে ¥২০৩০.১২৩৪ দিতে হয়েছে"
 print(f"Input: {text} \nOutput {nrml.text_normalizer(text,
-                                                     all_operation=True
+                                                     all_operation=False
                                                      ordinals=True)}")
 
 print(text)
@@ -132,7 +132,7 @@ import pybangla
 nrml = pybangla.Normalizer()
 text = "রাহিম ক্লাস ওয়ান এ ১ম, এন্ড বাসার ক্লাস এ ৩৩ তম, সে জন্য ২০৩০ শতাব্দীতে ¥২০৩০.১২৩৪ দিতে হয়েছে"
 print(f"Input: {text} \nOutput {nrml.text_normalizer(text,
-                                                     all_operation=True
+                                                     all_operation=False
                                                      currency=True)}")
 
 print(text)
@@ -148,7 +148,7 @@ import pybangla
 nrml = pybangla.Normalizer()
 text = "রাহিম ক্লাস ওয়ান এ ১ম, এন্ড বাসার ক্লাস এ ৩৩ তম, সে জন্য ২০৩০ শতাব্দীতে ¥২০৩০.১২৩৪ দিতে হয়েছে"
 print(f"Input: {text} \nOutput {nrml.text_normalizer(text,
-                                                     all_operation=True
+                                                     all_operation=False
                                                      currency=True)}")
 
 print(text)
