@@ -56,35 +56,107 @@ Processes a given text by applying various normalization techniques based on spe
 
 __Parameters:__
 - `text` (str): The input text to be normalized.
-- `number_plate` (bool, default=True): Converts or normalizes vehicle number plates if present in the text into texual format.
-- `abbreviations` (bool, default=True): Expands common abbreviations into their full forms.
-- `year` (bool, default=True): Handles and formats years in texual format. 
-- `punctuation` (bool, default=True): Removes or standardizes unwanted punctuation marks.
-- `phone_number` (bool, default=True): Extracts and normalizes phone numbers into textual format.
-- `symbols` (bool, default=True): Expands common symbols into their textual representation.
-- `ordinals` (bool, default=True): Converts ordinal numbers into words.
-- `currency` (bool, default=True): Converts currency values into words.
-- `date` (bool, default=True): Standardizes and normalizes date formats.
-- `nid` (bool, default=True): Converts national identification numbers (NID) into a textual format.
-- `passport` (bool, default=True): Normalizes passport numbers into words.
-- `number` (bool, default=True): Processes and converts numeric values into textual form.
-- `emoji` (bool, default=True): Removes emojis from text.
+- `all_operation` (bool): Make this `True` if you need all operations to take place or `False`
+- `number_plate` (bool, default=False): Converts or normalizes vehicle number plates if present in the text.
+- `abbreviations` (bool, default=False): Expands common abbreviations into their full forms.
+- `year` (bool, default=False): Handles and formats years correctly. 
+- `punctuation` (bool, default=False): Removes or standardizes unwanted punctuation marks.
+- `phone_number` (bool, default=False): Extracts and normalizes phone numbers.
+- `symbols` (bool, default=False): Expands common symbols into their textual representation.
+- `ordinals` (bool, default=False): Converts ordinal numbers.
+- `currency` (bool, default=False): Converts currency values into words.
+- `date` (bool, default=False): Standardizes and normalizes date formats.
+- `nid` (bool, default=False): Converts national identification numbers (NID) into a textual format.
+- `passport` (bool, default=False): Normalizes passport numbers.
+- `number` (bool, default=False): Processes and converts numeric values into textual form.
+- `emoji` (bool, default=False): Removes emojis from text.
 
 __Returns:__
 - str: The normalized text after applying the selected transformations.
 
 __Example:__
+
+<h3>We can enable all conversion with a simple boolean parameter.</h3>
+
 ```py
 import pybangla
 nrml = pybangla.Normalizer()
 text = "রাহিম ক্লাস ওয়ান এ ১ম, এন্ড বাসার ক্লাস এ ৩৩ তম, সে জন্য ২০৩০ শতাব্দীতে ¥২০৩০.১২৩৪ দিতে হয়েছে"
-text = nrml.text_normalizer(text)
+print(f"Input: {text} \nOutput {nrml.text_normalizer(text, 
+                                                     all_operation=True)}")
 
 print(text)
 
 # output:
 'রাহিম ক্লাস ওয়ান এ প্রথম, এন্ড বাসার ক্লাস এ তেত্রিশতম, সে জন্য দুই হাজার ত্রিশ শতাব্দীতে দুই হাজার ত্রিশ দশমিক এক দুই তিন চার ইয়েন দিতে হয়েছে'
 ```
+
+<h3>This can be used for single operations also.</h3>
+
+For example, if only year conversion needed -
+
+```py
+import pybangla
+nrml = pybangla.Normalizer()
+text = "রাহিম ক্লাস ওয়ান এ ১ম, এন্ড বাসার ক্লাস এ ৩৩ তম, সে জন্য ২০৩০ শতাব্দীতে ¥২০৩০.১২৩৪ দিতে হয়েছে"
+print(f"Input: {text} \nOutput {nrml.text_normalizer(text,
+                                                     all_operation=False
+                                                     year=True)}")
+
+print(text)
+
+# output:
+'রাহিম ক্লাস ওয়ান এ ১ম, এন্ড বাসার ক্লাস এ ৩৩ তম, সে জন্য দুই হাজার ত্রিশ শতাব্দীতে ¥২০৩০.১২৩৪ দিতে হয়েছে'
+```
+
+If only ordinal conversion needed -
+
+```py
+import pybangla
+nrml = pybangla.Normalizer()
+text = "রাহিম ক্লাস ওয়ান এ ১ম, এন্ড বাসার ক্লাস এ ৩৩ তম, সে জন্য ২০৩০ শতাব্দীতে ¥২০৩০.১২৩৪ দিতে হয়েছে"
+print(f"Input: {text} \nOutput {nrml.text_normalizer(text,
+                                                     all_operation=False
+                                                     ordinals=True)}")
+
+print(text)
+
+# output:
+'রাহিম ক্লাস ওয়ান এ প্রথম, এন্ড বাসার ক্লাস এ তেত্রিশতম, সে জন্য ২০৩০ শতাব্দীতে ¥২০৩০.১২৩৪ দিতে হয়েছে'
+```
+
+If only currency conversion needed -
+
+```py
+import pybangla
+nrml = pybangla.Normalizer()
+text = "রাহিম ক্লাস ওয়ান এ ১ম, এন্ড বাসার ক্লাস এ ৩৩ তম, সে জন্য ২০৩০ শতাব্দীতে ¥২০৩০.১২৩৪ দিতে হয়েছে"
+print(f"Input: {text} \nOutput {nrml.text_normalizer(text,
+                                                     all_operation=False
+                                                     currency=True)}")
+
+print(text)
+
+# output:
+'রাহিম ক্লাস ওয়ান এ ১ম, এন্ড বাসার ক্লাস এ ৩৩ তম, সে জন্য ২০৩০ শতাব্দীতে দুই হাজার ত্রিশ দশমিক এক দুই তিন চার ইয়েন দিতে হয়েছে'
+```
+
+<h3>We can also use multiple conversion at once.</h3>
+
+```py
+import pybangla
+nrml = pybangla.Normalizer()
+text = "রাহিম ক্লাস ওয়ান এ ১ম, এন্ড বাসার ক্লাস এ ৩৩ তম, সে জন্য ২০৩০ শতাব্দীতে ¥২০৩০.১২৩৪ দিতে হয়েছে"
+print(f"Input: {text} \nOutput {nrml.text_normalizer(text,
+                                                     all_operation=False
+                                                     currency=True)}")
+
+print(text)
+
+# output:
+'রাহিম ক্লাস ওয়ান এ ১ম, এন্ড বাসার ক্লাস এ ৩৩ তম, সে জন্য দুই হাজার ত্রিশ শতাব্দীতে দুই হাজার ত্রিশ দশমিক এক দুই তিন চার ইয়েন দিতে হয়েছে'
+```
+
 Normalizer more information or example check the [link](./docs/Text_Normalizer.md)
 ## 2. [Number Conversion](https://github.com/saiful9379/pybangla/blob/main/docs/Number_Conversion.md)
 Example:
@@ -118,19 +190,7 @@ print(date)
 ```
 Date Format for more information or example check the [link](./docs/Date_Formating.md)
 
-## 4. [Emoji Removal](https://github.com/saiful9379/pybangla/blob/main/docs/Emoji_Remove.md)
-
-
-```py
-text = 'দয়া করে পবিত্র কুরআনুল কারিম বলেন,,,,পবিত্র কথাটা অবশ্যই বলবেন,,, প্লিজ 😢😥🙏🙏🙏'
-text = nrml.remove_emoji(text)
-print(f"{text}")
-
-output:
-দয়া করে পবিত্র কুরআনুল কারিম বলেন,,,,পবিত্র কথাটা অবশ্যই বলবেন,,, প্লিজ
-```
-For Emoji Removal more information or example check the [link](./docs/Emoji_Remove.md)
-## 5. [Today, Months, Weekdays, Seasons](https://github.com/saiful9379/pybangla/blob/main/docs/Day_Weeks_Months.md)
+## 4. [Today, Months, Weekdays, Seasons](https://github.com/saiful9379/pybangla/blob/main/docs/Day_Weeks_Months.md)
 
 ```py
 import pybangla
@@ -208,7 +268,7 @@ If you have any suggestions: Email: saifulbrur79@gmail.com
 ```
 @misc{pybangla,
   title={PYBANGLA module used for normalize textual format like text to number and number to text},
-  author={Md Saiful Islam, Hassan Ali Emon,  HM-badhon, Sagor Sarker, ud0y},
+  author={Islam, Md Saiful and Emon, Hassan Ali and  HM-badhon and Sarker, Sagor and Das, Udoy},
   howpublished={},
   year={2024}
 }

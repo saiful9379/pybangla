@@ -210,62 +210,88 @@ class Normalizer:
         }
         return data
 
-    def text_normalizer(self, text, 
-                        number_plate=True, 
-                        abbreviations=True, 
-                        year=True, 
-                        puntuation=True,
-                        phone_number=True, 
-                        symbols=True, 
-                        ordinals=True, 
-                        currency=True, 
-                        date=True, 
-                        nid=True, 
-                        passport=True, 
-                        number=True,
-                        emoji=True):
+    def text_normalizer(self, text,
+                        all_operation,
+                        number_plate=False, 
+                        abbreviations=False, 
+                        year=False, 
+                        puntuation=False,
+                        phone_number=False, 
+                        symbols=False, 
+                        ordinals=False, 
+                        currency=False, 
+                        date=False, 
+                        nid=False, 
+                        passport=False, 
+                        number=False,
+                        emoji=False):
         """
         Processes a given text by applying various normalization techniques based on specified boolean parameters.
 
         Parameters:
         - `text` (str): The input text to be normalized.
-        - `number_plate` (bool, default=True): Converts or normalizes vehicle number plates if present in the text.
-        - `abbreviations` (bool, default=True): Expands common abbreviations into their full forms.
-        - `year` (bool, default=True): Handles and formats years correctly. 
-        - `punctuation` (bool, default=True): Removes or standardizes unwanted punctuation marks.
-        - `phone_number` (bool, default=True): Extracts and normalizes phone numbers.
-        - `symbols` (bool, default=True): Expands common symbols into their textual representation.
-        - `ordinals` (bool, default=True): Converts ordinal numbers.
-        - `currency` (bool, default=True): Converts currency values into words.
-        - `date` (bool, default=True): Standardizes and normalizes date formats.
-        - `nid` (bool, default=True): Converts national identification numbers (NID) into a textual format.
-        - `passport` (bool, default=True): Normalizes passport numbers.
-        - `number` (bool, default=True): Processes and converts numeric values into textual form.
-        - `emoji` (bool, default=True): Removes emojis from text.
+        - `all_operation` (bool): Make this `True` if you need all operations to take place or `False`
+        - `number_plate` (bool, default=False): Converts or normalizes vehicle number plates if present in the text.
+        - `abbreviations` (bool, default=False): Expands common abbreviations into their full forms.
+        - `year` (bool, default=False): Handles and formats years correctly. 
+        - `punctuation` (bool, default=False): Removes or standardizes unwanted punctuation marks.
+        - `phone_number` (bool, default=False): Extracts and normalizes phone numbers.
+        - `symbols` (bool, default=False): Expands common symbols into their textual representation.
+        - `ordinals` (bool, default=False): Converts ordinal numbers.
+        - `currency` (bool, default=False): Converts currency values into words.
+        - `date` (bool, default=False): Standardizes and normalizes date formats.
+        - `nid` (bool, default=False): Converts national identification numbers (NID) into a textual format.
+        - `passport` (bool, default=False): Normalizes passport numbers.
+        - `number` (bool, default=False): Processes and converts numeric values into textual form.
+        - `emoji` (bool, default=False): Removes emojis from text.
 
         Returns:
         - str: The normalized text after applying the selected transformations.
 
         This function is useful for preprocessing text in speech-to-text systems, NLP applications, and text-to-speech (TTS) models where textual consistency is crucial.
         """
-        processing_map = {
-            "number_plate": number_plate,
-            "abbreviations": abbreviations,
-            "year_processing": year,
-            "year_to_year": year,
-            "phone_number": phone_number,
-            "puntuation": puntuation,
-            "whitespace": True,  # Always included
-            "year": year,
-            "symbols": symbols,
-            "ordinals": ordinals,
-            "currency": currency,
-            "date": date,
-            "nid": nid,
-            "passport": passport,
-            "number": number,
-            "collapse_whitespace": True  # Always included
-        }
+        
+        if all_operation:
+            processing_map = {
+                "number_plate": True,
+                "abbreviations": True,
+                "year_processing": True,
+                "year_to_year": True,
+                "phone_number": True,
+                "puntuation": True,
+                "whitespace": True,  # Always included
+                "year": True,
+                "symbols": True,
+                "ordinals": True,
+                "currency": True,
+                "date": True,
+                "nid": True,
+                "passport": True,
+                "number": True,
+                "collapse_whitespace": True  # Always included
+            }
+        else:
+            if number_plate or abbreviations or year or puntuation or phone_number or symbols or ordinals or currency or date or nid or passport or number or emoji:
+                processing_map = {
+                    "number_plate": number_plate,
+                    "abbreviations": abbreviations,
+                    "year_processing": year,
+                    "year_to_year": year,
+                    "phone_number": phone_number,
+                    "puntuation": puntuation,
+                    "whitespace": True,  # Always included
+                    "year": year,
+                    "symbols": symbols,
+                    "ordinals": ordinals,
+                    "currency": currency,
+                    "date": date,
+                    "nid": nid,
+                    "passport": passport,
+                    "number": number,
+                    "collapse_whitespace": True  # Always included
+                }
+            else:
+                raise ValueError("At least one of the operations must be True")
 
         if emoji:
             text = emr.remove_emoji(text)
