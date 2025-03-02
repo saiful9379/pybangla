@@ -38,7 +38,10 @@ For the evaluation, we selected 200 sentences. The dataset contains numerical va
 
 ### PyBangla Evaluation
 
-The performance of PyBangla was evaluated using 200 sentences. However, no evaluation report is available for versions earlier than **V2.0.9**.
+The performance of PyBangla was evaluated using **200** sentences. However, no evaluation report is available for versions earlier than **V2.0.9**.
+**PyBangla** V2.0.9 Presenting conversion accuracy as well as it's processing time performance.
+
+ ### Conversion Accuracy
 
 | Module Version | No. of Sentences | WER (Word Error Rate) | CER (Character Error Rate) | MER (Match Error Rate) |
 |---------------|----------------|----------------------|----------------------|----------------------|
@@ -46,6 +49,24 @@ The performance of PyBangla was evaluated using 200 sentences. However, no evalu
 | **V2.0.9**    | 200            | 0.1291               | 0.0319               | 0.0975               |
 
 For more detail please check : [link](./test_data/PyBangla_Evalution_V2.0.9.xlsx)
+
+
+### Processing Time Performance
+
+
+
+
+| Module Version | Total Sentences | Raw Character Count | Normalized Character Count | Per Character Processing Time (sec) | Total Processing Time (sec) |
+|---------------|---------------|---------------------|--------------------------|----------------------------------|----------------------|
+| 2.0.9        | 200           | 9,217               | 12,584                   | 0.0001167                         | 1.076                |
+
+## Interpretation
+
+- The text normalization process increased the character count from **9,217** to **12,584** due to transformations such as Unicode normalization, diacritic removal, and standardization.
+- The **average processing time per character** was **0.0001167 seconds**, resulting in a **total processing time of 1.076 seconds** for 200 sentences.
+- These metrics demonstrate the efficiency of **PyBangla** in handling Bangla text normalization.
+
+
 
 ## Usage
 
