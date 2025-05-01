@@ -13,12 +13,12 @@ class DrivingLicense:
         return f"{self.region}-{self.first_part}-{self.second_part}"
 
 class NumberNormalizer:
-    BENGALI_DIGITS = str.maketrans("0123456789|০১২৩৪৫৬৭৮৯")
+    # BENGALI_DIGITS = str.maketrans("0123456789|০১২৩৪৫৬৭৮৯")
     
     # Dictionary for number to word conversion (Bengali)
     BENGALI_NUMBERS = {
-        '0': 'শূন্য', '1': 'এক', '2': 'দুই', '3': 'তিন', '4': 'চার',
-        '5': 'পাঁচ', '6': 'ছয়', '7': 'সাত', '8': 'আট', '9': 'নয়',
+        '0': 'জিরো', '1': 'ওয়ান', '2': 'টু', '3': 'থ্রি', '4': 'ফোর', 
+        '5': 'ফাইভ', '6': 'সিক্স', '7': 'সেভেন', '8': 'এইট', '9': 'নাইন',
         '০': 'শূন্য', '১': 'এক', '২': 'দুই', '৩': 'তিন', '৪': 'চার',
         '৫': 'পাঁচ', '৬': 'ছয়', '৭': 'সাত', '৮': 'আট', '৯': 'নয়'
     }
@@ -36,7 +36,7 @@ class NumberNormalizer:
     
     @classmethod
     def to_bengali_words(cls, number: str) -> str:
-        return ' '.join(cls.BENGALI_NUMBERS.get(digit, digit) for digit in number)
+        return ', '.join(cls.BENGALI_NUMBERS.get(digit, digit) for digit in number)
 
 class DrivingLicenseParser:
     REGION_CODES = {
@@ -86,8 +86,8 @@ class DrivingLicenseFormatter:
         #     # return NumberNormalizer.to_bengali_digits(str(license))
         # elif format_type == 'bengali_words':
 
-        print("license 1st part: ", license.first_part)
-        print("license 2nd part: ", license.second_part)
+        # print("license 1st part: ", license.first_part)
+        # print("license 2nd part: ", license.second_part)
         return (f"{license.region}-"
                 f"{NumberNormalizer.to_bengali_words(license.first_part)}-"
                 f"{NumberNormalizer.to_bengali_words(license.second_part)}")
@@ -102,6 +102,8 @@ class DrivingLicenseFormatter:
         for license in licenses:
             start, end = license.span
             formatted = DrivingLicenseFormatter.format_license(license, format_type)
+
+            # print("formatted : ", formatted)
             result = result[:start] + formatted + result[end:]
         return result
 

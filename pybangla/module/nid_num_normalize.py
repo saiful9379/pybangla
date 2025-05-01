@@ -12,7 +12,9 @@ mapping = {
     "৬": "ছয়",
     "৭": "সাত",
     "৮": "আট",
-    "৯": "নয়"
+    "৯": "নয়",
+    '0': 'জিরো', '1': 'ওয়ান', '2': 'টু', '3': 'থ্রি', '4': 'ফোর', 
+    '5': 'ফাইভ', '6': 'সিক্স', '7': 'সেভেন', '8': 'এইট', '9': 'নাইন',
 }
 
 @dataclass
@@ -56,8 +58,10 @@ class NIDNumber:
     def to_bengali(self) -> str:
         """Convert the NID number to Bengali digits"""
         # First ensure we have English digits
+
         english_value = self.value.translate(self.BENGALI_TO_ENGLISH)
-        return english_value.translate(self.BENGALI_DIGITS)
+        # return english_value.translate(self.BENGALI_DIGITS)
+        return english_value
 
     @classmethod
     def from_bengali(cls, bengali_number: str) -> 'NIDNumber':
@@ -83,8 +87,12 @@ class NIDNormalizer:
             number_start = match.start(1)
             number_end = match.end(1)
 
-            bengali_value=nid_number.to_bengali()
+            if nid_number.value.isdigit():
+                bengali_value =  nid_number.value
+            else:
+                bengali_value= nid_number.to_bengali()
             bengali_value = ' '.join(mapping.get(char, char) for char in bengali_value)
+            # print("bengali_value", bengali_value)
             matches.append(NIDMatch(
                 value=nid_number.value,
                 start=number_start,
@@ -103,7 +111,9 @@ class NIDNormalizer:
         # Process matches in reverse order to avoid position shifts
         for match in reversed(self.extract_nids(text)):
             # print("match----> ", match)
-            result = result[:match.start] + match.bengali_value + result[match.end:]
+
+            # print("match.bengali_value : ", match.bengali_value)
+            result = result[:match.start] + match.bengali_value.replace(" ", ", ") +", "+result[match.end:]
         return result
     
 def main() -> None:

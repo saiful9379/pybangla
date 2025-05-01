@@ -7,7 +7,8 @@ from .parser import DateParser, TextParser, NumberParser, EmojiRemoval
 from .number_parser import Word2NumberMap
 from .date_extractor import DateExtractor
 from .phone_number_extractor import PhoneNumberExtractor
-# from .nid_num_normalize import NIDNormalizer
+# from .nid_num_normalize import NIDNormalizer\
+from .driving_license import DrivingLicenseFormatter
 
 dp, tp, npr, wnmp, emr = (
     DateParser(),
@@ -304,6 +305,10 @@ class Normalizer:
     def data_normalizer(self, text):
 
         text = tp.data_normailization(text)
+        return text
+    
+    def driving_license_norlization(self, text):
+        text = DrivingLicenseFormatter.replace_in_text(text, 'bengali_words')
         return text
 
     # def remove_emoji(self, text):

@@ -25,8 +25,8 @@ class NumberNormalizer:
     
     # Dictionary for number to word conversion (Bengali)
     BENGALI_NUMBERS = {
-        '0': 'শূন্য', '1': 'এক', '2': 'দুই', '3': 'তিন', '4': 'চার',
-        '5': 'পাঁচ', '6': 'ছয়', '7': 'সাত', '8': 'আট', '9': 'নয়',
+        '0': 'জিরো', '1': 'ওয়ান', '2': 'টু', '3': 'থ্রি', '4': 'ফোর', 
+        '5': 'ফাইভ', '6': 'সিক্স', '7': 'সেভেন', '8': 'এইট', '9': 'নাইন',
         '০': 'শূন্য', '১': 'এক', '২': 'দুই', '৩': 'তিন', '৪': 'চার',
         '৫': 'পাঁচ', '৬': 'ছয়', '৭': 'সাত', '৮': 'আট', '৯': 'নয়'
     }
@@ -93,9 +93,9 @@ class PassportFormatter:
             # print("passport----> ", passport)
             formatted = PassportFormatter.format_passport(passport, format_type)
             # print("formatted----> ", formatted)
-            span_text = span_text.replace(passport.prefix+passport.number, formatted)
+            span_text = span_text.replace(passport.prefix+passport.number, formatted.replace(" ", ", "))
             # print("span text after replace----> ", span_text)
-            result = result[:start] + " " + span_text + " " + result[end:]
+            result = result[:start] + " " + span_text + ", " + result[end:]
         # print("result----> ", result)
         return result
 
