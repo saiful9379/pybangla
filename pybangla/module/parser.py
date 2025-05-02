@@ -596,8 +596,12 @@ class TextParser:
         self.dp = DateParser()
         self.nid_normalizer = NIDNormalizer()
     def collapse_whitespace(self, text):
+        # print("text : ", text)
         text = re.sub(_whitespace_re, " ", text)
+    
         text = re.sub(r"\s*,\s*", ", ", text)
+
+        # print("text : ", text)
         return text
 
     def phone_number_processing(self):
@@ -819,15 +823,22 @@ class TextParser:
         # Replace matched text in reverse order to avoid index shifting
         for start, end, original, replacement in result:
             text = text[:start] + " "+replacement + text[end:]
+
+        # print("text year : ", text)
         return text
 
     def year_formation(self, text):
-        # print("text year in : ", text)
         for i in self.year_patterns:
-            # print(i)
             if i in text:
-                text = text.replace(i, " " + i)
-        # print("text year1 : ", text)
+                # pos = text.find(i, start_pos)
+                position = text.find(i)
+                if position != 0:
+                    previous_character = text[position-1]
+                    if previous_character.isnumeric():
+                        text = text.replace(i, " " + i)
+                    elif previous_character in ["-", "–", "—", "―"]:
+                        text = text.replace(i, " " + i)
+
         text = self.collapse_whitespace(text)
         # print("text year2 : ", text)
         matches = self.extract_year_blocks_with_positions(text)[::-1]
@@ -1227,6 +1238,7 @@ class TextParser:
             else:
                 try:
                     text = step(text)
+                    # print("text : ", text, key)
                 except Exception as e:
                     print(f"An error occurred in {step.__name__}: {e}")
                     continue
@@ -1248,6 +1260,7 @@ class TextParser:
         for step in processing_steps:
             try:
                 text = step(text)
+                # print("text : ", text. step.__name__)
             except Exception as e:
                 print(f"Error in {step.__name__}: {e}")
                 continue  # Skip the function that raised an exception

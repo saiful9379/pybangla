@@ -376,7 +376,8 @@ if __name__ == "__main__":
         # "বাংলা নম্বর হিসেবে পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও ই১২৩৪৫৬৭৮।",
         # "পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও ই১২৩৪৫৬৭৮।",
         # "তার ড্রাইভিং লাইসেন্স নম্বর ঢাকা-12345-678901।",
-        "তার ড্রাইভিং লাইসেন্স নম্বর ঢাকা-12345-678901।",
+        # "তার ড্রাইভিং লাইসেন্স নম্বর ঢাকা-12345-678901।",
+        "আপনি চাইলে আমরা ১ টি ফ্রি কনসালটেশন দিয়ে আপনাকে দেখাতে পারি "
    
         
     
@@ -394,8 +395,8 @@ if __name__ == "__main__":
 
     for i in bangla_sentences:
         print("input : ", i)
-        # text = nrml.text_normalizer(i,  all_operation=True)
-        text = nrml.driving_license_norlization(i)
+        text = nrml.text_normalizer(i,  all_operation=True)
+        # text = nrml.driving_license_norlization(i)
         print("output : ", text)
         print("=" * 2)
         # print(nrml.text_diff(i, text))
