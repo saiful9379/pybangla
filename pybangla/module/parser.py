@@ -84,7 +84,7 @@ class NumberParser:
 
         en_extraction = list(re.finditer(self.en_regex, number, re.UNICODE))
         # print("en_extraction : ", en_extraction[1])
-        # print("number_to_words : ", number)
+        # print("number_to_words : ", number, language)
         if en_extraction and language != "en":
             number = self._digit_converter(number)
 
@@ -124,6 +124,8 @@ class NumberParser:
     def digit_number_to_digit_word(self, number, language="bn"):
 
         number = re.sub(_whitespace_re, " ", number)
+
+        # print("digit_number_to_digit_word : ", number, language)
         s_n = ""
         for i in number:
             n = data[language]["number_mapping"][i]
@@ -291,21 +293,32 @@ class NumberParser:
         return rep_text
 
     def fraction_number_conversion(self, number, language="bn"):
-        n_n = ""
-        for i in number:
-            if i in cfg._english2bangla2_digits_mapping:
-                n_n += cfg._english2bangla2_digits_mapping[i]
-            else:
-                n_n += i
+
+        if language == "bn":
+            n_n = ""
+            for i in number:
+                if i in cfg._english2bangla2_digits_mapping:
+                    n_n += cfg._english2bangla2_digits_mapping[i]
+                else:
+                    n_n += i
+        else:
+            n_n = number
+
+        # print("n_n : ", n_n)
 
         s_m = n_n.split(".")
         # print("sm : ", s_m)
         before_dot_word, after_dot_word = self.number_to_words(
-            s_m[0]
+            s_m[0], language=language
         ), self.digit_number_to_digit_word(s_m[1], language=language)
 
+        if before_dot_word in cfg._banglish_pronunciation_bn:
+            before_dot_word = cfg._banglish_pronunciation_bn[before_dot_word]
         if len(after_dot_word):
-            word = before_dot_word + " দশমিক " + after_dot_word
+            if language == "bn":    
+                word = before_dot_word + " দশমিক " + after_dot_word
+            else:
+                word = before_dot_word + " ডট " + after_dot_word
             return word
         return before_dot_word
 
@@ -315,6 +328,67 @@ class NumberParser:
             return True
         return False
 
+    def bai_extraction_pattern(self, text):
+        pattern = r'([০-৯0-9]{1,2}/[০-৯0-9]{1})'
+        matches = [(match.group(), match.start(), match.end()) for match in re.finditer(pattern, text)]
+        sorted_matches = matches[::-1]
+        # print("matches : ", sorted_matches)
+        for p in sorted_matches:
+            match_str, starting_position, ending_position = p[0], p[1], p[2]
+            # ending_position = self.find_word_index(text, p)[1]
+            # print("p : ", p)
+            split_p = match_str.split("/")
+            # print("split_p : ", split_p)
+            if split_p and len(split_p) == 2:
+                # print("split_p : ", split_p)
+                first_lang = "en" if self.contains_only_english(split_p[0]) else "bn"
+                second_lang = "en" if self.contains_only_english(split_p[1]) else "bn"
+                first_num = self.number_to_words(split_p[0], language=first_lang)
+                second_num = self.number_to_words(split_p[1], language=second_lang)
+                # print("first_num : ", first_num, " second_num : ", second_num)    
+                if first_num in cfg._banglish_pronunciation_bn:
+                    first_num = cfg._banglish_pronunciation_bn[first_num]
+                if second_num in cfg._banglish_pronunciation_bn:
+                    second_num = cfg._banglish_pronunciation_bn[second_num]
+                # print("=====first_num : ", first_num, " second_num : ", second_num)
+                norm_string = f"{first_num} বাই {second_num}"
+                text = text[:starting_position] + " " + norm_string + " " + text[ending_position:]
+        return text
+    
+
+    def time_processing(self, text):
+        """
+        Process time in the text
+        """
+        # print("text : ", text)
+        # 11:59, 11:59:59, 11:59:59 AM, 11:59 PM, 11:59 AM, 11:59 PM
+
+        pattern = r"(\d{1,2}:\d{2}(:\d{2})?)"
+        matches = [(match.group(), match.start(), match.end()) for match in re.finditer(pattern, text)]
+    
+        # Sort matches based on length (longest first)
+        sorted_matches = matches[::-1]
+        for time_with_p in sorted_matches:
+            time_str = time_with_p[0]
+            start_position = time_with_p[1]
+            end_position = time_with_p[2]
+            if ":" in time_str:
+                parts = time_str.split(":")
+                if len(parts) == 3:
+                    hours, minutes, seconds = parts
+                    first_num = self.number_to_words(hours, language="bn")
+                    second_num = self.number_to_words(minutes, language="bn")
+                    third_num = self.number_to_words(seconds, language="bn")
+                    norm_string = f"{first_num}টা {second_num} মিনিট {third_num} সেকেন্ড"
+                elif len(parts) == 2:
+                    hours, minutes = parts
+                    first_num = self.number_to_words(hours, language="bn")
+                    second_num = self.number_to_words(minutes, language="bn")
+                    norm_string = f"{first_num}টা {second_num} মিনিট"
+                text = text[:start_position] + " " + norm_string + " " + text[end_position:]
+
+        return text
+
     def number_processing(self, text):
         # print("text : ", text)
         # pattern = r"[\d,\.]+"
@@ -322,6 +396,10 @@ class NumberParser:
         # matches = re.findall(pattern, text)
         # # print("matches : ", matches)
         # sorted_matches = sorted(matches, key=len, reverse=True)
+
+        # This regex matches 24/7, ২৪/৭, 24/৭, ২৪/7, etc.
+        text = self.bai_extraction_pattern(text)
+        text = self.time_processing(text)
 
         pattern = r"[\d,\.]+"  # Matches numbers with commas and periods
         matches = [(match.group(), match.start(), match.end()) for match in re.finditer(pattern, text)]
@@ -350,13 +428,18 @@ class NumberParser:
                 # print("p_status : ", text)
             else:
                 status = self.contains_only_english(n)
+                # print("status : ", status)
                 m_re = n.replace(",", "")
                 if status:
 
                     if "." in m_re:
-                        bn_m = self.fraction_number_conversion(m_re)
+                        bn_m = self.fraction_number_conversion(m_re, language="en")
                     else:
-                        bn_m = self.number_to_words(self._digit_converter(m_re))
+
+                        # print("m_re saiful : ", m_re)
+                        # print("m_re : ", self._digit_converter(m_re))
+                        bn_m = self.number_to_words(m_re, language="en")
+                        # print("bn_m : ", bn_m)
                     # if ti_status= ""
                     if ti_status:
                         text = text.replace(n, " " + str(bn_m))
@@ -687,6 +770,7 @@ class TextParser:
         # text = re.sub(r'(?<=\s)NID(?=$|\s|[.,!?])', 'এনআইডি', text)
         text = re.sub(r'(?<=\s)NID(?=\s)|^NID|(?<=\s)NID(?=\.$)', 'এনআইডি', text)
         text = re.sub(r'\b[eE][\-\‐ ]passport\b', 'ই-পাসপোর্ট', text)
+        # text = re.sub("24/7")
         # print("text : ", text)
         # print("text pun1.1 : ", text)
         text = re.sub(_remove_space_in_punctuations, "", text)
@@ -725,6 +809,7 @@ class TextParser:
         text = text.replace("মোসা:", "মোছাম্মত")
         text = text.replace("মোসা.", "মোছাম্মত")
         text = text.replace("মো:", "মোহাম্মদ")
+        text = text.replace("মো.", "মোহাম্মদ")
         # text = text.replace("ড. ", "ডক্টর ")
         text = re.sub(r'\bসেমি[ .]', 'সেন্টিমিটার ', text)
         text = re.sub(r'\bকিমি[ .]', 'কিলোমিটার ', text)
