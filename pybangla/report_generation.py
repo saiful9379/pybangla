@@ -47,7 +47,7 @@ def read_excel_file(file_path, sheet_names):
     return text_list
 
 
-def csv_log_generation(data, header, output_path="report/pybangla_report_csv.csv"):
+def csv_log_generation(data, header, output_path="report/pybangla_report_v2.11.0.csv"):
     with open(output_path, mode="w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(header)  # Write the header row
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     process_list = []
     for text in texts:
         print("input  : ", index, text)
-        p_text = nrml.text_normalizer(text)
+        p_text = nrml.text_normalizer(text,  all_operation=True)
         print("process text : ", p_text)
         removed_chunks, added_chunks = find_changes(text, p_text)
         # Output the results

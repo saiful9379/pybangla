@@ -69,13 +69,14 @@ class NumberParser:
                 ]
             else:
                 bangla_num_to_words_list = [
-                    word
+                    cfg._banglish_pronunciation_bn[word]
                     for word in eng_in_num_to_words.replace(",", " ")
                     .replace(" and ", " ")
                     .split()
                 ]
+            # print("number_string : ", bangla_num_to_words_list)
             return " ".join(bangla_num_to_words_list)
-            print("number_string : ", number_string)
+            
         except Exception as e:
             print(e)
             return
@@ -101,13 +102,14 @@ class NumberParser:
 
         # print("en_extraction : ", en_extraction)
         if en_extraction and language=="en":
-            number = " crore ".join(
+            number = " কোর ".join(
                 [
                     self.number_to_words_converting_process(chunk, lang="en")
                     for chunk in chunks
                 ]
             )
             number = number.replace("zero", "")
+            # print("number : ", number)
         else:
             number = " কোটি ".join(
                 [
@@ -318,7 +320,7 @@ class NumberParser:
             if language == "bn":    
                 word = before_dot_word + " দশমিক " + after_dot_word
             else:
-                word = before_dot_word + " ডট " + after_dot_word
+                word = before_dot_word + " পয়েন্ট " + after_dot_word
             return word
         return before_dot_word
 
@@ -379,7 +381,12 @@ class NumberParser:
                     first_num = self.number_to_words(hours, language="bn")
                     second_num = self.number_to_words(minutes, language="bn")
                     third_num = self.number_to_words(seconds, language="bn")
-                    norm_string = f"{first_num}টা {second_num} মিনিট {third_num} সেকেন্ড"
+                    print("first_num : ", first_num, " second_num : ", second_num, " third_num : ", third_num)
+
+                    if third_num:
+                        norm_string = f"{first_num}টা {second_num} মিনিট {third_num} সেকেন্ড"
+                    else:
+                        norm_string = f"{first_num}টা {second_num} মিনিট"
                 elif len(parts) == 2:
                     hours, minutes = parts
                     first_num = self.number_to_words(hours, language="bn")
@@ -440,6 +447,8 @@ class NumberParser:
                         # print("m_re : ", self._digit_converter(m_re))
                         bn_m = self.number_to_words(m_re, language="en")
                         # print("bn_m : ", bn_m)
+                        if bn_m in cfg._banglish_pronunciation_bn:
+                            bn_m = cfg._banglish_pronunciation_bn[bn_m]
                     # if ti_status= ""
                     if ti_status:
                         text = text.replace(n, " " + str(bn_m))
