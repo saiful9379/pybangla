@@ -47,7 +47,7 @@ def read_excel_file(file_path, sheet_names):
     return text_list
 
 
-def csv_log_generation(data, header, output_path="report/pybangla_report_v2.11.0.csv"):
+def csv_log_generation(data, header, output_path="report/pybangla_report_v2.12.0.csv"):
     with open(output_path, mode="w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(header)  # Write the header row

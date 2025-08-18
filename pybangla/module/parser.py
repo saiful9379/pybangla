@@ -780,7 +780,7 @@ class TextParser:
         text = re.sub(r'(?<=\s)NID(?=\s)|^NID|(?<=\s)NID(?=\.$)', 'এনআইডি', text)
         text = re.sub(r'\b[eE][\-\‐ ]passport\b', 'ই-পাসপোর্ট', text)
         # text = re.sub("24/7")
-        # print("text : ", text)
+        # print("text1 : ", text)
         # print("text pun1.1 : ", text)
         text = re.sub(_remove_space_in_punctuations, "", text)
         # print("text pun1.2 : ", text)
@@ -1250,20 +1250,27 @@ class TextParser:
 
         f_index = 0
         for full_name in cfg.data["en"]["months"]:
-            if full_name in original_text or full_name.capitalize() in original_text:
-                bn_name = cfg.data["bn"]["months"][f_index]
-                # print("bn_name : ", bn_name)
-                original_text = original_text.replace(full_name, bn_name)
-                original_text = original_text.replace(full_name.capitalize(), bn_name)
+            # Replace only whole words (case-insensitive)
+            pattern = r'\b' + re.escape(full_name) + r'\b'
+            pattern_cap = r'\b' + re.escape(full_name.capitalize()) + r'\b'
+            bn_name = cfg.data["bn"]["months"][f_index]
+            original_text = re.sub(pattern, bn_name, original_text)
+            original_text = re.sub(pattern_cap, bn_name, original_text)
             f_index += 1
         s_index = 0
         for short_name in cfg.data["en"]["option_name"]:
+
+            # print("short_name : ", short_name)
+            # print("original_text : ", original_text)
             
             if short_name in original_text or short_name.capitalize() in original_text:
                 # print(short_name)
                 bn_name = cfg.data["bn"]["months"][s_index]
-                original_text = original_text.replace(short_name, bn_name)
-                original_text = original_text.replace(short_name.capitalize(), bn_name)
+                # Replace only whole words (case-insensitive)
+                pattern = r'\b' + re.escape(short_name) + r'\b'
+                pattern_cap = r'\b' + re.escape(short_name.capitalize()) + r'\b'
+                original_text = re.sub(pattern, bn_name, original_text)
+                original_text = re.sub(pattern_cap, bn_name, original_text)
 
             s_index += 1
         return original_text
