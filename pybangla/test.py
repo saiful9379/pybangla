@@ -383,7 +383,7 @@ if __name__ == "__main__":
         # "দুঃখিত স্যার, ঐ offer-টার validity ছিল গতকাল রাত ১১:৫৯ পর্যন্ত।"
         # "দুঃখিত স্যার, ঐ offer-টার validity ছিল গতকাল রাত 11:59:00 পর্যন্ত।"
         # "2023 চেয়ে 1115 বাংলাদেশ আর মানুষ বুজতে শুরু ক ২০২৩ চেয়ে  ২০১৪ সালে আর মানুষ বুজতে শুরু ২০২৩ চেয়ে 2025 সালে"
-        "যেহেতু হোস্টিংটা it's very close to my heart, আমার first love হচ্ছে হোস্টিং, <laughing>  so I want to be myself।"
+        "যেহেতু হোস্টিংটা it's very close to my heart, আমার first love হচ্ছে হোস্টিং, [laughing]  so I want to be myself।"
    
         
     
