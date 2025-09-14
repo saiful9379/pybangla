@@ -383,11 +383,32 @@ if __name__ == "__main__":
         # "দুঃখিত স্যার, ঐ offer-টার validity ছিল গতকাল রাত ১১:৫৯ পর্যন্ত।"
         # "দুঃখিত স্যার, ঐ offer-টার validity ছিল গতকাল রাত 11:59:00 পর্যন্ত।"
         # "2023 চেয়ে 1115 বাংলাদেশ আর মানুষ বুজতে শুরু ক ২০২৩ চেয়ে  ২০১৪ সালে আর মানুষ বুজতে শুরু ২০২৩ চেয়ে 2025 সালে"
-        "যেহেতু হোস্টিংটা it's very close to my heart, আমার first love হচ্ছে হোস্টিং, [laughing]  so I want to be myself।"
-   
+        # "যেহেতু হোস্টিংটা it's very close to my heart, আমার first love হচ্ছে হোস্টিং, [laughing]  so I want to be myself।",
+        # "Ponds Nourishing Facial Scrub 100 gm - 696473751",
+        # "clean & clear face wash 50 ml - 123456789",
+        # "আমরা এপ্রিল ২০২৩ তে একটি রোড ট্রিপ পরিকল্পনা করছি."
+        # "[১৯৯৬]-সালের-৬:তারিখে-নির্ধারিত করা হয়েছে",
+        # "তার ড্রাইভিং লাইসেন্স নম্বর ঢাকা-12-6789।",
+        # "তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773-550379",
+        # "Starlink Standard কিটের জন্য BDT49,500। নির্ভরযোগ্য হাই-স্পিড ইন্টারনেট, যেখানেই যাবেন সেখানেই পাবেন। প্ল্যানের মূল্য শুরু প্রতি মাসে 4,200৳ থেকে।"
+        # "উদাহরণস্বরূপ, আপনার মোটরযানের রেজিস্ট্রেশন নাম্বার ঢাকা মেট্রো-গ-12-1212 এবং টাকা জমা রশিদের ট্রানজেকশন নাম্বার 2001011325989"
+        # "Orico 2520U3-BK-EP 2.5 inch USB 3.0 Hard Drive Enclosure",
+        # "Havit HV-SC055 Laptop Cleaning Kit - HV-SC055",
+        # "MSI Thin 15 B13VE Core i5 13th Gen RTX 4050 6GB Graphics 15.6 FHD Gaming Laptop",
+        # "MSI Thin A15 B7UC Ryzen 5 7535HS RTX 3050 4GB GDDR6 Graphics 15.6 FHD Gaming Laptop",
+        # "Orico 2520U3-BK-EP 2.5 inch USB 3.0 Hard Drive Enclosure",
+        # "Orico 123C 2.5 inch USB 3.0 Hard Drive Enclosure 2520U3-BK-EP-346-67895",
+        # "Havit HV-SC055 Laptop Cleaning Kit - HV-SC055 and the number is the 12345",
+        "তার ড্রাইভিং লাইসেন্স নম্বর ঢাকা-12-6789।",
+        "তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773-550379",
+        # "01790540211124562 যোগাযোগ করতে হলে01790-540211অথবা 01790-541111 নম্বরে যোগাযোগ করতে হবে",
+        # "Awei T71 TWS Earbuds V Bluetooth 5.3 Earphones With Mic",
+        # "HTC AT-522 Rechargeable Cordless Trimmer For Men",
+        # "Gigabyte A16 GA6H Core i7 13th Gen 16 FHD+ WUXGA Nvidia RTX 5050 Gaming Laptop",
+        # "Starlink Standard কিটের জন্য BDT49,500। নির্ভরযোগ্য হাই-স্পিড ইন্টারনেট, যেখানেই যাবেন সেখানেই পাবেন। প্ল্যানের মূল্য শুরু প্রতি মাসে 4,200৳ থেকে।",
+        # "১৯৯৬-সালের-৬:তারিখে-নির্ধারিত করা হয়েছে"
         
-    
-    ]
+        ]
 
     config = {
         "passport": True,
@@ -399,12 +420,14 @@ if __name__ == "__main__":
         "whitespace": True,
     }
 
+    start_time = time.time()
     for i in bangla_sentences:
         print("input : ", i)
         text = nrml.text_normalizer(i,  all_operation=True)
         # text = nrml.driving_license_norlization(i)
         print("output : ", text)
         print("=" * 2)
+        print("Time taken: ", time.time() - start_time)
         # print(nrml.text_diff(i, text))
         # # print()
         # print("+" * 40)

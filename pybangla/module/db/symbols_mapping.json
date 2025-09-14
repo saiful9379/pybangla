@@ -1,0 +1,267 @@
+{
+    "°": {
+      "bn": "ডিগ্রি",
+      "en": "degree",
+      "ja": "度",
+      "romaji": "do",
+      "ja_katakana": "ド",
+      "ja_hiragana": "ど"
+    },
+    "৳": {
+      "bn": "টাকা",
+      "en": "Taka",
+      "ja": "タカ",
+      "romaji": "taka",
+      "ja_katakana": "タカ",
+      "ja_hiragana": "たか"
+    },
+    "¥": {
+      "bn": "ইয়েন",
+      "en": "Yen",
+      "ja": "円",
+      "romaji": "en",
+      "ja_katakana": "エン",
+      "ja_hiragana": "えん"
+    },
+    "$": {
+      "bn": "ডলার",
+      "en": "Dollar",
+      "ja": "ドル",
+      "romaji": "doru",
+      "ja_katakana": "ドル",
+      "ja_hiragana": "どる"
+    },
+    "A$": {
+      "bn": "অস্ট্রেলিয়ান ডলার",
+      "en": "Australian Dollar",
+      "ja": "オーストラリアドル",
+      "romaji": "oosutoraria doru",
+      "ja_katakana": "オーストラリアドル",
+      "ja_hiragana": "おーすとらりあどる"
+    },
+    "C$": {
+      "bn": "কানাডিয়ান ডলার",
+      "en": "Canadian Dollar",
+      "ja": "カナダドル",
+      "romaji": "kanada doru",
+      "ja_katakana": "カナダドル",
+      "ja_hiragana": "かなだどる"
+    },
+    "€": {
+      "bn": "ইউরো",
+      "en": "Euro",
+      "ja": "ユーロ",
+      "romaji": "yuuro",
+      "ja_katakana": "ユーロ",
+      "ja_hiragana": "ゆーろ"
+    },
+    "£": {
+      "bn": "পাউন্ড",
+      "en": "Pound",
+      "ja": "ポンド",
+      "romaji": "pondo",
+      "ja_katakana": "ポンド",
+      "ja_hiragana": "ぽんど"
+    },
+    "₹": {
+      "bn": "রুপি",
+      "en": "Rupee",
+      "ja": "ルピー",
+      "romaji": "rupi",
+      "ja_katakana": "ルピー",
+      "ja_hiragana": "るぴー"
+    },
+    "₽": {
+      "bn": "রুবল",
+      "en": "Ruble",
+      "ja": "ルーブル",
+      "romaji": "ruuburu",
+      "ja_katakana": "ルーブル",
+      "ja_hiragana": "るーぶる"
+    },
+    "₩": {
+      "bn": "উওন",
+      "en": "Won",
+      "ja": "ウォン",
+      "romaji": "won",
+      "ja_katakana": "ウォン",
+      "ja_hiragana": "うぉん"
+    },
+    "₫": {
+      "bn": "ডং",
+      "en": "Dong",
+      "ja": "ドン",
+      "romaji": "don",
+      "ja_katakana": "ドン",
+      "ja_hiragana": "どん"
+    },
+    "₱": {
+      "bn": "পেসো",
+      "en": "Peso",
+      "ja": "ペソ",
+      "romaji": "peso",
+      "ja_katakana": "ペソ",
+      "ja_hiragana": "ぺそ"
+    },
+    "₴": {
+      "bn": "হৃভনিয়া",
+      "en": "Hryvnia",
+      "ja": "フリブニャ",
+      "romaji": "furibunya",
+      "ja_katakana": "フリブニャ",
+      "ja_hiragana": "ふりぶにゃ"
+    },
+    "₭": {
+      "bn": "কিপ",
+      "en": "Kip",
+      "ja": "キープ",
+      "romaji": "kiipu",
+      "ja_katakana": "キープ",
+      "ja_hiragana": "きーぷ"
+    },
+    "₦": {
+      "bn": "নাইরা",
+      "en": "Naira",
+      "ja": "ナイラ",
+      "romaji": "naira",
+      "ja_katakana": "ナイラ",
+      "ja_hiragana": "ないら"
+    },
+    "₲": {
+      "bn": "গুয়ারানি",
+      "en": "Guarani",
+      "ja": "グアラニー",
+      "romaji": "guarani",
+      "ja_katakana": "グアラニー",
+      "ja_hiragana": "ぐあらにー"
+    },
+    "₡": {
+      "bn": "কলোন",
+      "en": "Colon",
+      "ja": "コロン",
+      "romaji": "koron",
+      "ja_katakana": "コロン",
+      "ja_hiragana": "ころん"
+    },
+    "₵": {
+      "bn": "সেডি",
+      "en": "Cedi",
+      "ja": "セディ",
+      "romaji": "sedi",
+      "ja_katakana": "セディ",
+      "ja_hiragana": "せでぃ"
+    },
+    "₺": {
+      "bn": "লিরা",
+      "en": "Lira",
+      "ja": "リラ",
+      "romaji": "rira",
+      "ja_katakana": "リラ",
+      "ja_hiragana": "りら"
+    },
+    "₸": {
+      "bn": "তেঙ্গে",
+      "en": "Tenge",
+      "ja": "テンゲ",
+      "romaji": "tenge",
+      "ja_katakana": "テンゲ",
+      "ja_hiragana": "てんげ"
+    },
+    "₮": {
+      "bn": "তুগ্রিক",
+      "en": "Tögrög",
+      "ja": "トグログ",
+      "romaji": "togurogu",
+      "ja_katakana": "トグログ",
+      "ja_hiragana": "とぐろぐ"
+    },
+    "₿": {
+      "bn": "বিটকয়েন",
+      "en": "Bitcoin",
+      "ja": "ビットコイン",
+      "romaji": "bittokoin",
+      "ja_katakana": "ビットコイン",
+      "ja_hiragana": "びっとこいん"
+    },
+    "฿": {
+      "bn": "বাথ",
+      "en": "Baht",
+      "ja": "バーツ",
+      "romaji": "baatsu",
+      "ja_katakana": "バーツ",
+      "ja_hiragana": "ばーつ"
+    },
+    "R$": {
+      "bn": "রিয়াল",
+      "en": "Real",
+      "ja": "レアル",
+      "romaji": "rearu",
+      "ja_katakana": "レアル",
+      "ja_hiragana": "れある"
+    },
+    "zł": {
+      "bn": "জ্লোটি",
+      "en": "Zloty",
+      "ja": "ズウォティ",
+      "romaji": "zuwoti",
+      "ja_katakana": "ズウォティ",
+      "ja_hiragana": "ずうぉてぃ"
+    },
+    "kr": {
+      "bn": "ক্রোনে",
+      "en": "Krone",
+      "ja": "クローネ",
+      "romaji": "kurone",
+      "ja_katakana": "クローネ",
+      "ja_hiragana": "くろーね"
+    },
+    "CHF": {
+      "bn": "ফ্রাঁ",
+      "en": "Franc",
+      "ja": "フラン",
+      "romaji": "furan",
+      "ja_katakana": "フラン",
+      "ja_hiragana": "ふらん"
+    },
+    "AUD": {
+      "bn": "অস্ট্রেলিয়ান ডলার",
+      "en": "Australian Dollar",
+      "ja": "オーストラリアドル",
+      "romaji": "oosutorariadoru",
+      "ja_katakana": "オーストラリアドル",
+      "ja_hiragana": "おーすとらりあどる"
+    },
+    "CAD": {
+      "bn": "কানাডিয়ান ডলার",
+      "en": "Canadian Dollar",
+      "ja": "カナダドル",
+      "romaji": "kanadadoru",
+      "ja_katakana": "カナダドル",
+      "ja_hiragana": "かなだどる"
+    },
+    "SGD": {
+      "bn": "সিঙ্গাপুর ডলার",
+      "en": "Singapore Dollar",
+      "ja": "シンガポールドル",
+      "romaji": "shingapoorudoru",
+      "ja_katakana": "シンガポールドル",
+      "ja_hiragana": "しんがぽーるどる"
+    },
+    "HKD": {
+      "bn": "হংকং ডলার",
+      "en": "Hong Kong Dollar",
+      "ja": "香港ドル",
+      "romaji": "honkondoru",
+      "ja_katakana": "ホンコンドル",
+      "ja_hiragana": "ほんこんどる"
+    },
+    "CNY": {
+      "bn": "ইউয়ান",
+      "en": "Yuan",
+      "ja": "人民元",
+      "romaji": "jinmingen",
+      "ja_katakana": "ジンミンゲン",
+      "ja_hiragana": "じんみんげん"
+    }
+  }
+    

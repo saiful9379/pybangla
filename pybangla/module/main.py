@@ -213,6 +213,9 @@ class Normalizer:
 
     def text_normalizer(self, text,
                         all_operation,
+                        product_number=False,
+                        unit_normalization=False,
+                        driving_license=False,
                         number_plate=False, 
                         abbreviations=False, 
                         year=False, 
@@ -223,8 +226,10 @@ class Normalizer:
                         currency=False, 
                         date=False, 
                         nid=False, 
+                        nns=False,
                         passport=False, 
                         number=False,
+                        symbols_normalize=False,
                         emoji=False):
         """
         Processes a given text by applying various normalization techniques based on specified boolean parameters.
@@ -254,6 +259,9 @@ class Normalizer:
         
         if all_operation:
             processing_map = {
+                "product_number" : True,
+                "unit_normalization" : True,
+                "driving_license": True,
                 "number_plate": True,
                 "abbreviations": True,
                 "year_processing": True,
@@ -267,13 +275,18 @@ class Normalizer:
                 "currency": True,
                 "date": True,
                 "nid": True,
+                "nns" : True,
                 "passport": True,
                 "number": True,
+                "symbols_normalize": True,
                 "collapse_whitespace": True  # Always included
             }
         else:
             if number_plate or abbreviations or year or puntuation or phone_number or symbols or ordinals or currency or date or nid or passport or number or emoji:
                 processing_map = {
+                    "product_number": product_number,
+                    "unit_normalization": unit_normalization,
+                    "driving_license": driving_license,
                     "number_plate": number_plate,
                     "abbreviations": abbreviations,
                     "year_processing": year,
@@ -287,8 +300,10 @@ class Normalizer:
                     "currency": currency,
                     "date": date,
                     "nid": nid,
+                    "nns" : nns,
                     "passport": passport,
                     "number": number,
+                    "symbols_normalize": symbols_normalize,
                     "collapse_whitespace": True  # Always included
                 }
             else:

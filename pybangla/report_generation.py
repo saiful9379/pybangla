@@ -15,7 +15,7 @@ def read_test_file(file_path, lj_speach=False):
     """
     with open(file_path, "r") as file:
         # Read all lines from the file
-        data = [i for i in file.read().split("\n") if i]
+        data = [i.strip() for i in file.read().split("\n") if i]
 
     if lj_speach:
         data_list = []
@@ -47,7 +47,7 @@ def read_excel_file(file_path, sheet_names):
     return text_list
 
 
-def csv_log_generation(data, header, output_path="report/pybangla_report_v2.12.0.csv"):
+def csv_log_generation(data, header, output_path="report/pybangla_report_v2.12.5.csv"):
     with open(output_path, mode="w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(header)  # Write the header row
@@ -103,7 +103,9 @@ if __name__ == "__main__":
     #     'saiful',
     # ]
     # texts = read_excel_file(file_path, sheet_names)
+    output_path="report/pybangla_report_v2.12.5_v3.csv" 
     texts = read_test_file(file_path)
+    # texts = ["তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773-550379"]
     # print(len(texts))
 
     index = 0
@@ -123,4 +125,4 @@ if __name__ == "__main__":
         )
         index += 1
     print("time : ", time.time() - s_time)
-    csv_log_generation(process_list, header)
+    csv_log_generation(process_list, header, output_path=output_path)

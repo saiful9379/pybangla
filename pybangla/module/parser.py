@@ -10,11 +10,21 @@ from fuzzywuzzy import fuzz
 from .phone_number_extractor import PhoneNumberExtractor
 from .nid_num_normalize import NIDNormalizer
 from .passport_num_normalize import PassportFormatter
+from .product_unit_normalization import UnitNormalization
+from .product_number import ProductNormalizer
+from .driving_license import DrivingLicenseParser, DrivingLicenseFormatter
+from .symbol_conversion import SymbolNormalizer
+from .number_service import NumberNormalizationService
 
 
 dt = DateExtractor()
 pne = PhoneNumberExtractor()
 nid_normalizer = NIDNormalizer()
+un = UnitNormalization()
+pn = ProductNormalizer(debug=False)
+dlf = DrivingLicenseFormatter()
+symn = SymbolNormalizer()
+nns = NumberNormalizationService()
 data = cfg.data
 
 _abbreviations = cfg._abbreviations
@@ -700,13 +710,6 @@ class TextParser:
         pass
 
     def exception_year_processing(self, text):
-
-        # if len(text
-        # s+(\d{4}(?:-|–|—|―)\d{2})\s+
-        # _year_with_hyphen = re.findall(r'(\d{4}(?:-|–|—|―)\d{2})', text)
-        # print(_year_with_hyphen)
-        # _year_with_hyphen = re.findall(r'\s+(\d{4}(?:-|–|—|―)\d{2})\s+', text)
-        # print("text : ", text)
         _year_with_hyphen = re.findall(r"\b(\d{4}[-–—―]\d{2})\b", text)
         replce_map = {}
         for year in _year_with_hyphen:
@@ -738,10 +741,6 @@ class TextParser:
 
     def unwanted_puntuation_removing(self, text):
 
-        # print("text : ", text)
-
-        # print("text pun : ", text)
-
         # https://stackoverflow.com/questions/63256077/how-to-remove-redundant-punctuations-keep-only-the-first-one-in-text
         def my_replace(match):
             match = match.group()
@@ -754,14 +753,7 @@ class TextParser:
         _remove_space_in_punctuations = r"(?<=[^\w\s])\s+(?=[^\w\s])"
 
         text = _STANDARDIZE_ZW.sub("\u200D", text)
-
-        # print("text 0.2 : ", text)
-        
-        # text = re.sub(r"\u200d", "", text)
-        # print("text 0.3 : ", text)
         text = _DELETE_ZW.sub("", text)
-
-        # print("text 1 : ", text)
 
         text = text.replace("'র", " এর")
         text = text.replace("-র", " এর")
@@ -779,14 +771,7 @@ class TextParser:
         # text = re.sub(r'(?<=\s)NID(?=$|\s|[.,!?])', 'এনআইডি', text)
         text = re.sub(r'(?<=\s)NID(?=\s)|^NID|(?<=\s)NID(?=\.$)', 'এনআইডি', text)
         text = re.sub(r'\b[eE][\-\‐ ]passport\b', 'ই-পাসপোর্ট', text)
-        # text = re.sub("24/7")
-        # print("text1 : ", text)
-        # print("text pun1.1 : ", text)
         text = re.sub(_remove_space_in_punctuations, "", text)
-        # print("text pun1.2 : ", text)
-        # text = re.sub(
-        #     _redundent_punc_removal, my_replace, text, 0
-        # )  # only keep the first punctuation
         text = re.sub(_redundant_punc_removal, r"\1", text).strip()
         # print("text pun1.3 : ", text)
         text = re.sub(_remove_comma, "", text)
@@ -795,7 +780,6 @@ class TextParser:
         # print("text pun1.5 : ", text)
         translation_table = str.maketrans(_punctuations)
         text = text.translate(translation_table)
-        # text = re.sub('\u200C', '', text)
         # print("text pun2 : ", text)
         return text
 
@@ -947,11 +931,6 @@ class TextParser:
                 if y.isnumeric() and len(y) == 4:
                     process_year = self.npr.year_in_number(y)
                     i = i[0].replace(y, process_year)
-            # print(i)
-            # extract_year = [y for y in i[0].split(" ") if y.isnumeric() and len(y) == 4]
-            # print(extract_year)
-            # start_pos, end_pos = i[1], i[1] + len(extract_year[0])
-            # process_year = self.npr.year_in_number(extract_year[0])
             text = text[:start_pos] + i + text[end_pos:]
         # print("text year : ", text)
         return text
@@ -1307,7 +1286,10 @@ class TextParser:
 
         # print("text : ", text)
         processing_steps = {
+            "product_number": pn.product_normalization,
+            "unit_normalization": un.unit_processing,
             "number_plate": self.number_plate_processing,
+            "driving_license": dlf.replace_in_text,
             "abbreviations": self.expand_abbreviations,
 
             "year_processing": self.exception_year_processing,
@@ -1327,17 +1309,21 @@ class TextParser:
             "date": self.replace_date_processing,
             
             "nid": nid_normalizer.normalize,
+            "nns": nns.replace_numbers_with_words,
             "passport": PassportFormatter.normalize,
             "number": self.npr.number_processing,
+            "symbols_normalize": symn.sym_normalize,
             "collapse_whitespace": self.collapse_whitespace
         }
 
         
         for key, step in processing_steps.items():
             if key not in operation:
+                print(f"Skipping {key} as it's not in the operation list.")
                 continue
             else:
                 try:
+                # print("text : ", text, key)
                     text = step(text)
                     # print("text : ", text, key)
                 except Exception as e:

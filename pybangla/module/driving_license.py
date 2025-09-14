@@ -25,10 +25,10 @@ class NumberNormalizer:
     
     @classmethod
     def to_bengali_digits(cls, text: str) -> str:
-        print("to_bengali_digits text : ", text)
+        # print("to_bengali_digits text : ", text)
         trn_text = text.translate(cls.BENGALI_DIGITS)
 
-        print("trn_text : ", trn_text)
+        # print("trn_text : ", trn_text)
         # check already have bangla digit
         # if any(char in text for char in '০১২৩৪৫৬৭৮৯'):
         #     return text
@@ -59,8 +59,8 @@ class DrivingLicenseParser:
             |নীলফামারী|গাইবান্ধা|ঠাকুরগাঁও|কুড়িগ্রাম|শেরপুর|ময়মনসিংহ|জামালপুর|নেত্রকোণা
         )
         [-_]?                              # Optional hyphen or underscore
-        (?P<first>\d{5})[-_]              # First part (5 digits)
-        (?P<second>\d{6})                  # Second part (6 digits)
+        (?P<first>\d+)[-_]                # First part (flexible digits) ?P<first>\d{5})[-_]              # First part (5 digits)
+        (?P<second>\d+)                   # Second part (flexible digits)
         \b
     '''
     
@@ -68,40 +68,61 @@ class DrivingLicenseParser:
     def parse(cls, text: str) -> List[DrivingLicense]:
         licenses = []
         for match in re.finditer(cls.PATTERN, text, re.VERBOSE):
+            # print("match : ", match.group(), match.span())
+            dl_found  = False
+            if "DL" in match.group().strip()[:2] or "dl" in match.group().strip()[:2]:
+                dl_found = True
             region = match.group('region')
             # Convert English region code to Bengali if applicable
             region = cls.REGION_CODES.get(region, region)
+            if dl_found:
+                # print("REGION_CODES region : ", region)
+                region = "DL-" + region
+
             licenses.append(DrivingLicense(
                 region=region,
                 first_part=match.group('first'),
                 second_part=match.group('second'),
                 span=match.span()  # Add the span position
             ))
+        # print("licenses return : ", licenses)
         return licenses
 
 class DrivingLicenseFormatter:
-    @staticmethod
-    def format_license(license: DrivingLicense, format_type: str = 'bengali_digits') -> str:
-        # if format_type == 'bengali_digits':
-        #     # return NumberNormalizer.to_bengali_digits(str(license))
-        # elif format_type == 'bengali_words':
+    def __init__(self):
+        pass
+    def format_license(self, license, format_type: str = 'bengali_digits') -> str:
+        # Handle both string input and DrivingLicense object
+        if isinstance(license, str):
+            # Parse the string to extract license information
+            parsed_licenses = DrivingLicenseParser.parse(license)
+            if parsed_licenses:
+                license_obj = parsed_licenses[0]
+                return (f"{license_obj.region}-"
+                        f"{NumberNormalizer.to_bengali_words(license_obj.first_part)}-"
+                        f"-{NumberNormalizer.to_bengali_words(license_obj.second_part)}")
+            else:
+                return license  # Return original if no license found
+        elif isinstance(license, DrivingLicense):
+            return (f"{license.region}-"
+                    f"{NumberNormalizer.to_bengali_words(license.first_part)}-"
+                    f"{NumberNormalizer.to_bengali_words(license.second_part)}")
+        else:
+            return str(license)  # Fallback
 
-        # print("license 1st part: ", license.first_part)
-        # print("license 2nd part: ", license.second_part)
-        return (f"{license.region}-"
-                f"{NumberNormalizer.to_bengali_words(license.first_part)}-"
-                f"{NumberNormalizer.to_bengali_words(license.second_part)}")
-        # return str(license)
-
-    def replace_in_text(text: str, format_type: str = 'bengali_digits') -> str:
+    def replace_in_text(self, text: str, format_type: str = 'bengali_digits') -> str:
         """Replace all license numbers in the text with their formatted versions."""
         # Sort licenses by span position in reverse order to avoid position shifts
+        # print("text in driver : ", text)
         licenses = DrivingLicenseParser.parse(text)
+        # print("licenses : ", licenses)
         licenses = sorted(licenses, key=lambda x: x.span[0], reverse=True)
         result = text
         for license in licenses:
             start, end = license.span
-            formatted = DrivingLicenseFormatter.format_license(license, format_type)
+            formatted = self.format_license(license, format_type)
+
+            # print("license : ", license, formatted)
 
             # print("formatted : ", formatted)
             result = result[:start] + formatted + result[end:]
@@ -131,17 +152,18 @@ if __name__ == "__main__":
     DL-RAJ-67890-123456
     DL_SYL-11223-334455
     SYN98765-432109
-    RAN-98765-432100
+    RAN-98765-432100,
+    তার ড্রাইভিং লাইসেন্স নম্বর ঢাকা-12-6789।
     """
 
-    parser = DrivingLicenseParser()
+    dlf = DrivingLicenseFormatter()
     # Parse licenses
     for text in texts.split("\n"):
         if text.strip():
             print("text : ", text)
             # normalized_license = parser.format_license(license, 'bengali_words')
              # print("normalized_license: ", normalized_license, license)
-            text = DrivingLicenseFormatter.replace_in_text(text, 'bengali_words')
+            text = dlf.replace_in_text(text)
             # print("normalized_license: ", normalized_license)
             print("replaced_text: ", text)
             print("--------------------------------")   
