@@ -15,6 +15,8 @@ from .product_number import ProductNormalizer
 from .driving_license import DrivingLicenseParser, DrivingLicenseFormatter
 from .symbol_conversion import SymbolNormalizer
 from .number_service import NumberNormalizationService
+from .email_url_normalization import EmailURLExtractor
+from .ordinals_normalizaiton import OrdinalConverter
 
 
 dt = DateExtractor()
@@ -25,6 +27,8 @@ pn = ProductNormalizer(debug=False)
 dlf = DrivingLicenseFormatter()
 symn = SymbolNormalizer()
 nns = NumberNormalizationService()
+eue = EmailURLExtractor()
+oc = OrdinalConverter()
 data = cfg.data
 
 _abbreviations = cfg._abbreviations
@@ -391,7 +395,7 @@ class NumberParser:
                     first_num = self.number_to_words(hours, language="bn")
                     second_num = self.number_to_words(minutes, language="bn")
                     third_num = self.number_to_words(seconds, language="bn")
-                    print("first_num : ", first_num, " second_num : ", second_num, " third_num : ", third_num)
+                    # print("first_num : ", first_num, " second_num : ", second_num, " third_num : ", third_num)
 
                     if third_num:
                         norm_string = f"{first_num}টা {second_num} মিনিট {third_num} সেকেন্ড"
@@ -408,7 +412,7 @@ class NumberParser:
 
     def number_processing(self, text):
 
-        print("befor processing text : ", text)
+        # print("befor processing text : ", text)
         text = self.bai_extraction_pattern(text)
         text = self.time_processing(text)
 
@@ -478,7 +482,7 @@ class NumberParser:
         text = re.sub(cfg._whitespace_re, " ", text)
     
         text = re.sub(r"\s*,\s*", ", ", text)
-        print("processing text : ", text)
+        # print("processing text : ", text)
 
         return text
 
@@ -940,7 +944,7 @@ class TextParser:
     def extract_currency_amounts(self, text):
         split_text = (text.replace("\t", " ")).split(" ")
         matches = re.findall(self.currency_pattern, text)
-        pattern = r"[৳$£€¥₹₽₺₽]"
+        pattern = cfg.currency_pattern
         sorted_matches = sorted(matches, key=len, reverse=True)
         for m in sorted_matches:
             index = next((i for i, item in enumerate(split_text) if m in item), None)
@@ -1288,6 +1292,8 @@ class TextParser:
 
         # print("text : ", text)
         processing_steps = {
+            "email_normalization": eue.email_normalization,
+            "url_normalization": eue.url_normalization,
             "product_number": pn.product_normalization,
             "unit_normalization": un.unit_processing,
             "number_plate": self.number_plate_processing,
@@ -1313,6 +1319,7 @@ class TextParser:
             "nid": nid_normalizer.normalize,
             "nns": nns.replace_numbers_with_words,
             "passport": PassportFormatter.normalize,
+            "ordinal_en": oc.convert_ordinals,
             "number": self.npr.number_processing,
             "symbols_normalize": symn.sym_normalize,
             "collapse_whitespace": self.collapse_whitespace

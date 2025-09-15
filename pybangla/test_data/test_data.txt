@@ -384,3 +384,17 @@ invoice number 456780345
 "আমার account নম্বর ১২৩৪৫৬৭৮৯০ থেকে টাকা transfer করুন।",
 "নতুন receipt নং: 987654321 জেনারেট হয়েছে।",
 "আপনার transaction নাম্বার ৫৬৭৮৯০ সফল হয়েছে।",
+"Contact us at info@example.com or visit https://www.example.com",
+"Send email to john.doe@company.org and check www.company.org/about",
+"Multiple contacts: sales@site.com, support@site.co.uk, marketing@site.net",
+"Visit http://github.com/user/repo or ftp://files.server.com",
+"My email is test.user+tag@gmail.com and website is example.io",
+"Check out https://subdomain.example.com:8080/path/to/page?query=1"
+"MSI Thin 15 B13VE Core i5 13th Gen RTX 4050 6GB Graphics",
+"This is the 1st time I'm using this laptop",
+"He finished in 2nd place",
+"The 3rd option is the best",
+"Today is the 21st of December",
+"It's the 42nd anniversary",
+"The 100th customer wins a prize",
+"She came in 123rd position"

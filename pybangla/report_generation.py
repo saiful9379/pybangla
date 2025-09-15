@@ -59,26 +59,33 @@ def find_changes(string1, string2):
     words1, words2 = string1.split(), string2.split()
     # Use difflib to find differences
     diff = difflib.ndiff(words1, words2)
+
+    # print("Differences found:", list(diff))
     added_chunk, added_chunks, removed_chunk, removed_chunks = [], [], [], []
+    
     for change in diff:
         if change.startswith("+ "):
+            # Before adding to added_chunk, finalize any pending removed_chunk
+            if removed_chunk:
+                removed_chunks.append(" ".join(removed_chunk))
+                removed_chunk = []
             added_chunk.append(change[2:])
-            if removed_chunk:
-                removed_chunks.append(" ".join(removed_chunk))
-                removed_chunk = []
         elif change.startswith("- "):
-            removed_chunk.append(change[2:])
+            # Before adding to removed_chunk, finalize any pending added_chunk
             if added_chunk:
                 added_chunks.append(" ".join(added_chunk))
                 added_chunk = []
+            removed_chunk.append(change[2:])
         else:
+            # This is an unchanged word, finalize any pending chunks
             if added_chunk:
                 added_chunks.append(" ".join(added_chunk))
                 added_chunk = []
             if removed_chunk:
                 removed_chunks.append(" ".join(removed_chunk))
                 removed_chunk = []
-    # Append any remaining chunks
+    
+    # Append any remaining chunks at the end
     if added_chunk:
         added_chunks.append(" ".join(added_chunk))
     if removed_chunk:
@@ -103,9 +110,9 @@ if __name__ == "__main__":
     #     'saiful',
     # ]
     # texts = read_excel_file(file_path, sheet_names)
-    output_path="report/pybangla_report_v2.12.5_v3.csv" 
+    output_path="report/pybangla_report_v2.12.5_v4.csv" 
     texts = read_test_file(file_path)
-    # texts = ["তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773-550379"]
+    texts = ["তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773-550379"]
     # print(len(texts))
 
     index = 0
@@ -125,4 +132,5 @@ if __name__ == "__main__":
         )
         index += 1
     print("time : ", time.time() - s_time)
+    print("process_list :", process_list)
     csv_log_generation(process_list, header, output_path=output_path)

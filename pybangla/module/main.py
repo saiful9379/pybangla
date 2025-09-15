@@ -213,6 +213,8 @@ class Normalizer:
 
     def text_normalizer(self, text,
                         all_operation,
+                        email_normalization=False,
+                        url_normalization=False,
                         product_number=False,
                         unit_normalization=False,
                         driving_license=False,
@@ -227,7 +229,8 @@ class Normalizer:
                         date=False, 
                         nid=False, 
                         nns=False,
-                        passport=False, 
+                        passport=False,
+                        ordinal_en=False,
                         number=False,
                         symbols_normalize=False,
                         emoji=False):
@@ -259,6 +262,8 @@ class Normalizer:
         
         if all_operation:
             processing_map = {
+                "email_normalization": True,
+                "url_normalization": True,
                 "product_number" : True,
                 "unit_normalization" : True,
                 "driving_license": True,
@@ -277,13 +282,16 @@ class Normalizer:
                 "nid": True,
                 "nns" : True,
                 "passport": True,
+                "ordinal_en" : True,
                 "number": True,
                 "symbols_normalize": True,
                 "collapse_whitespace": True  # Always included
             }
         else:
-            if number_plate or abbreviations or year or puntuation or phone_number or symbols or ordinals or currency or date or nid or passport or number or emoji:
+            if email_normalization or url_normalization or number_plate or abbreviations or year or puntuation or phone_number or symbols or ordinals or currency or date or nid or passport or number or emoji:
                 processing_map = {
+                    "email_normalization": email_normalization,
+                    "url_normalization": url_normalization,
                     "product_number": product_number,
                     "unit_normalization": unit_normalization,
                     "driving_license": driving_license,
@@ -302,6 +310,7 @@ class Normalizer:
                     "nid": nid,
                     "nns" : nns,
                     "passport": passport,
+                    "ordinal_en" : ordinal_en,
                     "number": number,
                     "symbols_normalize": symbols_normalize,
                     "collapse_whitespace": True  # Always included

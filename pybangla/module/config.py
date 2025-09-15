@@ -159,6 +159,7 @@ class Config:
     samples = ["-", ",", "/", " "]
 
 
+    currency_pattern = r"[৳$£€¥₹₽₺₽]"
     currency_list = [
         "$",  # US Dollar, Canadian Dollar, Australian Dollar, etc.
         "€",  # Euro

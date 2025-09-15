@@ -94,12 +94,12 @@ class PassportFormatter:
         for passport in passports:
             start, end = passport.span
             span_text = text[start:end]
-            print("span text----> ", span_text)
+            # print("span text----> ", span_text)
             # print("passport----> ", passport)
             formatted = PassportFormatter.format_passport(passport, format_type)
             # print("formatted----> ", formatted)
             span_text = span_text.replace(passport.prefix+passport.number, formatted.replace(" ", ", "))
-            print("span text after replace----> ", span_text)
+            # print("span text after replace----> ", span_text)
             result = result[:start] + " " + span_text + ", " + result[end:]
         # print("result----> ", result)
                         # print("text : ", text)

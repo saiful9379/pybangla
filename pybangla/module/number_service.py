@@ -1,88 +1,124 @@
 import re
-from typing import Dict, Tuple, Optional
-
+from typing import Dict, Tuple, Optional, List
+from num2words import num2words
+try:
+    from .config import Config as cfg
+except ImportError:
+    from config import Config as cfg
 class NumberNormalizationService:
     def __init__(self):
         # Bengali to English digit mapping
         self.mapping_normalization = {
-            '0': 'জিরো', '1': 'ওয়ান', '2': 'টু', '3': 'থ্রি', '4': 'ফোর', 
+            '0': 'জিরো', '1': 'ওয়ান', '2': 'টু', '3': 'থ্রি', '4': 'ফোর', 
             '5': 'ফাইভ', '6': 'সিক্স', '7': 'সেভেন', '8': 'এইট', '9': 'নাইন',
             '০': 'শূন্য', '১': 'এক', '২': 'দুই', '৩': 'তিন', '৪': 'চার',
             '৫': 'পাঁচ', '৬': 'ছয়', '৭': 'সাত', '৮': 'আট', '৯': 'নয়'
         }
+
+
+        # Month names in Bengali and English
+        self.month_names = [
+            'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
+            'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর',
+            'january', 'february', 'march', 'april', 'may', 'june',
+            'july', 'august', 'september', 'october', 'november', 'december',
+            'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+            'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
+        ]
         
-        # Field normalization patterns - updated to capture numbers
+        # Date pattern to exclude from normalization
+        # Matches 1-2 digits (date) followed by month name
+        self.date_pattern = r'([০-৯\d]{1,2})\s*(' + '|'.join(self.month_names) + r')'
+        
+        # Updated field patterns to handle alphanumeric identifiers
         self.field_patterns = [
-            # Account variations with number capture
+            # Account variations
             (r'(?i)(একাউন্ট|account|a/c|A/C|a c|A C|acc|acct|হিসাব)\s*(নম্বর|নাম্বার|নং|ন\.|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'account_number'),
             
-            # Receipt variations with number capture
+            # Receipt variations
             (r'(?i)(রিসিপ্ট|রশিদ|রসিদ|receipt|ricipt|rcpt|rec)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'receipt_number'),
             
-            # Transaction variations with number capture
+            # Transaction variations
             (r'(?i)(ট্রানজেকশন|লেনদেন|transaction|transcrition|trans|txn|trx)\s*(নম্বর|নাম্বার|নং|number|no|id\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'transaction_number'),
             
-            # Slip variations with number capture
+            # Slip variations
             (r'(?i)(শ্লিপ|স্লিপ|slip|cilip)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'slip_number'),
             
-            # Card variations with number capture
+            # Card variations
             (r'(?i)(কার্ড|card)\s*(নম্বর|নাম্বার|number|নং|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'card_number'),
             
-            # Token variations with number capture
+            # Token variations
             (r'(?i)(টোকেন|token)(?:\s*id)?\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'token_number'),
             
-            # Bill variations with number capture
+            # Bill variations
             (r'(?i)(বিল|bill)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'bill_number'),
             
-            # Invoice variations with number capture
-            (r'(?i)(চালান|ইনভয়েস|invoice|inv)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'invoice_number'),
+            # Invoice variations - UPDATED to handle alphanumeric patterns
+            (r'(?i)(চালান|ইনভয়েস|invoice|inv)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'invoice_number'),
             
-            # Voucher variations with number capture
+            # Voucher variations
             (r'(?i)(ভাউচার|voucher)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'voucher_number'),
             
-            # Order variations with number capture
-            (r'(?i)(অর্ডার|order)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'order_number'),
+            # Order variations - UPDATED to handle alphanumeric patterns
+            (r'(?i)(অর্ডার|order)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'order_number'),
             
-            # Reference variations with number capture
-            (r'(?i)(রেফারেন্স|reference|ref)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'reference_number'),
+            # Reference variations - UPDATED to handle alphanumeric patterns
+            (r'(?i)(রেফারেন্স|reference|ref)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'reference_number'),
             
-            # Payment variations with number capture
+            # Payment variations
             (r'(?i)(পেমেন্ট|payment)(?:\s*(?:id|আইডি|নম্বর|নাম্বার|number))?\s*:?\s*([০-৯\d\-\s\.]+)', 'payment_id'),
             
-            # Tracking variations with number capture
-            (r'(?i)(ট্র্যাকিং|tracking|track)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'tracking_number'),
+            # Tracking variations - UPDATED to handle alphanumeric patterns
+            (r'(?i)(ট্র্যাকিং|tracking|track)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'tracking_number'),
             
-            # Customer variations with number capture
+            # Customer variations
             (r'(?i)(গ্রাহক|কাস্টমার|customer|cust)\s*(id|আইডি|নম্বর|number)?\s*:?\s*([০-৯\d\-\s\.]+)', 'customer_id'),
         ]
         
-        # Number extraction patterns
-        self.number_patterns = [
-            r'[\d০-৯]+[\s\-\.]*[\d০-৯]*[\s\-\.]*[\d০-৯]*',  # Matches numbers with separators
-            r'#\s*([\d০-৯]+)',  # Numbers with # prefix
-            r':\s*([\d০-৯]+)',  # Numbers after colon
-        ]
+    def extract_field_and_number_with_spans(self, text: str) -> List[Tuple[str, str, str, Tuple[int, int]]]:
+        """Extract field name, clean number, original number format and span position from text"""
+        extractions = []
         
-    def extract_field_and_number(self, text: str) -> Optional[Tuple[str, str]]:
-        """Extract field name and number from text using field patterns"""
         for pattern, field_name in self.field_patterns:
-            match = re.search(pattern, text)
-            if match:
-                # For most patterns, the number is in the last group
+            for match in re.finditer(pattern, text):
                 # Find the last non-None group that contains numbers
-                number_text = None
+                number_text_original = None
+                number_start = None
+                number_end = None
+                
                 for i in range(len(match.groups()), 0, -1):
                     group = match.group(i)
                     if group and re.search(r'[০-৯\d]', group):
-                        number_text = group.strip()
+                        number_text_original = group.strip()
+                        # Get the span of this specific group
+                        number_start = match.start(i)
+                        number_end = match.end(i)
                         break
                 
-                if number_text:
-                    # Convert Bengali digits first
-                    # number_text = self.convert_bengali_to_english(number_text)
-                    clean_number = re.sub(r'[^\d]', '', number_text)
-                    if clean_number:
-                        return (field_name, clean_number)
+                if number_text_original and number_start is not None:
+                    # For alphanumeric IDs, extract only the numeric part
+                    # but keep the original format for replacement
+                    numeric_parts = re.findall(r'[০-৯\d]+', number_text_original)
+                    if numeric_parts:
+                        # Join all numeric parts
+                        clean_number = ''.join(numeric_parts)
+                        # Convert Bengali digits to English
+                        clean_number = self.convert_bengali_to_english(clean_number)
+                        
+                        if clean_number:
+                            # Adjust span to match the actual position of the number in the original text
+                            actual_start = text.find(number_text_original, number_start)
+                            if actual_start != -1:
+                                actual_end = actual_start + len(number_text_original)
+                                extractions.append((field_name, clean_number, number_text_original, (actual_start, actual_end)))
+        
+        return extractions
+    
+    def extract_field_and_number(self, text: str) -> Optional[Tuple[str, str, str]]:
+        """Extract field name, clean number, and original number format from text (backward compatibility)"""
+        extractions = self.extract_field_and_number_with_spans(text)
+        if extractions:
+            return extractions[0][:3]  # Return first match without span
         return None
     
     def convert_bengali_to_english(self, text: str) -> str:
@@ -95,6 +131,59 @@ class NumberNormalizationService:
             text = text.replace(bengali, english)
         return text
     
+    def number_to_words_with_format(self, number: str, original_format: str) -> str:
+        """Convert number to words while preserving the original format structure"""
+        # If the original has a prefix (like INV-, ORD-, etc.), preserve it
+        prefix_match = re.match(r'^([A-Z]+-)', original_format)
+        prefix = prefix_match.group(1) if prefix_match else ''
+        
+        # Convert the numeric part to words
+        words = []
+        for digit in number:
+            if digit in self.mapping_normalization:
+                words.append(self.mapping_normalization[digit])
+            else:
+                words.append(digit)
+        
+        # If there was a prefix, add it back
+        if prefix:
+            return prefix + ', '.join(words)
+        else:
+            return ', '.join(words)
+        
+    def date_patter_procesing(self, text: str):
+        """Find positions of date numbers that should not be normalized"""
+        exclude_positions = []
+
+        matches = re.finditer(self.date_pattern, text, re.IGNORECASE)
+
+        sorted_matches = sorted(matches, key=lambda m: m.start(),  reverse=True)
+
+        # Find all date patterns
+        for match in sorted_matches:
+            # Get the position of the date number
+            word = match.group(1)
+            date_start = match.start(1)
+            date_end = match.end(1)
+            exclude_positions.append((date_start, date_end))
+            # print("Found date to exclude:", word)
+            #  need to check bangla number or english number
+            lang = 'bn'
+            if re.search(r'[০-৯]', word):
+                lang = 'bn'
+                word_in_bengali = num2words(word, lang=lang)
+            elif re.search(r'[0-9]', word):
+                lang = 'en'
+                word_in_bengali = num2words(word, lang=lang)
+                # word_in_bengali = cfg._bangla_numeric_words[word_in_en]
+
+            # Replace the date number with its word form in the text
+            text = text[:date_start] + word_in_bengali + text[date_end:]
+            # print("Replaced date number with words:", text)
+
+
+        return text
+    
     def number_to_words(self, number: str) -> str:
         """Convert number digits to Bengali words"""
         words = []
@@ -104,151 +193,73 @@ class NumberNormalizationService:
             else:
                 words.append(digit)
         return ', '.join(words)
-
-    def convert_bengali_digits(self, text: str) -> str:
-        """Convert Bengali digits to English digits - legacy method"""
-        return self.convert_bengali_to_english(text)
-    
-    def normalize_field_name(self, text: str) -> Optional[str]:
-        """Normalize field names to standard format"""
-        for pattern, replacement in self.field_patterns:
-            if re.search(pattern, text):
-                return replacement
-        return None
-    
-    def extract_number(self, text: str) -> Optional[str]:
-        """Extract and clean number from text"""
-        # First try field patterns
-        result = self.extract_field_and_number(text)
-        if result:
-            return result[1]
-        
-        # First convert Bengali digits
-        text = self.convert_bengali_to_english(text)
-        
-        # Try each number pattern
-        for pattern in self.number_patterns:
-            match = re.search(pattern, text)
-            if match:
-                # Clean the extracted number
-                number = match.group(0) if match.group(0) else match.group(1)
-                # Remove all non-digit characters
-                clean_number = re.sub(r'[^\d]', '', number)
-                if clean_number:
-                    return clean_number
-        
-        # Fallback: extract all digits from the text
-        all_digits = re.findall(r'\d+', text)
-        if all_digits:
-            return ''.join(all_digits)
-        
-        return None
-    
-    def normalize_line(self, line: str) -> Optional[Tuple[str, str]]:
-        """Normalize a complete line to (field_name, value) tuple"""
-        # Clean the line
-        line = line.strip()
-        if not line:
-            return None
-        
-        # Try to extract field and number directly
-        result = self.extract_field_and_number(line)
-        if result:
-            return result
-        
-        # Fallback: Find field name and extract number separately
-        field_name = self.normalize_field_name(line)
-        if not field_name:
-            return None
-        
-        # Extract number
-        number = self.extract_number(line)
-        if not number:
-            return None
-        
-        return (field_name, number)
-    
-    def normalize_text(self, text: str) -> Dict[str, str]:
-        """Normalize entire text and return dictionary of field:value pairs"""
-        results = {}
-        lines = text.split('\n')
-        
-        for line in lines:
-            normalized = self.normalize_line(line)
-            if normalized:
-                field_name, value = normalized
-                results[field_name] = value
-        
-        return results
     
     def replace_numbers_with_words(self, text: str) -> str:
-        """Replace numbers in text with Bengali words"""
-        result_text = text
+        """Replace numbers in text with Bengali words using span-based replacement"""
+        # Handle date pattern processing first
+        text = self.date_patter_procesing(text)
 
-        # print("number service:", result_text)
-        
-        # Process each line
         lines = text.split('\n')
         processed_lines = []
-        # print("Processing lines for number to words conversion:")
-        # print(lines)
         
         for line in lines:
             processed_line = line
-            # Try to extract field and number
-            extraction = self.extract_field_and_number(line)
-
-            # print("extration : ", extraction)
-
-            if extraction:
-                field_name, number = extraction
-
-                # print(f"Field: {field_name}, Number: {number}")
-                # Convert number to words
-                words = self.number_to_words(number)
-
-                # print("words : ", words)
+            
+            # Extract all field and number matches with spans
+            extractions = self.extract_field_and_number_with_spans(line)
+            
+            # print("extractions with spans: ", extractions)
+            
+            if extractions:
+                # Sort extractions by span position in reverse order to prevent index shifting
+                sorted_extractions = sorted(extractions, key=lambda x: x[3][0], reverse=True)
                 
-                # Find the number pattern in the line and replace with words
-                # for pattern, _ in self.field_patterns:
-                #     match = re.search(pattern, line)
-                #     print("match : ", match)
-                #     # if match and len(match.groups()) >= 3 and match.group(3):
-                #     if match is not None:
-                #         print("if condition:", match.group(3))
-                #         # Replace the number part with words
-                # original_number = match.group(3).strip()
-                #         print("original_number : ", original_number)
-                processed_line = line.replace(number, words)
-                        # break
+                # print("sorted_extractions: ", sorted_extractions)
+                
+                # Process each extraction from right to left
+                for field_name, clean_number, original_number_format, span in sorted_extractions:
+                    start_pos, end_pos = span
+                    
+                    # Check if the original format has a letter prefix
+                    if re.match(r'^[A-Z]+-', original_number_format):
+                        # Use special formatting for alphanumeric IDs
+                        words = self.number_to_words_with_format(clean_number, original_number_format)
+                    else:
+                        # Regular number conversion
+                        words = self.number_to_words(clean_number)
+                    
+                    # Replace using span positions
+                    processed_line = processed_line[:start_pos] + words + processed_line[end_pos:]
+                    
+                    # print(f"Replaced '{original_number_format}' at position {start_pos}-{end_pos} with '{words}'")
             
             processed_lines.append(processed_line)
         
-        return '\n'.join(processed_lines)
+        return ' '.join(processed_lines)
 
 
 # Example usage
 if __name__ == "__main__":
     service = NumberNormalizationService()
     
-    # Test data
-    test_text = """
-    একাউন্ট নম্বর ১২৩৪৫৬৬
-    account number 1234567890
-    রিসিপ্ট  নম্বর 123452
-    ricipt number 123456677989
-    রশিদ  নম্বর 8904390
-    ট্রানজেকশন নাম্বার 893023
-    transcrition number 12338902983
-    শ্লিপ নম্বর 1234567890123
-    cilip number 1234567890123
-    card number 1234567890123
-    token id number 1234567890123
-    টোকেন নম্বর  ৪৫৬৭৮০৩৪৫
-    বিল নম্বর  ৪৫৬৭৮০৩৪৫ hello how are you
-    bill number 456780345
-    চালান নম্বর  ৪৫৬৭৮০৩৪৫
-    invoice number 456780345
+    # Test the problematic cases
+    test_cases = [
+    "একাউন্ট নম্বর ১২৩৪৫৬৬",
+    "account number 1234567890",
+    "রিসিপ্ট  নম্বর 123452",
+    "ricipt number 123456677989",
+    "রশিদ  নম্বর 8904390",
+   " ট্রানজেকশন নাম্বার 893023",
+    "transcrition number 12338902983",
+    "শ্লিপ নম্বর 1234567890123",
+    "cilip number 1234567890123",
+    "card number 1234567890123",
+    "token id number 1234567890123",
+    "টোকেন নম্বর  ৪৫৬৭৮০৩৪৫",
+    "বিল নম্বর  ৪৫৬৭৮০৩৪৫ hello how are you",
+    "bill number 456780345",
+    "চালান নম্বর  ৪৫৬৭৮০৩৪৫",
+    "invoice number 456780345",
     "আমার একাউন্ট নম্বর ১২৩৪৫৬৭৮৯০ থেকে টাকা কেটে নিয়েছে।",
     "Please transfer the amount to account number 1234567890 before 5 PM.",
     "গ্রাহকের A/C নং: ৯৮৭৬৫৪৩২১০ এ জমা করুন।",
@@ -348,40 +359,17 @@ if __name__ == "__main__":
     "আমার account নম্বর ১২৩৪৫৬৭৮৯০ থেকে টাকা transfer করুন।",
     "নতুন receipt নং: 987654321 জেনারেট হয়েছে।",
     "আপনার transaction নাম্বার ৫৬৭৮৯০ সফল হয়েছে।",
-    "Havit HV-SC055 Laptop Cleaning Kit - HV-SC055 and the number is the 12345"
-    """
-
-    # test_text = """
-    # আপনার ইনভয়েস নম্বর ১২৩৪৫৬৭৮৯০১২ বৈধ।
-    # আপনার টোকেন নম্বর ৫৬৭৮৯০১২৩৪ দিয়ে লগইন করুন।
-    # নতুন Token নং: ৯৮৭-৬৫৪-৩২১ জেনারেট করা হয়েছে।
-    # Security token ID number 123456789012 expires at midnight.
-    # আপনার টোকেন নম্বর ৫৬৭৮৯০১২৩৪ দিয়ে লগইন করুন।
-    # আজকের লেনদেন নং: ৭৮৯০১২৩৪৫৬ সফল হয়েছে।
-        # গ্রাহকের A/C নং: ৯৮৭৬৫৪৩২১০ এ জমা করুন।
-    # "গ্রাহকের A/C নং: ৯৮৭৬৫৪৩২১০ এ জমা করুন।",
-    # """
-
-    """
-    this type of patter solved by product number
-    Use reference number REF-123-456-789 for all correspondence.
-    Your tracking number TRK-123-456-789-012 shows delivery tomorrow.
+    "Havit HV-SC055 Laptop Cleaning Kit - HV-SC055 and the number is the 12345 and my acound amount is 1234567"
+    ]
     
-    """
+    print("Testing Alphanumeric Number Normalization\n")
+    print("=" * 80)
 
-    test_text = """
-
-    "পেমেন্ট আইডি ১২৩৪৫৬৭৮৯০১২ নিশ্চিত হয়েছে BDT ১০,০০০ এর জন্য।",
-
-    """
+    print("testing data : ", len(test_cases))
     
-    # Process the text
-    for text in test_text.split('\n'):
-        text = text.strip()
-        if text:
-            print("Input: ", text)
-            # normalized = service.normalize_text(text)
-            # print("Normalized: ", normalized)
-            replaced = service.replace_numbers_with_words(text)
-            print("Replaced with words: ", replaced)
-            print("-" * 40)
+    for i, test_text in enumerate(test_cases):
+        print("index : ", i)
+        print(f"Input: {test_text}")
+        replaced = service.replace_numbers_with_words(test_text)
+        print(f"Output: {replaced}")
+        print("-" * 80)
