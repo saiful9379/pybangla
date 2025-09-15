@@ -1,10 +1,10 @@
 import os
 import json
 import re
-# try:
-#     from .config import Config as cfg
-# except ImportError:
-#     from config import Config as cfg
+try:
+    from .config import Config as cfg
+except ImportError:
+    from config import Config as cfg
 base_path = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -74,7 +74,13 @@ class SymbolNormalizer:
         # print("inside sym_normalize : ", input_string, lang)
         # print(self.pattern.sub(lambda match: self.replace_match(match, lang), input_string))
         # Use a lambda to pass the language argument to replace_match
-        return self.pattern.sub(lambda match: self.replace_match(match, lang), input_string)
+        input_string = self.pattern.sub(lambda match: self.replace_match(match, lang), input_string)
+        
+                # print("text : ", text)
+        input_string = re.sub(cfg._whitespace_re, " ", input_string)
+    
+        input_string = re.sub(r"\s*,\s*", ", ", input_string)
+        return input_string
 
 
 if __name__ == "__main__":

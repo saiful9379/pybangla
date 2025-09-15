@@ -1,6 +1,15 @@
 import re
 from typing import List, Tuple, Dict
 
+
+
+replace_unit = {
+    "." : "dot",
+    "@": "at the rate",
+    ":": "clone",
+    "/": "slash"
+}
+
 class EmailURLExtractor:
     def __init__(self):
         # Email regex pattern

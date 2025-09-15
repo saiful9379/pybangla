@@ -14,7 +14,7 @@ class NumberNormalizationService:
         # Field normalization patterns - updated to capture numbers
         self.field_patterns = [
             # Account variations with number capture
-            (r'(?i)(একাউন্ট|account|a/c|acc|acct|হিসাব)\s*(নম্বর|নাম্বার|নং|ন\.|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'account_number'),
+            (r'(?i)(একাউন্ট|account|a/c|A/C|a c|A C|acc|acct|হিসাব)\s*(নম্বর|নাম্বার|নং|ন\.|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'account_number'),
             
             # Receipt variations with number capture
             (r'(?i)(রিসিপ্ট|রশিদ|রসিদ|receipt|ricipt|rcpt|rec)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'receipt_number'),
@@ -79,7 +79,7 @@ class NumberNormalizationService:
                 
                 if number_text:
                     # Convert Bengali digits first
-                    number_text = self.convert_bengali_to_english(number_text)
+                    # number_text = self.convert_bengali_to_english(number_text)
                     clean_number = re.sub(r'[^\d]', '', number_text)
                     if clean_number:
                         return (field_name, clean_number)
@@ -184,6 +184,8 @@ class NumberNormalizationService:
     def replace_numbers_with_words(self, text: str) -> str:
         """Replace numbers in text with Bengali words"""
         result_text = text
+
+        # print("number service:", result_text)
         
         # Process each line
         lines = text.split('\n')
@@ -195,21 +197,30 @@ class NumberNormalizationService:
             processed_line = line
             # Try to extract field and number
             extraction = self.extract_field_and_number(line)
+
+            # print("extration : ", extraction)
+
             if extraction:
                 field_name, number = extraction
 
                 # print(f"Field: {field_name}, Number: {number}")
                 # Convert number to words
                 words = self.number_to_words(number)
+
+                # print("words : ", words)
                 
                 # Find the number pattern in the line and replace with words
-                for pattern, _ in self.field_patterns:
-                    match = re.search(pattern, line)
-                    if match and len(match.groups()) >= 3 and match.group(3):
-                        # Replace the number part with words
-                        original_number = match.group(3).strip()
-                        processed_line = line.replace(original_number, words)
-                        break
+                # for pattern, _ in self.field_patterns:
+                #     match = re.search(pattern, line)
+                #     print("match : ", match)
+                #     # if match and len(match.groups()) >= 3 and match.group(3):
+                #     if match is not None:
+                #         print("if condition:", match.group(3))
+                #         # Replace the number part with words
+                # original_number = match.group(3).strip()
+                #         print("original_number : ", original_number)
+                processed_line = line.replace(number, words)
+                        # break
             
             processed_lines.append(processed_line)
         
@@ -347,6 +358,8 @@ if __name__ == "__main__":
     # Security token ID number 123456789012 expires at midnight.
     # আপনার টোকেন নম্বর ৫৬৭৮৯০১২৩৪ দিয়ে লগইন করুন।
     # আজকের লেনদেন নং: ৭৮৯০১২৩৪৫৬ সফল হয়েছে।
+        # গ্রাহকের A/C নং: ৯৮৭৬৫৪৩২১০ এ জমা করুন।
+    # "গ্রাহকের A/C নং: ৯৮৭৬৫৪৩২১০ এ জমা করুন।",
     # """
 
     """
@@ -354,6 +367,12 @@ if __name__ == "__main__":
     Use reference number REF-123-456-789 for all correspondence.
     Your tracking number TRK-123-456-789-012 shows delivery tomorrow.
     
+    """
+
+    test_text = """
+
+    "পেমেন্ট আইডি ১২৩৪৫৬৭৮৯০১২ নিশ্চিত হয়েছে BDT ১০,০০০ এর জন্য।",
+
     """
     
     # Process the text

@@ -407,14 +407,8 @@ class NumberParser:
         return text
 
     def number_processing(self, text):
-        # print("text : ", text)
-        # pattern = r"[\d,\.]+"
-        
-        # matches = re.findall(pattern, text)
-        # # print("matches : ", matches)
-        # sorted_matches = sorted(matches, key=len, reverse=True)
 
-        # This regex matches 24/7, ২৪/৭, 24/৭, ২৪/7, etc.
+        print("befor processing text : ", text)
         text = self.bai_extraction_pattern(text)
         text = self.time_processing(text)
 
@@ -468,15 +462,23 @@ class NumberParser:
                     if "." in m_re:
                         bn_m = self.fraction_number_conversion(m_re, language="bn")
                     else:
+                        
                         bn_m = self.number_to_words(m_re)
                     # print("else : bn_m ", n, bn_m)
+                    if n=="০" and len(bn_m.strip())==0:
+                        bn_m = "শূণ্য"
+                    elif n=="0" and len(bn_m.strip())==0:
+                        bn_m = "জিরো"
+
                     if ti_status:
                         text = text.replace(str(n), " " + str(bn_m))
                     else:
                         text = text.replace(str(n), " " + str(bn_m)+" ")
 
-            # if ti_status:
-                # text = text.replace(" টি", "টি")
+        text = re.sub(cfg._whitespace_re, " ", text)
+    
+        text = re.sub(r"\s*,\s*", ", ", text)
+        print("processing text : ", text)
 
         return text
 

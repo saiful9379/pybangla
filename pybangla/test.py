@@ -399,15 +399,28 @@ if __name__ == "__main__":
         # "Orico 2520U3-BK-EP 2.5 inch USB 3.0 Hard Drive Enclosure",
         # "Orico 123C 2.5 inch USB 3.0 Hard Drive Enclosure 2520U3-BK-EP-346-67895",
         # "Havit HV-SC055 Laptop Cleaning Kit - HV-SC055 and the number is the 12345",
-        "তার ড্রাইভিং লাইসেন্স নম্বর ঢাকা-12-6789।",
-        "তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773-550379",
+        # "তার ড্রাইভিং লাইসেন্স নম্বর ঢাকা-12-6789।",
+        # "তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773-550379",
+        # "বিল নম্বর  ৪৫৬৭৮০৩৪৫ hello how are you",
+        # "গ্রাহকের A/C নং: ৯৮৭৬৫৪৩২১০ এ জমা করুন।",
+        # "পেমেন্ট আইডি ১২৩৪৫৬৭৮৯০১২ নিশ্চিত হয়েছে BDT ১০,০০০ এর জন্য।",
+        # "Your electricity bill number 202401-123456 is due on 15th January.",
+        # "বিল নম্বর  ৪৫৬৭৮০৩৪৫ hello how are you"
         # "01790540211124562 যোগাযোগ করতে হলে01790-540211অথবা 01790-541111 নম্বরে যোগাযোগ করতে হবে",
         # "Awei T71 TWS Earbuds V Bluetooth 5.3 Earphones With Mic",
         # "HTC AT-522 Rechargeable Cordless Trimmer For Men",
         # "Gigabyte A16 GA6H Core i7 13th Gen 16 FHD+ WUXGA Nvidia RTX 5050 Gaming Laptop",
         # "Starlink Standard কিটের জন্য BDT49,500। নির্ভরযোগ্য হাই-স্পিড ইন্টারনেট, যেখানেই যাবেন সেখানেই পাবেন। প্ল্যানের মূল্য শুরু প্রতি মাসে 4,200৳ থেকে।",
         # "১৯৯৬-সালের-৬:তারিখে-নির্ধারিত করা হয়েছে"
-        
+        # "গ্রাহকের a/c নং: ৯৮৭৬৫৪৩২১০ এ জমা করুন।"
+        # "গ্রাহকের A/C নং: ৯৮৭৬৫৪৩২১০ এ জমা করুন।",
+        # "পেমেন্ট আইডি ১২৩৪৫৬৭৮৯০১২ নিশ্চিত হয়েছে BDT ১০,০০০ এর জন্য।",
+        # "Your electricity bill number 202401-123456 is due on 15th January.",
+        # "বিল নম্বর  ৪৫৬৭৮০৩৪৫ hello how are you"
+        # "Your electricity bill number 202401-123456 is due on 15th January.",
+        "পেমেন্ট আইডি ১২৩৪৫৬৭৮৯০১২ নিশ্চিত হয়েছে BDT ১০,০০০ এর জন্য।",
+        "Your electricity bill number 202401-123456 is due on 15th January.",
+        "বিল নম্বর  ৪৫৬৭৮০৩৪৫ hello how are you"
         ]
 
     config = {
