@@ -1,0 +1,6 @@
+include README.md
+include LICENSE.txt
+recursive-include pybangla *.json
+recursive-include pybangla/module/db *.json
+include docs/*.md
+include docs/*.txt

@@ -6,6 +6,10 @@ setup(
     name='pybangla',
     version='2.11.5',
     packages=find_packages(),
+    include_package_data=True,
+    package_data={
+        'pybangla': ['module/db/*.json'],
+    },
     # entry_points={
     #     'console_scripts': [
     #         'pybangla = pybangla.main:Normalizer'
