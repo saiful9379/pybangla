@@ -49,13 +49,32 @@ class NumberNormalizer:
     @classmethod
     def to_bengali_words(cls, number: str) -> str:
         return ' '.join(cls.BENGALI_NUMBERS.get(digit, digit) for digit in number)
-
+#  self.passport_pattern = r'(?i)(?:e-passport|ই-পাসপোর্ট|e\s+passport|ই\s+পাসপোর্ট|passport|পাসপোর্ট)\s*(?:id|আইডি|নম্বর|নাম্বার|নং|number|no)?\s*[:=\-]?\s*([A-Za-z\u0985-\u09B9]?[\s\-]?[\u09E6-\u09EF0-9]+)'
 class PassportParser:
-    # Pattern to match Bangladesh Passport Numbers with optional prefix
+    # Pattern to match Bangladesh Passport Numbers with optional prefix, Bengali/English digits, and separators
+    # PATTERN = r'''
+    #     (?:                                                    # Required group (no ? at the end)
+    #         (e-passport|ই-পাসপোর্ট|e\s+passport|ই\s+পাসপোর্ট|passport|পাসপোর্ট)  # Required passport prefix
+    #         \s*
+    #         (?:id|আইডি|নম্বর|নাম্বার|নং|number|no)?           # Optional ID/number label
+    #         \s*:?\s*
+    #     )
+    #     (?P<prefix>[A-Zএ-ঔ])?                                 # Optional letter prefix
+    #     [\s\-\.]?
+    #     (?P<number>[০-৯0-9]{7,9})                             # 7-9 digits
+    # '''
+
     PATTERN = r'''
-        (?:পাসপোর্ট\s+নম্বর[:\s]+)?  # Optional "পাসপোর্ট নম্বর" prefix
-        (?P<prefix>[A-Z])?            # Optional English letter prefix
-        (?P<number>\d{7,9})          # 7-9 digits
+        (?i)                                                # Case insensitive
+        (?:                                                 # Start non-capturing group
+            e-passport|ই-পাসপোর্ট|e\s+passport|ই\s+পাসপোর্ট|passport|পাসপোর্ট
+        )                                                   # End passport keywords
+        \s*                                                 # Optional whitespace
+        (?:id|আইডি|নম্বর|নাম্বার|নং|number|no)?           # Optional ID/number label
+        \s*[:=\-]?\s*                                      # Optional separator with whitespace
+        (?P<prefix>[A-Za-z\u0985-\u09B9])?                 # Optional letter prefix (named group)
+        [\s\-]?                                            # Optional space or hyphen
+        (?P<number>[\u09E6-\u09EF0-9]{7,9})               # 7-9 digits (named group)
     '''
     
     @classmethod
@@ -68,6 +87,8 @@ class PassportParser:
                 number=match.group('number'),
                 span=match.span()
             ))
+
+        # print("Parsed Passports:", passports)
         return passports
 
 class PassportFormatter:
@@ -118,7 +139,7 @@ if __name__ == "__main__":
     তার পাসপোর্ট নম্বর P87654321 ছিল।
     তার পাসপোর্ট নম্বর P০১২৩৪৫৬৭ ছিল।
     বাংলা নম্বর হিসেবে পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও ই১২৩৪৫৬৭৮।
-    পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও ই১২৩৪৫৬৭৮।       
+    পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও এ১২৩৪৫৬৭৮।       
     """
     
     # Parse passport numbers
@@ -126,9 +147,9 @@ if __name__ == "__main__":
         if text.strip() == "":
             continue
         print("input text----> ", text)
-        PassportFormatter.normalize(text, 'bengali_words')
+        normalized_text =  PassportFormatter.normalize(text, 'bengali_words')
         # print("\nNormalized Text:", PassportFormatter.normalize(text, 'bengali_words'))
-        # print("\nNormalized Text:", text)
+        print("\nNormalized Text:", normalized_text)
         print("-----------------------------")
             # text = PassportFormatter.replace_in_text(text, passport, 'bengali_words')
         # print(PassportFormatter.replace_in_text(text, passports, 'bengali_words'))

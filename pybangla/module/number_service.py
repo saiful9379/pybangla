@@ -1,10 +1,10 @@
 import re
 from typing import Dict, Tuple, Optional, List
 from num2words import num2words
-try:
-    from .config import Config as cfg
-except ImportError:
-    from config import Config as cfg
+# try:
+#     from .config import Config as cfg
+# except ImportError:
+#     from config import Config as cfg
 class NumberNormalizationService:
     def __init__(self):
         # Bengali to English digit mapping
@@ -29,6 +29,12 @@ class NumberNormalizationService:
         # Date pattern to exclude from normalization
         # Matches 1-2 digits (date) followed by month name
         self.date_pattern = r'([০-৯\d]{1,2})\s*(' + '|'.join(self.month_names) + r')'
+
+        # self.passport_pattern = r'(?i)(?:e-passport|ই-পাসপোর্ট|e\s+passport|ই\s+পাসপোর্ট|passport|পাসপোর্ট)\s*(?:id|আইডি|নম্বর|নাম্বার|নং|number|no)?\s*[:=\-]?\s*([A-Za-z\u0985-\u09B9]?[\s\-]?[\u09E6-\u09EF0-9]+)'
+        self.passport_pattern = r'(?i)(?:e-passport|ই-পাসপোর্ট|e\s+passport|ই\s+পাসপোর্ট|passport|পাসপোর্ট)\s*(?:id|আইডি|নম্বর|নাম্বার|নং|number|no)?\s*[:=\-]?\s*([A-Za-z\u0985-\u09B9]?[\s\-]?[\u09E6-\u09EF0-9]{7,9}(?:\s*ও\s*[A-Za[z\u0985-\u09B9]?[\s\-]?[\u09E6-\u09EF0-9]{7,9})*)'
+
+        self.number_pattern = r'([A-Za-z\u0985-\u09B9]?[\s\-]?[\u09E6-\u09EF0-9]{7,9})'
+
         
         # Updated field patterns to handle alphanumeric identifiers
         self.field_patterns = [
@@ -73,8 +79,55 @@ class NumberNormalizationService:
             
             # Customer variations
             (r'(?i)(গ্রাহক|কাস্টমার|customer|cust)\s*(id|আইডি|নম্বর|number)?\s*:?\s*([০-৯\d\-\s\.]+)', 'customer_id'),
+            # Passport variations
+            (r'(?i)(e-passport|ই-পাসপোর্ট|e passport|ই পাসপোর্ট|passport|পাসপোর্ট)\s*(id|আইডি|নম্বর|নাম্বার|নং|number|no)?\s*:?-?\s*([A-Zএ-ঔ]?[০-৯0-9]+)', 'passport_id')
         ]
-        
+
+
+
+    def extract_passport_unicode(self, text):
+        """
+        Extract using Unicode ranges for Bengali characters
+        Returns a list of dicts with passport number and its span
+        """
+        # Example: self.passport_pattern could be something like r"[A-Z0-9\u0985-\u09EF]{8,10}"
+        matches = re.finditer(self.passport_pattern, text)
+
+        sorted_matches = sorted(matches, key=lambda m: m.start(),  reverse=True)
+
+        # print("sorted_matches : ", sorted_matches)
+
+        # extracted_passports = []
+        for match in sorted_matches:
+            string_pass = match.group(0)
+            index_span = match.span()
+
+            # print("Found passport number:", string_pass, " at position:", index_span)
+            # Extract digits from the cleaned passport string
+            digits = re.findall(self.number_pattern, string_pass)
+            
+
+            # print("digits:", digits)            
+            for digit in digits:
+                words = []
+                for d in digit:
+                    if d in self.mapping_normalization:
+                        words.append(self.mapping_normalization[d])
+                    else:
+                        words.append(d)
+                normalize_string = (", ".join(words))
+                # print("normalize_string:", digit , "->", normalize_string)
+
+                string_pass = string_pass.replace(digit, " "+normalize_string+" ")
+
+            text = text[:index_span[0]] + " "+string_pass+" "+ text[index_span[1]:]
+
+        # if have multiple comma then replace with one comma
+        text = re.sub(r',\s*,+', ', ', text)
+
+        return text
+
+    
     def extract_field_and_number_with_spans(self, text: str) -> List[Tuple[str, str, str, Tuple[int, int]]]:
         """Extract field name, clean number, original number format and span position from text"""
         extractions = []
@@ -178,7 +231,7 @@ class NumberNormalizationService:
                 # word_in_bengali = cfg._bangla_numeric_words[word_in_en]
 
             # Replace the date number with its word form in the text
-            text = text[:date_start] + word_in_bengali + text[date_end:]
+            text = text[:date_start] + " "+word_in_bengali +" "+ text[date_end:]
             # print("Replaced date number with words:", text)
 
 
@@ -198,6 +251,8 @@ class NumberNormalizationService:
         """Replace numbers in text with Bengali words using span-based replacement"""
         # Handle date pattern processing first
         text = self.date_patter_procesing(text)
+
+        text = self.extract_passport_unicode(text)
 
         lines = text.split('\n')
         processed_lines = []
@@ -360,6 +415,26 @@ if __name__ == "__main__":
     "নতুন receipt নং: 987654321 জেনারেট হয়েছে।",
     "আপনার transaction নাম্বার ৫৬৭৮৯০ সফল হয়েছে।",
     "Havit HV-SC055 Laptop Cleaning Kit - HV-SC055 and the number is the 12345 and my acound amount is 1234567"
+    ]
+
+    test_cases = [
+        "hello পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭, hi পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭,",
+        "passport number: A12345678 and amar account number A23456781 ",
+        "ই-পাসপোর্ট আইডি: উ৯৮৭৬৫৪৩২",
+        "e-passport no: ক১২৩৪৫৬৭৮",
+        "পাসপোর্ট: অ৯৯৯৯৯৯৯৯",
+        "পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭"
+        "পাসপোর্ট নম্বর স১২৩৪৫৬৭৭",
+        "hello পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭, hi পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭,",
+        "Your customer ID 123-456-789-012 is valid.",
+        "আমার পাসপোর্ট নম্বর A01234567 এবং তার পাসপোর্ট নম্বর 987654321।",
+        "নতুন ই-পাসপোর্ট নম্বর E12345678 ইস্যু করা হয়েছে।",
+        "তিনি পুরাতন পাসপোর্ট নম্বর 1234567 ব্যবহার করেছেন।",
+        "মেশিন রিডেবল পাসপোর্ট নম্বর B76543210।",
+        "তার পাসপোর্ট নম্বর P87654321 ছিল।",
+        "তার পাসপোর্ট নম্বর P০১২৩৪৫৬৭ ছিল।",
+        "বাংলা নম্বর হিসেবে পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও ই১২৩৪৫৬৭৮।",
+        "পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও ই১২৩৪৫৬৭৮।"   
     ]
     
     print("Testing Alphanumeric Number Normalization\n")

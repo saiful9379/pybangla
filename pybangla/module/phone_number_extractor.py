@@ -53,7 +53,7 @@ class PhoneNumberExtractor:
         # ডিজিটাল রেজিস্ট্রেশন ০৯৬১২৩৪৫৬৭৮, ডিজিটাল রেজিস্ট্রেশন ০৯৬১০-০১০৬১৬, ডিজিটাল রেজিস্ট্রেশন 09612745678, ডিজিটাল রেজিস্ট্রেশন 09610-010616, 01790540211, +8801790540211, ০১৭৯০৫৪০২১১
         # """
         # Extract matches for the specific pattern
-        phone_number = re.findall(self.ip_phone_number_patter, text)
+        phone_number = re.finditer(self.ip_phone_number_patter, text)
         return phone_number
 
     def contains_only_english(self, input_string):
@@ -146,40 +146,55 @@ class PhoneNumberExtractor:
         # add spance numerical value staring and ending point
         text = self.checking_postfix_phn_number(text)
         text = self.add_space_into_text(text)
-        # print("adding space : ", text)
-        phone_numbers = re.findall(self.pattern, text)
+
+        phone_numbers = re.finditer(self.pattern, text)
         #handel 096 patter phone number
         ip_phone_number = self.ip_phone_number(text)
 
-        sorted_matches = sorted(phone_numbers+ip_phone_number, key=len, reverse=True)
-        for phone_number in sorted_matches:
 
-            modify_phone_number = "".join(re.split(r"[- ]", phone_number))
 
-            # print(modify_phone_number)
+        phone_number_list = [(i.group(), i.span()) for i in list(phone_numbers)]
+        ip_phone_number_list = [(i.group(), i.span()) for i in list(ip_phone_number)]
 
-            first_3_character = modify_phone_number.strip()[:3]
-            if (
-                first_3_character in self.number_extention
-                or first_3_character in self.phn_number
-                or 11 <= len(modify_phone_number)
-                or len(modify_phone_number) <= 14
-            ):
+        extended_phone_number_list = phone_number_list + ip_phone_number_list
+        sorted_matches = sorted(extended_phone_number_list, key=lambda x: (x[1])[0], reverse=True)
 
-                temp_string = ""
-                if "+" == modify_phone_number[0]:
-                    # print(modify_phone_number[1:])
-                    temp_string = (
-                        "প্লাস" + " " + self.label_repeats(modify_phone_number[1:])
-                    )
-                else:
-                    repate_string = self.label_repeats(modify_phone_number)
-                    # print(repate_number)
-                    temp_string = " " + repate_string
+        # print("sorted_matches : ", sorted_matches)
 
-            phone_number_string = temp_string.strip()
+        if sorted_matches:
+            for phone_number_info in sorted_matches:
 
-            text = text.replace(phone_number, phone_number_string)
+                phone_number = phone_number_info[0]
+                phone_number_span = phone_number_info[1]
+
+                start_span = phone_number_span[0]
+                end_span = phone_number_span[1]
+
+                modify_phone_number = "".join(re.split(r"[- ]", phone_number))
+
+                first_3_character = modify_phone_number.strip()[:3]
+                if (
+                    first_3_character in self.number_extention
+                    or first_3_character in self.phn_number
+                    or 11 <= len(modify_phone_number)
+                    or len(modify_phone_number) <= 14
+                ):
+
+                    temp_string = ""
+                    if "+" == modify_phone_number[0]:
+                        # print(modify_phone_number[1:])
+                        temp_string = (
+                            "প্লাস" + " " + self.label_repeats(modify_phone_number[1:])
+                        )
+                    else:
+                        repate_string = self.label_repeats(modify_phone_number)
+                        # print(repate_number)
+                        temp_string = " " + repate_string
+
+                phone_number_string = temp_string.strip()
+
+                # text = text.replace(phone_number, phone_number_string)
+                text = text[:start_span] + " " + phone_number_string + " " + text[end_span:]
             # print(phone_number_string)
         # print(text)
         return text

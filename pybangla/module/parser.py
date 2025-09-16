@@ -1163,6 +1163,7 @@ class TextParser:
         r_text = text
         # print("original_text : ", original_text)
         dates = dt.get_dates(text)
+        # print("dates : ", dates)
         for date in dates:
             # print("date1 : ", date)
             r_date = self.month_spliting_issue_solver(original_text, date)
