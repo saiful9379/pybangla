@@ -54,11 +54,24 @@ The performance of PyBangla was evaluated using **200** sentences. However, no e
 | **V2.0.9**    | 200            | 0.1291               | 0.0319               | 0.0975               |
 | **V2.10.0**    | 200            |               |                |               |
 | **V2.11.0**    | 200            |               |                |               |
+| **V2.11.5**    | 399            | 0.0146        |0.0061           | N/A           |
 
+```
+============================================================
+EVALUATION SUMMARY
+============================================================
+Total Samples: 399
+Exact Matches: 334 (83.71%)
+Average CER: 0.0061
+Average WER: 0.0146
+Average Processing Time: 0.41 ms
+Samples with CER < 0.05: 387
+Samples with CER < 0.10: 395
+```
 
-__N.B : For more detail and all of processing category listed here please check : [link](./test_data/PyBangla_Evalution_V2.0.9.xlsx)__
+__N.B : For more detail and all of processing category listed here please check : [link](./eval_data/eval_data_2.11.5_v5.xlsx)__
 
-__Pybangla V2.11.0:  Report file(./test_data/pybangla_report_v2.11.0.csv)__
+__Pybangla V2.11.5:  Report file(./eval_data/eval_data_2.11.5_v5.xlsx))__
 
 
 ### Processing Time Performance
@@ -69,7 +82,7 @@ __Pybangla V2.11.0:  Report file(./test_data/pybangla_report_v2.11.0.csv)__
 | Module Version | Total Sentences | Raw Character Count | Normalized Character Count | Per Character Processing Time (sec) | Total Processing Time (sec) |
 |---------------|---------------|---------------------|--------------------------|----------------------------------|----------------------|
 | 2.0.9        | 200           | 9,217               | 12,584                   | 0.0001167                         | 1.076                |
-
+| 2.11.5        | 399           | -               | -                   | -                        | 0.41 ms                |
 ## Interpretation
 
 - The text normalization process increased the character count from **9,217** to **12,584** due to transformations such as Unicode normalization, diacritic removal, and standardization.
