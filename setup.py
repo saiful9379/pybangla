@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pybangla',
-    version='2.11.5',
+    version='2.11.6',
     packages=find_packages(),
     include_package_data=True,
     package_data={
