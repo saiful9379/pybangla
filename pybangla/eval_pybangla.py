@@ -47,12 +47,13 @@ def evaluate_normalization(data, output_path):
     # Get input and reviewed texts
     input_texts = data['Input_Text'].tolist()
     reviewed_texts = data['Human_Review'].tolist()
+    categories = data["category"].tolist()
 
     # input_texts = ["তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773-550379"]
     # reviewed_texts = ["তার পাসপোর্ট নম্বর পি, এইট, সেভেন, সিক্স, ফাইভ, ফোর, থ্রি, টু, ওয়ান, ছিল।, ওয়ান থাউজ্যান্ড নাইন হান্ড্রেড নাইনটি-ফাইভ - ওয়ান থাউজ্যান্ড নাইন হান্ড্রেড সিক্সটি-নাইন and phone number জিরো ওয়ান ডাবল সেভেন থ্রি ডাবল ফাইভ জিরো থ্রি সেভেন নাইন"]
 
     # Progress bar for evaluation
-    for idx, (input_text, reviewed_text) in enumerate(tqdm(zip(input_texts, reviewed_texts), 
+    for idx, (input_text, reviewed_text, category) in enumerate(tqdm(zip(input_texts, reviewed_texts, categories), 
                                                           total=len(input_texts), 
                                                           desc="Processing")):
         # Normalize text
@@ -102,6 +103,7 @@ def evaluate_normalization(data, output_path):
             'Word_Count_Reviewed': word_count_reviewed,
             'Word_Count_Normalized': word_count_normalized,
             'Processing_Time_ms': round(processing_time * 1000, 2),
+            'Category': category,
             'Differences': differences
         }
         
@@ -124,6 +126,15 @@ def evaluate_normalization(data, output_path):
         'CER_Less_Than_0.05': (results_df['CER'] < 0.05).sum(),
         'CER_Less_Than_0.10': (results_df['CER'] < 0.10).sum(),
     }
+
+    # catergory-wise summary performance report
+    category_summary = results_df.groupby('Category').agg(
+        Total_Samples=('Index', 'count'),
+        Exact_Matches=('Exact_Match', 'sum'),
+        Average_CER=('CER', 'mean'),
+        Average_WER=('WER', 'mean'),
+        Average_Processing_Time_ms=('Processing_Time_ms', 'mean')
+    ).reset_index()
     
     # Create summary DataFrame
     summary_df = pd.DataFrame([summary_stats])
@@ -139,7 +150,8 @@ def evaluate_normalization(data, output_path):
         
         # Write summary statistics
         summary_df.to_excel(writer, sheet_name='Summary_Statistics', index=False)
-        
+        category_summary.to_excel(writer, sheet_name='Category_Summary', index=False)
+
         # Write error analysis
         if not error_df.empty:
             error_df.to_excel(writer, sheet_name='Error_Analysis', index=False)
@@ -212,7 +224,7 @@ def generate_comparison_report(results_df, output_path):
 if __name__ == "__main__":
     # Configuration
     input_eval_data_path = "./eval_data/eval_data.xlsx"
-    output_eval_data_path = "./report/eval_data_2.11.5_v5.xlsx"
+    output_eval_data_path = "./report/eval_data_2.11.7_v1.xlsx"
     
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_eval_data_path), exist_ok=True)

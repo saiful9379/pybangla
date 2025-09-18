@@ -1,3 +1,4 @@
+from ast import pattern
 import re
 import datetime
 import string
@@ -715,7 +716,46 @@ class TextParser:
     def phone_number_processing(self):
         pass
 
+    def birth_year(self, text):
+        patterns = [
+            # Bengali patterns with birth context
+            r'(?:জন্ম|জন্মগ্রহণ)\s*(?:সাল)?\s*[:\-]?\s*([০-৯]{4}|\d{4})',
+            r'(?:জন্ম|জন্মগ্রহণ).*?([০-৯]{4}|\d{4})\s*(?:সালে?|খ্রিস্টাব্দে?)',
+            
+            # English patterns with birth context
+            r'(?:birth|born|dob)\s*(?:date|year|in)?\s*[:\-]?\s*([০-৯]{4}|\d{4})',
+            r'(?:birth|born|dob).*?([০-৯]{4}|\d{4})',
+            
+            # Mixed patterns (Bengali text with English keywords)
+            r'(?:বার্থ|বর্ন)\s*(?:ডেট|ইয়ার)?\s*[:\-]?\s*([০-৯]{4}|\d{4})',
+            
+            # Pattern for "সালে জন্ম" type
+            r'([০-৯]{4}|\d{4})\s*সালে\s*(?:জন্ম|জন্মগ্রহণ)',
+            
+            # Birth year with context words nearby (within 10 characters)
+            r'(?:জন্ম|birth|born|dob|বার্থ).{0,10}([০-৯]{4}|\d{4})',
+            r'([০-৯]{4}|\d{4}).{0,10}(?:জন্ম|birth|born|সালে জন্ম)',
+        ]
+
+        for pattern in patterns:
+            matches = re.finditer(pattern, text)
+            sorted_matches = sorted(matches, key=lambda x: x.group(), reverse=True)
+            for match in sorted_matches:
+                if match is None:
+                    continue
+                birth_year_word = self.npr.year_in_number(match.group(1))
+                start_pos, end_pos = match.span(1)
+                group_word = (match.group()).replace(match.group(1), birth_year_word)
+                text = text[:start_pos] + group_word + text[end_pos:]
+        return text 
+
+
+
     def exception_year_processing(self, text):
+
+        # pattern = r'জন্ম\s*(?:সাল)?\s*[:\-]?\s*(\d{4})'
+        text = self.birth_year(text)
+
         _year_with_hyphen = re.findall(r"\b(\d{4}[-–—―]\d{2})\b", text)
         replce_map = {}
         for year in _year_with_hyphen:
@@ -797,18 +837,54 @@ class TextParser:
         return text.strip()
 
     def expand_abbreviations(self, text, lang="bn"):
-        # for key, replacement in _abbreviations[lang]:
-        #     text = text.replace(key, replacement)
-        # return text
-
         """Replace abbreviations in Bangla text with full forms."""
         # print("text : ", text)
+        bengali_letter = r'[\u0980-\u09FF]'  # Full Bengali Unicode block
+    
+        abbreviations = [
+            # Pattern for মোছা/মোসা variations (female prefix)
+            (r'\b(মোছা[:।.]|মোসা[:।.])\s*', 'মোছাম্মত '),
+            
+            # Pattern for মো variations - must be followed by Bengali letters
+            (r'\b(মো[:।.]|মোঃ)\s*(?=' + bengali_letter + ')', 'মোহাম্মদ '),
+            
+            # Pattern for মুহা variations
+            (r'\b(মুহা[:।.])\s*', 'মুহাম্মদ '),
+            
+            # Pattern for ইঞ্জি variations
+            (r'\b(ইঞ্জিঃ|ইঞ্জি[।.]|ইঞ্জি:)\s*', 'ইঞ্জিনিয়ার '),
+            
+            # Pattern for লি variations (Limited)
+            (r'\b(লিঃ|লি[।.]|লি:)\s*', 'লিমিটেড '),
+            
+            # Additional common abbreviations
+            (r'\bডাঃ\s*', 'ডাক্তার '),
+            (r'\bড[।.]\s*', 'ডাক্তার '),
+            (r'\bপ্রঃ\s*', 'প্রফেসর '),
+            (r'\bসিঃ\s*', 'সিনিয়র '),
+            (r'\bজুঃ\s*', 'জুনিয়র '),
+            (r'\bকোঃ\s*', 'কোম্পানি '),
+        ]
+        
+        # Apply replacements
+        for pattern, replacement in abbreviations:
+            text = re.sub(pattern, replacement, text)
+        
 
-        text = text.replace("মোছা:", "মোছাম্মত")
-        text = text.replace("মোসা:", "মোছাম্মত")
-        text = text.replace("মোসা.", "মোছাম্মত")
-        text = text.replace("মো:", "মোহাম্মদ")
-        text = text.replace("মো.", "মোহাম্মদ")
+        # text = text.replace("মোছা:", "মোছাম্মত")
+        # text = text.replace("মোসা:", "মোছাম্মত")
+        # text = text.replace("মোসা.", "মোছাম্মত")
+        # text = text.replace("মো:", "মোহাম্মদ")
+        # text = text.replace("মো.", "মোহাম্মদ")
+        # text = text.replace("মোঃ", "মোহাম্মদ")
+        # text = text.replace("মুহা:", "মুহাঃ")
+        # text = text.replace("মুহা.", "মুহাঃ")
+        # text = text.replace("ইঞ্জিঃ", "ইঞ্জিনিয়ার")
+        # text = text.replace("ইঞ্জি.", "ইঞ্জিনিয়ার")
+        # text = text.replace("ইঞ্জি:", "ইঞ্জিনিয়ার")
+        # text = text.replace("লিঃ", "লিমিটেড")
+        # text = text.replace("লি.", "লিমিটেড")
+        # text = text.replace("লি:", "লিমিটেড")
         # text = text.replace("ড. ", "ডক্টর ")
         text = re.sub(r'\bসেমি[ .]', 'সেন্টিমিটার ', text)
         text = re.sub(r'\bকিমি[ .]', 'কিলোমিটার ', text)
@@ -1329,7 +1405,7 @@ class TextParser:
         
         for key, step in processing_steps.items():
             if key not in operation:
-                print(f"Skipping {key} as it's not in the operation list.")
+                # print(f"Skipping {key} as it's not in the operation list.")oui
                 continue
             else:
                 try:

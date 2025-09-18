@@ -83,6 +83,8 @@ class DateExtractor:
         )
         # bn_plain_date = "[০-৯]{8}"
 
+        birth_year_pattern = r'জন্ম\s*(?:সাল)?\s*[:\-]?\s*(\d{4})'
+
         en_regex = "|".join(
             [en_dd_mm_yy, en_number_month_year, en_month_number_year, en_month_year]
         )  # , en_plain_date])

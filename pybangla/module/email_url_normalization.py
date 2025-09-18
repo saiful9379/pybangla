@@ -138,8 +138,8 @@ class EmailURLExtractor:
             normalized_email = self.replace_numbers(normalized_email, lang)
 
             # Replace in text using span
-            text = text[:start] + normalized_email + text[end:]
-    
+            text = text[:start] +" "+normalized_email+" "+ text[end:]
+
         return text
 
     def url_normalization(self, text: str, lang="bn") -> str:
