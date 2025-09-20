@@ -1,5 +1,10 @@
 import re
-from .config import Config as cfg
+from typing import List, Tuple, Dict
+try:
+    
+    from .config import Config as cfg
+except ImportError:
+    from config import Config as cfg
 
 
 class PhoneNumberExtractor:
