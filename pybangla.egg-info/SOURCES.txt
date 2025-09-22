@@ -2,6 +2,13 @@ MANIFEST.in
 README.md
 setup.cfg
 setup.py
+docs/CHANGES.txt
+docs/Date_Formating.md
+docs/Day_Weeks_Months.md
+docs/Emoji_Remove.md
+docs/LICENSE.txt
+docs/Number_Conversion.md
+docs/Text_Normalizer.md
 pybangla/__init__.py
 pybangla/eval_pybangla.py
 pybangla/report_generation.py
@@ -17,6 +24,7 @@ pybangla/module/config.py
 pybangla/module/date_extractor.py
 pybangla/module/driving_license.py
 pybangla/module/email_url_normalization.py
+pybangla/module/helpline_extractor.py
 pybangla/module/main.py
 pybangla/module/nid_num_normalize.py
 pybangla/module/number_parser.py
@@ -29,4 +37,5 @@ pybangla/module/product_number.py
 pybangla/module/product_unit_normalization.py
 pybangla/module/symbol_conversion.py
 pybangla/module/word_to_number.py
+pybangla/module/db/symbols_mapping.json
 tests/test.py

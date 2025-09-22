@@ -88,7 +88,7 @@ class EmailURLExtractor:
                     normalized_number = ' '.join(bn_number_map.get(digit, digit) for digit in number_str)
                 else:
                     normalized_number = ' '.join(en_number_map.get(digit, digit) for digit in number_str)
-                normalized_url = normalized_url.replace(number_str, normalized_number)
+                normalized_url = normalized_url.replace(number_str, " "+normalized_number+" ")
         # Replace the original number string with the normalized version
         return normalized_url
 

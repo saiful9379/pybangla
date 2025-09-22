@@ -2,3 +2,4 @@ DateTime
 num2words
 python-Levenshtein
 fuzzywuzzy
+loguru

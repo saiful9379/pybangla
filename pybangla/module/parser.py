@@ -6,7 +6,7 @@ from .config import Config as cfg
 from num2words import num2words
 from .date_extractor import DateExtractor
 from fuzzywuzzy import fuzz
-
+from loguru import logger
 # from bnemo import Translator
 from .phone_number_extractor import PhoneNumberExtractor
 from .nid_num_normalize import NIDNormalizer
@@ -1416,7 +1416,7 @@ class TextParser:
                     text = step(text)
                     # print("text : ", text, key)
                 except Exception as e:
-                    print(f"An error occurred in {step.__name__}: {e}")
+                    logger.error(f"An error occurred in {step.__name__}: {e}")
                     continue
         
         return text

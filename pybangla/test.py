@@ -546,6 +546,17 @@ if __name__ == "__main__":
     "আমাদের কল সেন্টার ১৬৯৮১"
     ]
 
+    texts = """
+    দুঃখিত স্যার, ঐ offer-টার validity ছিল গতকাল রাত 11:59:01 পর্যন্ত।"
+    please call Service এর জন্য যোগাযোগ 16789"
+    text = " please call Service এর জন্য যোগাযোগ 01773559379 hello"
+    text = " please call Service এর জন্য যোগাযোগ 09613827272 hello"
+    text = " please call Service এর জন্য যোগাযোগ saifulbrur79@gmail.com"
+    text =  " please call Service এর জন্য যোগাযোগ https://colab.research.google.com/#scrollTo=ATZCmVPsPp75"
+    """
+
+    text_list = texts.split("\n")
+
     config = {
         "passport": True,
         "driving_license": True,
@@ -557,9 +568,10 @@ if __name__ == "__main__":
     }
 
     start_time = time.time()
-    for i in bangla_sentences:
-        print("input : ", i)
-        text = nrml.text_normalizer(i,  all_operation=True)
+    for text in text_list:
+        print("input : ", text)
+        text = text.strip()
+        text = nrml.text_normalizer(text,  all_operation=True)
         # text = nrml.driving_license_norlization(i)
         print("output : ", text)
         print("=" * 2)

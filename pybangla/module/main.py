@@ -9,6 +9,7 @@ from .date_extractor import DateExtractor
 from .phone_number_extractor import PhoneNumberExtractor
 # from .nid_num_normalize import NIDNormalizer\
 from .driving_license import DrivingLicenseFormatter
+from loguru import logger
 
 dp, tp, npr, wnmp, emr = (
     DateParser(),
@@ -326,6 +327,15 @@ class Normalizer:
 
         # Filter only the enabled operations
         operation = [key for key, enabled in processing_map.items() if enabled]
+
+        text = re.sub(r"\s+", " ", text)  # Initial whitespace cleanup
+        text = re.sub(r"\n+", " ", text)  # Remove new lines
+        text = re.sub(r"\t+", " ", text)  # Remove tabs
+        text = text.strip()
+        if text.strip() == "":
+            logger.warning("Input text is empty after stripping whitespace.")
+            return text
+
         text = tp.processing(text, operation)
         return text
 

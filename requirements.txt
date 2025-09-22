@@ -3,3 +3,4 @@ num2words
 python-Levenshtein
 fuzzywuzzy
 jiwer
+loguru

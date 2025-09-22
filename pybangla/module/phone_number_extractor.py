@@ -128,6 +128,7 @@ class PhoneNumberExtractor:
             if first_3_character in self.number_extention or first_3_character in self.phn_number:
                 if len(number)<=11 or len(number)<= 14: 
                     # print("number1 : ", number)
+                    # print("text lenght : ", len(text), start, end)
                     if start !=0 and text[start-1]!=" ":
                         if text[start-1]=="+":
                             text = text[:start-1] + ' ' + text[start-1:]
@@ -137,11 +138,12 @@ class PhoneNumberExtractor:
                         else:
                             text = text[:start] + ' ' + text[start:]
                             end = end+1
-                    if end !=len(text) and text[end+1]!=" ":
-                        if text[end+1]=="." or text[end+1]==",":
-                            text = text
-                        else:
-                            text = text[:end] + ' ' + text[end:]
+                    if len(text)>end+1:
+                        if end !=len(text) and text[end+1]!=" ":
+                            if text[end+1]=="." or text[end+1]==",":
+                                text = text
+                            else:
+                                text = text[:end] + ' ' + text[end:]
         text = re.sub(r'\s+', ' ', text).strip()
         # print(text)
         return text
