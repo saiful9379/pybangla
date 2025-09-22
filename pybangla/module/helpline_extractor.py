@@ -1,6 +1,9 @@
 import re
 from typing import List, Tuple, Dict
-from phone_number_extractor import PhoneNumberExtractor
+try:
+    from phone_number_extractor import PhoneNumberExtractor
+except ImportError:
+    from .phone_number_extractor import PhoneNumberExtractor
 
 pne = PhoneNumberExtractor()
 
@@ -14,6 +17,9 @@ class HelplineExtractor:
             r'(?:ফোন|মোবাইল|যোগাযোগ)\s+(?:নম্বর\s+)?([১][০-৯]{4})',
             r'(?:কল\s+করুন|যোগাযোগ\s+করুন)\s*([১][০-৯]{4})',
             r'জরুরি\s+সেবা\s*([১][০-৯]{4})',  # Added for "জরুরি সেবা"
+            r'(?:রুম\s+নম্বর|ফোন:)\s*([1][0-9]{4})',  # Added for "জরুরি সেবা"
+            r'রুম\s+নম্বর\s*[:।]?\s*(\d+)',
+            r'ফোন(?:\s+নম্বর)?\s*:\s*(\d+)',
             
             # English service patterns
             r'(?:hotline|agent|call\s*center|support|complaint|customer\s*service|emergency|technical\s*support)(?:\s+number)?(?:\s*[:]\s*|\s+)([1][0-9]{4})',
@@ -118,30 +124,18 @@ class HelplineExtractor:
         
         return result_text
     
-    def get_extraction_details(self, text: str) -> Dict:
+    def helpline_normalization(self, text: str) -> Dict:
         """Get detailed extraction information"""
         numbers_with_positions = self.extract_numbers_with_positions(text)
         
         # Sort by position in reverse order
         numbers_with_positions.sort(key=lambda x: x[1], reverse=True)
-        
-        # Prepare detailed results
-        details = {
-            "original_text": text,
-            "extracted_numbers": [],
-            "normalized_text": self.normalize_text_with_word_conversion(text)
-        }
-        
         for number, start, end in numbers_with_positions:
-            details["extracted_numbers"].append({
-                "number": number,
-                "english_number": self.convert_bangla_to_english(number),
-                "word_representation": self.number_to_words(number),
-                "position": (start, end),
-                "context": text[max(0, start-20):min(len(text), end+20)]
-            })
-        
-        return details
+            # word_string = self.number_to_words(number)
+            word_string = pne.label_repeats(number)
+
+            text = text[:start] + word_string + text[end:]
+        return text
 
 
 if __name__ == "__main__":
@@ -149,116 +143,120 @@ if __name__ == "__main__":
     extractor = HelplineExtractor()
 
     test_lines = """
-        "আমাদের হটলাইনে নম্বর কল করুন ১৬২২১, আমাদের হটলাইনে নম্বর কল করুন ১৬২২১",
-        "এজেন্ট সেবা পেতে কল করুন ১৬২৩৪",
-        "Call our hotline number 16221",
-        "Emergency হটলাইন ১৬২২১ and support 16456",
-        "হটলাইন: ১৬২২১, এজেন্ট: ১৬৫৬৭",
-        "আমাদের হটলাইনে নম্বর কল করুন ১৬২২১, আমাদের হটলাইনে নম্বর কল করুন ১৬২২১",
-        "এজেন্ট সেবা পেতে কল করুন ১৬২৩৪",
-        "এজেন্ট নম্বর ১৬৫৬৭",
-        "কল সেন্টার নম্বর ১৬৯৮১",
-        "আমার ফোন নম্বর ১৬৭৮৯",
-        "আমাদের একাউন্ট নম্বর ১৬২২১",  # Won't match
-        "ব্যাংক একাউন্ট নম্বর ১৬৩৪৫",  # Won't match
-        "হটলাইন: ১৬২২১",
-        "Call our hotline number 16221",
-        "Agent Patterns: 16832",
-        "Customer সেবা 16789",
-        "Emergency হটলাইন ১৬২২১",
-        "Support এর জন্য কল করুন 16456",
-        "যোগাযোগ নম্বর ১৬৫৬৭",
-        "মোবাইল নম্বর ১৬৭৮৯",
-        "রেজিস্ট্রেশন নম্বর ১৬৩৪৫",  # Won't match
-        "Phone number 16789",
-        "My account number 16221",  # Won't match
-        "Contact us at 16567",
-        "Just a number 16789",  # Won't match
-        "My account number 16221",  # Invalid
-        Hotline Patterns:
-        আমাদের হটলাইনে নম্বর কল করুন ১৬২২১
-        হটলাইন নম্বর ১৬২২১
-        হটলাইন: ১৬২২১
-        হটলাইনে কল করুন ১৬২২১
-        জরুরি হটলাইন ১৬২২১
-        Agent Patterns:
-        এজেন্ট সেবা পেতে কল করুন ১৬২৩৪
-        এজেন্ট নম্বর ১৬৫৬৭
-        এজেন্ট হটলাইন ১৬৫৬৭
-        এজেন্টের সাথে যোগাযোগ ১৬৫৬৭
-        এজেন্ট: ১৬৫৬৭
-        Call Center Patterns:
-        কল সেন্টার নম্বর ১৬৯৮১
-        কল সেন্টার: ১৬৯৮১
-        কল সেন্টারে যোগাযোগ করুন ১৬৯৮১
-        আমাদের কল সেন্টার ১৬৯৮১
-        ২৪/৭ কল সেন্টার ১৬৯৮১
-        Service Patterns:
-        কাস্টমার সেবা ১৬৭৮৯
-        সেবা হটলাইন ১৬৭৮৯
-        গ্রাহক সেবা নম্বর ১৬৭৮৯
-        সেবা পেতে কল করুন ১৬৭৮৯
-        জরুরি সেবা ১৬৭৮৯
-        Support Patterns:
-        সাপোর্ট নম্বর ১৬৪৫৬
-        টেকনিক্যাল সাপোর্ট ১৬৪৫৬
-        সাপোর্ট হটলাইন ১৬৪৫৬
-        সাপোর্টে কল করুন ১৬৪৫৬
-        Complaint Patterns:
-        অভিযোগ নম্বর ১৬৩৪৫
-        অভিযোগ জানাতে ১৬৩৪৫
-        অভিযোগ হটলাইন ১৬৩৪৫
-        English Patterns
-        Hotline Patterns:
-        Call our hotline number 16221
-        Hotline number 16221
-        Hotline: 16221
-        Call hotline at 16221
-        Emergency hotline 16221
-        Agent Patterns:
-        Call agent service at 16234
-        Agent number 16567
-        Agent hotline 16567
-        Contact agent 16567
-        Agent: 16567
-        Call Center Patterns:
-        Call center number 16981
-        Call center: 16981
-        Contact our call center 16981
-        Our call center 16981
-        24/7 call center 16981
-        Service Patterns:
-        Customer service 16789
-        Service hotline 16789
-        Customer service number 16789
-        Call for service 16789
-        Emergency service 16789
-        Support Patterns:
-        Support number 16456
-        Technical support 16456
-        Support hotline 16456
-        Call support at 16456
-        Complaint Patterns:
-        Complaint number 16345
-        File complaint at 16345
-        Complaint hotline 16345
-        Mixed Language Patterns:
-        Customer সেবা 16789
-        Call করুন 16221
-        Emergency হটলাইন ১৬২২১
-        Support এর জন্য কল করুন 16456
-        Additional Mixed Patterns (Common Variations):
-        Hotline এ কল করুন ১৬২২১
-        Agent সেবার জন্য ১৬৫৬৭
-        Technical সাপোর্ট নম্বর 16456
-        Emergency সেবা হটলাইন ১৬৭৮৯
-        Customer care নম্বর ১৬৭৮৯
-        Support হটলাইন ১৬৪৫৬
-        Complaint করতে কল করুন 16345
+        # "আমাদের হটলাইনে নম্বর কল করুন ১৬২২১, আমাদের হটলাইনে নম্বর কল করুন ১৬২২১",
+        # "এজেন্ট সেবা পেতে কল করুন ১৬২৩৪",
+        # "Call our hotline number 16221",
+        # "Emergency হটলাইন ১৬২২১ and support 16456",
+        # "হটলাইন: ১৬২২১, এজেন্ট: ১৬৫৬৭",
+        # "আমাদের হটলাইনে নম্বর কল করুন ১৬২২১, আমাদের হটলাইনে নম্বর কল করুন ১৬২২১",
+        # "এজেন্ট সেবা পেতে কল করুন ১৬২৩৪",
+        # "এজেন্ট নম্বর ১৬৫৬৭",
+        # "কল সেন্টার নম্বর ১৬৯৮১",
+        # "আমার ফোন নম্বর ১৬৭৮৯",
+        # "আমাদের একাউন্ট নম্বর ১৬২২১",  # Won't match
+        # "ব্যাংক একাউন্ট নম্বর ১৬৩৪৫",  # Won't match
+        # "হটলাইন: ১৬২২১",
+        # "Call our hotline number 16221",
+        # "Agent Patterns: 16832",
+        # "Customer সেবা 16789",
+        # "Emergency হটলাইন ১৬২২১",
+        # "Support এর জন্য কল করুন 16456",
+        # "যোগাযোগ নম্বর ১৬৫৬৭",
+        # "মোবাইল নম্বর ১৬৭৮৯",
+        # "রেজিস্ট্রেশন নম্বর ১৬৩৪৫",  # Won't match
+        # "Phone number 16789",
+        # "My account number 16221",  # Won't match
+        # "Contact us at 16567",
+        # "Just a number 16789",  # Won't match
+        # "My account number 16221",  # Invalid
+        # Hotline Patterns:
+        # আমাদের হটলাইনে নম্বর কল করুন ১৬২২১
+        # হটলাইন নম্বর ১৬২২১
+        # হটলাইন: ১৬২২১
+        # হটলাইনে কল করুন ১৬২২১
+        # জরুরি হটলাইন ১৬২২১
+        # Agent Patterns:
+        # এজেন্ট সেবা পেতে কল করুন ১৬২৩৪
+        # এজেন্ট নম্বর ১৬৫৬৭
+        # এজেন্ট হটলাইন ১৬৫৬৭
+        # এজেন্টের সাথে যোগাযোগ ১৬৫৬৭
+        # এজেন্ট: ১৬৫৬৭
+        # Call Center Patterns:
+        # কল সেন্টার নম্বর ১৬৯৮১
+        # কল সেন্টার: ১৬৯৮১
+        # কল সেন্টারে যোগাযোগ করুন ১৬৯৮১
+        # আমাদের কল সেন্টার ১৬৯৮১
+        # ২৪/৭ কল সেন্টার ১৬৯৮১
+        # Service Patterns:
+        # কাস্টমার সেবা ১৬৭৮৯
+        # সেবা হটলাইন ১৬৭৮৯
+        # গ্রাহক সেবা নম্বর ১৬৭৮৯
+        # সেবা পেতে কল করুন ১৬৭৮৯
+        # জরুরি সেবা ১৬৭৮৯
+        # Support Patterns:
+        # সাপোর্ট নম্বর ১৬৪৫৬
+        # টেকনিক্যাল সাপোর্ট ১৬৪৫৬
+        # সাপোর্ট হটলাইন ১৬৪৫৬
+        # সাপোর্টে কল করুন ১৬৪৫৬
+        # Complaint Patterns:
+        # অভিযোগ নম্বর ১৬৩৪৫
+        # অভিযোগ জানাতে ১৬৩৪৫
+        # অভিযোগ হটলাইন ১৬৩৪৫
+        # English Patterns
+        # Hotline Patterns:
+        # Call our hotline number 16221
+        # Hotline number 16221
+        # Hotline: 16221
+        # Call hotline at 16221
+        # Emergency hotline 16221
+        # Agent Patterns:
+        # Call agent service at 16234
+        # Agent number 16567
+        # Agent hotline 16567
+        # Contact agent 16567
+        # Agent: 16567
+        # Call Center Patterns:
+        # Call center number 16981
+        # Call center: 16981
+        # Contact our call center 16981
+        # Our call center 16981
+        # 24/7 call center 16981
+        # Service Patterns:
+        # Customer service 16789
+        # Service hotline 16789
+        # Customer service number 16789
+        # Call for service 16789
+        # Emergency service 16789
+        # Support Patterns:
+        # Support number 16456
+        # Technical support 16456
+        # Support hotline 16456
+        # Call support at 16456
+        # Complaint Patterns:
+        # Complaint number 16345
+        # File complaint at 16345
+        # Complaint hotline 16345
+        # Mixed Language Patterns:
+        # Customer সেবা 16789
+        # Call করুন 16221
+        # Emergency হটলাইন ১৬২২১
+        # Support এর জন্য কল করুন 16456
+        # Additional Mixed Patterns (Common Variations):
+        # Hotline এ কল করুন ১৬২২১
+        # Agent সেবার জন্য ১৬৫৬৭
+        # Technical সাপোর্ট নম্বর 16456
+        # Emergency সেবা হটলাইন ১৬৭৮৯
+        # Customer care নম্বর ১৬৭৮৯
+        # Support হটলাইন ১৬৪৫৬
+        # Complaint করতে কল করুন 16345
         please call Service এর জন্য যোগাযোগ 16789
 
     """
-    
+
+    # test_lines ="""
+    #     আমাদের হটলাইনে নম্বর কল করুন ১৬২২১, আমাদের হটলাইনে নম্বর কল করুন 16441
+    #     ফোন নম্বর: 16021
+    #     """
     print("Testing Extraction with Positions and Word Conversion:")
     print("=" * 80)
     
@@ -266,38 +264,7 @@ if __name__ == "__main__":
         if text.strip():
           print(f"\nOriginal Text: {text}")
           print("-" * 40)
-          
           # Get detailed extraction results
-          details = extractor.get_extraction_details(text)
-          
-          # Print extracted numbers with positions
-          print("Extracted Numbers (sorted in reverse by position):")
-          for num_info in details["extracted_numbers"]:
-              print(f"  Number: {num_info['number']}")
-              print(f"  English: {num_info['english_number']}")
-              print(f"  Words: {num_info['word_representation']}")
-              print(f"  Position: {num_info['position']}")
-              print(f"  Context: ...{num_info['context']}...")
-              print()
-          
-          print(f"Normalized Text: {details['normalized_text']}")
-          print("=" * 80)
-    
-    # # Test with a longer text
-    # print("\n\nTesting with longer text:")
-    # print("=" * 80)
-    
-    # long_text = """
-    # Customer service এর জন্য কল করুন 16789। জরুরি সেবা ১৬৭৮৯ এ পাওয়া যাবে।
-    # আমাদের হটলাইন নম্বর ১৬২২১ এবং এজেন্ট নম্বর ১৬৫৬৭।
-    # For technical support call 16456.
-    # """
-    
-    # details = extractor.get_extraction_details(long_text)
-    
-    # print(f"Original Text:\n{details['original_text']}")
-    # print("\nExtracted Numbers (sorted in reverse by position):")
-    # for num_info in details["extracted_numbers"]:
-    #     print(f"  {num_info['number']} at position {num_info['position']} → {num_info['word_representation']}")
-    
-    # print(f"\nNormalized Text:\n{details['normalized_text']}")
+          text = extractor.helpline_normalization(text)
+          print("Final Normalized Text:", text)
+          print("-" * 40)

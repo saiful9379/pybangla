@@ -224,7 +224,7 @@ def generate_comparison_report(results_df, output_path):
 if __name__ == "__main__":
     # Configuration
     input_eval_data_path = "./eval_data/eval_data.xlsx"
-    output_eval_data_path = "./report/eval_data_2.11.7_v1.xlsx"
+    output_eval_data_path = "./report/eval_data_2.11.7_v2.xlsx"
     
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_eval_data_path), exist_ok=True)

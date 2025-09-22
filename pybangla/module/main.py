@@ -231,6 +231,7 @@ class Normalizer:
                         nns=False,
                         passport=False,
                         ordinal_en=False,
+                        helpline_phn=False,
                         number=False,
                         symbols_normalize=False,
                         emoji=False):
@@ -283,6 +284,7 @@ class Normalizer:
                 "nns" : True,
                 "passport": True,
                 "ordinal_en" : True,
+                "helpline_phn": True,
                 "number": True,
                 "symbols_normalize": True,
                 "collapse_whitespace": True  # Always included
@@ -311,6 +313,7 @@ class Normalizer:
                     "nns" : nns,
                     "passport": passport,
                     "ordinal_en" : ordinal_en,
+                    "helpline_phn": helpline_phn,
                     "number": number,
                     "symbols_normalize": symbols_normalize,
                     "collapse_whitespace": True  # Always included

@@ -19,6 +19,8 @@ __Features available in PyBangla:__
 3. [Date Format](https://github.com/saiful9379/pybangla/blob/main/docs/Date_Formating.md)
 4. [Emoji Removal](https://github.com/saiful9379/pybangla/blob/main/docs/Emoji_Remove.md)
 5. [Months, Weekdays, Seasons](https://github.com/saiful9379/pybangla/blob/main/docs/Day_Weeks_Months.md)
+6. [Email, URL, Phone number and Hotline number]
+7. [Account Number, NID, Driving license and Passport number]
 <h4 style='color:LightGreen'> [N.B: Here listed Every Feature has implemented Text Normalization as well as Isolated Uses feature]
  </h4>
 
@@ -56,7 +58,7 @@ The performance of PyBangla was evaluated using **200** sentences. However, no e
 | **V2.11.0**    | 200            |               |                |               |
 | **V2.11.5**    | 399            | 0.0146        |0.0061           | N/A           |
 | **V2.11.7**    | 399            | 0.0112      |0.0037           | N/A           |
-
+| **V2.11.8**    | 399            | 0.0112      |0.0037           | N/A           |
 ```
 ============================================================
 EVALUATION SUMMARY
@@ -71,7 +73,7 @@ Samples with CER < 0.10: 398
 ============================================================
 ```
 
-__N.B : For more detail and all of processing category listed here please check : [link](./pybangla/eval_data/eval_data_2.11.7_v1.xlsx)__
+__N.B : For more detail and all of processing category listed here please check : [link](./pybangla/eval_data/eval_data_2.11.2_v2.xlsx)__
 
 __Pybangla V2.11.5:  Report file(./eval_data/eval_data_2.11.5_v5.xlsx))__
 
@@ -120,7 +122,7 @@ __Parameters:__
 - `passport` (bool, default=False): Normalizes passport numbers.
 - `number` (bool, default=False): Processes and converts numeric values into textual form.
 - `emoji` (bool, default=False): Removes emojis from text.
-
+-
 __Returns:__
 - str: The normalized text after applying the selected transformations.
 

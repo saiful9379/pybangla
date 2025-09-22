@@ -18,6 +18,7 @@ from .symbol_conversion import SymbolNormalizer
 from .number_service import NumberNormalizationService
 from .email_url_normalization import EmailURLExtractor
 from .ordinals_normalizaiton import OrdinalConverter
+from .helpline_extractor import HelplineExtractor
 
 
 dt = DateExtractor()
@@ -30,6 +31,7 @@ symn = SymbolNormalizer()
 nns = NumberNormalizationService()
 eue = EmailURLExtractor()
 oc = OrdinalConverter()
+hle = HelplineExtractor()
 data = cfg.data
 
 _abbreviations = cfg._abbreviations
@@ -1397,6 +1399,7 @@ class TextParser:
             "nns": nns.replace_numbers_with_words,
             "passport": PassportFormatter.normalize,
             "ordinal_en": oc.convert_ordinals,
+            "helpline_phn": hle.helpline_normalization,
             "number": self.npr.number_processing,
             "symbols_normalize": symn.sym_normalize,
             "collapse_whitespace": self.collapse_whitespace
