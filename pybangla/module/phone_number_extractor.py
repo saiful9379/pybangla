@@ -110,6 +110,8 @@ class PhoneNumberExtractor:
         return " ".join(result)
     
     def add_space_into_text(self, text):
+        # text = text.replace('"', " ")
+        # text = text.replace("'", " ")
         # Find all number blocks with their positions
         number_blocks = [(match.group(), match.start(), match.end()) for match in re.finditer(r'\d+[-,./]?\d*', text)]
         # print(number_blocks)
@@ -150,9 +152,12 @@ class PhoneNumberExtractor:
 
     def phn_num_extractor(self, text):
 
+        # print("input text:", text)
+
         # add spance numerical value staring and ending point
         text = self.checking_postfix_phn_number(text)
         text = self.add_space_into_text(text)
+
 
         phone_numbers = re.finditer(self.pattern, text)
         #handel 096 patter phone number
@@ -209,8 +214,8 @@ class PhoneNumberExtractor:
 
 if __name__ == "__main__":
 
-    text = "ডিজিটাল রেজিস্ট্রেশন সার্টিফিকেট সংক্রান্ত 01790540211124562 যোগাযোগ করতে হলে 01790-540211 অথবা 01790-541111 নম্বরে যোগাযোগ করতে হবে 01790540211, +8801790540211, ০১৭৯০৫৪০২১১, +৮৮০১৭৯০৫৪০২১১"
+    text = "তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773-550379"
     pne = PhoneNumberExtractor()
-    process_text = pne.phn_num_extractor(text)
+    # process_text = pne.phn_num_extractor(text)
     print("input : ", text)
-    print("output : ", process_text)
+    print("output : ", pne.phn_num_extractor(text))

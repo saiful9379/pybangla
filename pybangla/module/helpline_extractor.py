@@ -20,6 +20,7 @@ class HelplineExtractor:
             r'(?:রুম\s+নম্বর|ফোন:)\s*([1][0-9]{4})',  # Added for "জরুরি সেবা"
             r'রুম\s+নম্বর\s*[:।]?\s*(\d+)',
             r'ফোন(?:\s+নম্বর)?\s*:\s*(\d+)',
+            r'(?:নম্বর|নাম্বার|number)\s*(?:হলো|হল|is)?\s*[:।]?\s*(\d+)',
             
             # English service patterns
             r'(?:hotline|agent|call\s*center|support|complaint|customer\s*service|emergency|technical\s*support)(?:\s+number)?(?:\s*[:]\s*|\s+)([1][0-9]{4})',

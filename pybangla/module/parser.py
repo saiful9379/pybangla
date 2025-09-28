@@ -1438,7 +1438,7 @@ class TextParser:
                 text = step(text)
                 # print("text : ", text. step.__name__)
             except Exception as e:
-                print(f"Error in {step.__name__}: {e}")
+                # print(f"Error in {step.__name__}: {e}")
                 continue  # Skip the function that raised an exception
         return text
 

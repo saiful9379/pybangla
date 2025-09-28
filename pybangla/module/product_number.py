@@ -140,7 +140,7 @@ class ProductNormalizer:
         if matches_with_spans:
             text, replacements = self.replace_codes_with_text(text)
             # if self.debug:
-            #     print("modified_text : ", text)
+            print("modified_text : ", text, replacements)
         
         return text
     
