@@ -379,36 +379,54 @@ class NumberParser:
         """
         Process time in the text
         """
-        # print("text : ", text)
-        # 11:59, 11:59:59, 11:59:59 AM, 11:59 PM, 11:59 AM, 11:59 PM
+        pattern = r"(\d{1,2}:\d{2}(:\d{2})?)\s*(টায়|টা)?"
+        matches = [(match.group(), match.group(1), match.group(3), match.start(), match.end())
+                for match in re.finditer(pattern, text)]
+        # Sort matches based on position (reversed for replacement)
+        sorted_matches = sorted(matches, key=lambda x: x[3], reverse=True)
 
-        pattern = r"(\d{1,2}:\d{2}(:\d{2})?)"
-        matches = [(match.group(), match.start(), match.end()) for match in re.finditer(pattern, text)]
-    
-        # Sort matches based on length (longest first)
-        sorted_matches = matches[::-1]
-        for time_with_p in sorted_matches:
-            time_str = time_with_p[0]
-            start_position = time_with_p[1]
-            end_position = time_with_p[2]
-            if ":" in time_str:
-                parts = time_str.split(":")
+        for full_match, time_only, suffix, start_position, end_position in sorted_matches:
+            # print(f"Found: '{full_match}' at position {start_position}-{end_position}")
+            # print(f"Time: '{time_only}', Suffix: '{suffix}'")
+            if ":" in time_only:
+                parts = time_only.split(":")
+
                 if len(parts) == 3:
                     hours, minutes, seconds = parts
                     first_num = self.number_to_words(hours, language="bn")
                     second_num = self.number_to_words(minutes, language="bn")
                     third_num = self.number_to_words(seconds, language="bn")
-                    # print("first_num : ", first_num, " second_num : ", second_num, " third_num : ", third_num)
+                    # Check if original had suffix and if it's hour-only
+                    has_suffix = suffix is not None
+                    if third_num:  # Has seconds
+                        if second_num:
+                            norm_string = f"{first_num}টা {second_num} মিনিট {third_num} সেকেন্ড"
+                        else:
+                            norm_string = f"{first_num}টা {third_num} সেকেন্ড"
+                    else:  # No seconds
+                        if second_num:  # Has minutes
+                            norm_string = f"{first_num}টা {second_num} মিনিট"
+                        else:  # Only hours
+                            if has_suffix:
+                                # Keep original suffix format
+                                norm_string = f"{first_num} {suffix}"
+                            else:
+                                norm_string = f"{first_num}টা"
 
-                    if third_num:
-                        norm_string = f"{first_num}টা {second_num} মিনিট {third_num} সেকেন্ড"
-                    else:
-                        norm_string = f"{first_num}টা {second_num} মিনিট"
                 elif len(parts) == 2:
                     hours, minutes = parts
                     first_num = self.number_to_words(hours, language="bn")
                     second_num = self.number_to_words(minutes, language="bn")
-                    norm_string = f"{first_num}টা {second_num} মিনিট"
+                    # Check if original had suffix
+                    has_suffix = suffix is not None
+                    if second_num and minutes != "00":  # Has non-zero minutes
+                        norm_string = f"{first_num}টা {second_num} মিনিট"
+                    else:  # Only hours (minutes are 00)
+                        if has_suffix:
+                            # Keep original suffix format
+                            norm_string = f"{first_num} {suffix}"
+                        else:
+                            norm_string = f"{first_num}টা"
                 text = text[:start_position] + " " + norm_string + " " + text[end_position:]
 
         return text
