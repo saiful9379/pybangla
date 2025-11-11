@@ -120,7 +120,7 @@ class HelplineExtractor:
         # Replace each number with its word representation
         for number, start, end in numbers_with_positions:
             # word_representation = self.number_to_words(number)
-            word_representation = pne.label_repeats(number)
+            word_representation = pne.label_repeats(number, helpine=True)
             result_text = result_text[:start] + word_representation + result_text[end:]
         
         return result_text
@@ -128,21 +128,23 @@ class HelplineExtractor:
     def helpline_normalization(self, text: str) -> Dict:
         """Get detailed extraction information"""
         numbers_with_positions = self.extract_numbers_with_positions(text)
-        
+        # print("Extracted Numbers with Positions:", numbers_with_positions)
+        # print("text : ", text)
         # Sort by position in reverse order
         numbers_with_positions.sort(key=lambda x: x[1], reverse=True)
         for number, start, end in numbers_with_positions:
+
+            # print(f"Replacing number '{number}' at positions ({start}, {end})")
             # word_string = self.number_to_words(number)
-            word_string = pne.label_repeats(number)
+            word_string = pne.label_repeats(number, helpine=True)
 
             text = text[:start] + word_string + text[end:]
+        # print("Normalized Text:", text)
         return text
-
 
 if __name__ == "__main__":
     # Initialize extractor
     extractor = HelplineExtractor()
-
     test_lines = """
         # "আমাদের হটলাইনে নম্বর কল করুন ১৬২২১, আমাদের হটলাইনে নম্বর কল করুন ১৬২২১",
         # "এজেন্ট সেবা পেতে কল করুন ১৬২৩৪",

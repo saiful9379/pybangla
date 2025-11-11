@@ -48,6 +48,185 @@ _STANDARDIZE_ZW = cfg._STANDARDIZE_ZW
 _DELETE_ZW = cfg._DELETE_ZW
 
 
+def extract_bengali_dates_with_spans(text):
+    """Extract Bengali dates from text with their span positions"""
+    
+    # Define the regex pattern
+    pattern = r'(?:(?:(?:[০-৯]{1,2}(?:ই|শে|রা|ঠা)?)\s*(?:জানুয়ারি|ফেব্রুয়ারি|মার্চ|এপ্রিল|মে|জুন|জুলাই|আগস্ট|সেপ্টেম্বর|অক্টোবর|নভেম্বর|ডিসেম্বর))|(?:(?:জানুয়ারি|ফেব্রুয়ারি|মার্চ|এপ্রিল|মে|জুন|জুলাই|আগস্ট|সেপ্টেম্বর|অক্টোবর|নভেম্বর|ডিসেম্বর)\s+[০-৯]{1,2}))(?:,)?\s+[০-৯]{4}'
+    
+    # Find all matches with span positions
+    matches = []
+    for match in re.finditer(pattern, text):
+        matches.append({
+            'text': match.group(0),
+            'start': match.start(),
+            'end': match.end(),
+            'span': match.span()
+        })
+    
+    return matches
+
+def parse_bengali_date(text):
+    """Extract Bengali dates including written-out number formats"""
+    
+    # Bengali number words mapping
+    bengali_number_words = {
+        # Days (1-31)
+        'এক': '১', 'দুই': '২', 'তিন': '৩', 'চার': '৪', 'পাঁচ': '৫',
+        'ছয়': '৬', 'সাত': '৭', 'আট': '৮', 'নয়': '৯', 'দশ': '১০',
+        'এগারো': '১১', 'বারো': '১২', 'তেরো': '১৩', 'চৌদ্দ': '১৪', 'পনেরো': '১৫',
+        'ষোল': '১৬', 'সতেরো': '১৭', 'আঠারো': '১৮', 'উনিশ': '১৯', 'বিশ': '২০',
+        'একুশ': '২১', 'বাইশ': '২২', 'তেইশ': '২৩', 'চব্বিশ': '২৪', 'পঁচিশ': '২৫',
+        'ছাব্বিশ': '২৬', 'সাতাশ': '২৭', 'আটাশ': '২৮', 'ঊনত্রিশ': '২৯', 'ত্রিশ': '৩০',
+        'একত্রিশ': '৩১'
+    }
+    
+    # Year words pattern (complex due to Bengali number system)
+    year_pattern_words = r'(?:এক হাজার নয়শো নব্বই|দুই হাজার|উনিশশো|বিশ শতক)'
+    
+    # Create pattern for day numbers (both digits and words)
+    day_words = '|'.join(bengali_number_words.keys())
+    day_pattern = f'(?:[০-৯]{{1,2}}|{day_words})'
+    
+    # Month names
+    months_pattern = r'(?:জানুয়ারি|ফেব্রুয়ারি|মার্চ|এপ্রিল|মে|জুন|জুলাই|আগস্ট|সেপ্টেম্বর|অক্টোবর|নভেম্বর|ডিসেম্বর)'
+    
+    # Combined patterns
+    patterns = [
+        # Pattern 1: Regular digit format
+        r'(?:(?:[০-৯]{1,2})\s*(?:ই|শে|রা|ঠা)?\s*' + months_pattern + r')(?:,)?\s+[০-৯]{4}',
+        # Pattern 2: Month first digit format
+        months_pattern + r'\s+[০-৯]{1,2}(?:,)?\s+[০-৯]{4}',
+        # Pattern 3: Written day with month and digit year
+        f'(?:{day_pattern})\\s*(?:ই|শে|রা|ঠা)?\\s*{months_pattern}(?:,)?\\s+[০-৯]{{4}}',
+        # Pattern 4: Written day and year
+        f'(?:{day_pattern})\\s*(?:ই|শে|রা|ঠা)?\\s*{months_pattern}(?:,)?\\s+{year_pattern_words}'
+    ]
+    
+    all_matches = []
+    
+    for pattern in patterns:
+        for match in re.finditer(pattern, text):
+            all_matches.append({
+                'text': match.group(0),
+                'start': match.start(),
+                'end': match.end(),
+                'span': match.span(),
+                'type': 'word_format' if any(word in match.group(0) for word in bengali_number_words.keys()) else 'digit_format'
+            })
+
+    return all_matches
+
+def extract_consecutive_numbers_with_separators(text):
+    # """Extract consecutive numbers separated by spaces and/or hyphens"""
+    # # Pattern for Bengali consecutive numbers with spaces or hyphens
+    # bengali_pattern = r'[০-৯]+(?:[\s\-]+[০-৯]+)+'
+    # # Pattern for English consecutive numbers with spaces or hyphens  
+    # english_pattern = r'\d+(?:[\s\-]+\d+)+'
+    # # Combined pattern
+    # combined_pattern = f'({bengali_pattern})|({english_pattern})'
+    # matches = []
+    # # reserver_sorted = sorted re.finditer(combined_pattern, text)
+    # reversed_sorted = sorted(re.finditer(combined_pattern, text), key=lambda m: m.start(), reverse=True)
+
+    # print("reversed_sorted : ", reversed_sorted)
+    # for match in reversed_sorted:
+    #     matched_text = match.group(0)
+    #     print("matched_text : ", matched_text)
+    #     # Extract individual numbers (remove spaces and hyphens)
+    #     if re.match(r'[০-৯]', matched_text):  # Bengali
+    #         numbers = re.findall(r'[০-৯]+', matched_text)
+    #         num_type = 'bengali'
+    #     else:  # English
+    #         numbers = re.findall(r'\d+', matched_text)
+    #         num_type = 'english'
+
+    #     if len(numbers) == 2:
+    #         continue
+    #     data_map = data['bn']["number_mapping"]
+    #     # print("numbers : ", data_map)
+    #     number_list = []
+    #     for n in numbers:
+    #         internal_digits = []
+    #         for i in n:
+    #             # print("i : ", i)
+    #             if i in data_map:
+    #                 word = data_map[i]
+    #                 internal_digits.append(word)
+
+    #         word = " ".join(internal_digits)
+    #         number_list.append(word)
+
+    #     number_string = ", ".join(number_list)
+    #     # print("number_string : ", number_string)
+    #     # text = text[:match.start()] + " " + number_string + " " + text[match.end():]
+    #     print("matched_text : ", matched_text)
+    #     text = text.replace(matched_text, " " + number_string + " ")
+
+    # print("final text : ", text)
+    # return text
+
+    """Extract consecutive numbers separated by spaces and/or hyphens, maintaining language consistency"""
+    
+    # Pattern for Bengali consecutive numbers (only Bengali digits)
+    bengali_pattern = r'(?<![০-৯\.])[০-৯]+(?:[\s\-]+[০-৯]+)+(?![০-৯\.])'
+    
+    # Pattern for English consecutive numbers (only English digits)
+    english_pattern = r'(?<![0-9\.])\d+(?:[\s\-]+\d+)+(?![0-9\.])'
+    
+    # Process each pattern separately to maintain language consistency
+    all_matches = []
+    
+    # Find Bengali patterns
+    for match in re.finditer(bengali_pattern, text):
+        matched_text = match.group(0)
+        # Verify it contains ONLY Bengali digits
+        if not re.search(r'[0-9]', matched_text):  # No English digits
+            all_matches.append((match, 'bengali'))
+    
+    # Find English patterns  
+    for match in re.finditer(english_pattern, text):
+        matched_text = match.group(0)
+        # Verify it contains ONLY English digits
+        if not re.search(r'[০-৯]', matched_text):  # No Bengali digits
+            all_matches.append((match, 'english'))
+    
+    # Sort all matches by position in reverse order
+    reversed_sorted = sorted(all_matches, key=lambda x: x[0].start(), reverse=True)
+    
+    # print("reversed_sorted : ", [m[0] for m in reversed_sorted])
+    
+    for match, num_type in reversed_sorted:
+        matched_text = match.group(0)
+        
+        # Extract individual numbers
+        if num_type == 'bengali':
+            numbers = re.findall(r'[০-৯]+', matched_text)
+        else:  # english
+            numbers = re.findall(r'\d+', matched_text)
+
+        if len(numbers) == 2:
+            continue
+            
+        data_map = data['bn']["number_mapping"]
+        number_list = []
+        
+        for n in numbers:
+            internal_digits = []
+            for i in n:
+                if i in data_map:
+                    word = data_map[i]
+                    internal_digits.append(word)
+
+            word = " ".join(internal_digits)
+            number_list.append(word)
+
+        number_string = ", ".join(number_list)
+        text = text.replace(matched_text, " " + number_string + " ")
+
+    # print("final text : ", text)
+    return text
+
 class NumberParser:
     def __init__(self):
         self.english_digits = english_digits
@@ -161,6 +340,9 @@ class NumberParser:
             Bangla year in words. Example: "উনিশশো চুরানব্বই"
 
         """
+
+        # print("year_in_number : ", year_in_number, language)
+
         english_status = self.contains_only_english(year_in_number)
         if english_status:
             year_in_number = "".join(
@@ -348,6 +530,7 @@ class NumberParser:
         return False
 
     def bai_extraction_pattern(self, text):
+        # print("text bhai: ", text)
         pattern = r'([০-৯0-9]{1,2}/[০-৯0-9]{1})'
         matches = [(match.group(), match.start(), match.end()) for match in re.finditer(pattern, text)]
         sorted_matches = matches[::-1]
@@ -433,8 +616,12 @@ class NumberParser:
 
     def number_processing(self, text):
 
+
+        text = extract_consecutive_numbers_with_separators(text)
+
         # print("befor processing text : ", text)
         text = self.bai_extraction_pattern(text)
+        # print("bai_extraction_pattern text : ", text)
         text = self.time_processing(text)
 
         pattern = r"[\d,\.]+"  # Matches numbers with commas and periods
@@ -773,9 +960,24 @@ class TextParser:
 
     def exception_year_processing(self, text):
 
-        # pattern = r'জন্ম\s*(?:সাল)?\s*[:\-]?\s*(\d{4})'
-        text = self.birth_year(text)
+        extracted_date = parse_bengali_date(text)
+        # print("extracted_date : ", extracted_date)
+        if extracted_date:
+            for ed in extracted_date:
+                d_e = ed["text"]
+                year = re.findall(r"\d{4}|[০-৯]{4}", d_e)
+                if not year:
+                    continue
+                year_in_word = self.npr.year_in_number(year[0])
+                replace_text = d_e.replace(year[0], year_in_word)
+                day = re.findall(r"\b\d{1,2}\b|\b[০-৯]{1,2}\b", d_e)
+                if day:
+                    day_in_word = self.npr.number_to_words(day[0])
+                    replace_text = replace_text.replace(day[0], day_in_word)
+                # print("replace_text : ", replace_text)
+                text = text.replace(d_e, replace_text)
 
+        text = self.birth_year(text)
         _year_with_hyphen = re.findall(r"\b(\d{4}[-–—―]\d{2})\b", text)
         replce_map = {}
         for year in _year_with_hyphen:
@@ -890,25 +1092,14 @@ class TextParser:
         for pattern, replacement in abbreviations:
             text = re.sub(pattern, replacement, text)
         
-
-        # text = text.replace("মোছা:", "মোছাম্মত")
-        # text = text.replace("মোসা:", "মোছাম্মত")
-        # text = text.replace("মোসা.", "মোছাম্মত")
-        # text = text.replace("মো:", "মোহাম্মদ")
-        # text = text.replace("মো.", "মোহাম্মদ")
-        # text = text.replace("মোঃ", "মোহাম্মদ")
-        # text = text.replace("মুহা:", "মুহাঃ")
-        # text = text.replace("মুহা.", "মুহাঃ")
-        # text = text.replace("ইঞ্জিঃ", "ইঞ্জিনিয়ার")
-        # text = text.replace("ইঞ্জি.", "ইঞ্জিনিয়ার")
-        # text = text.replace("ইঞ্জি:", "ইঞ্জিনিয়ার")
-        # text = text.replace("লিঃ", "লিমিটেড")
-        # text = text.replace("লি.", "লিমিটেড")
-        # text = text.replace("লি:", "লিমিটেড")
-        # text = text.replace("ড. ", "ডক্টর ")
         text = re.sub(r'\bসেমি[ .]', 'সেন্টিমিটার ', text)
         text = re.sub(r'\bকিমি[ .]', 'কিলোমিটার ', text)
         text = re.sub(r"\bড\.\s*(?=[অ-৺])", "ডক্টর ", text)
+
+        text = text.replace("MM-DD-YYYY", "Month, Day and Year")
+        text = text.replace("DD-MM-YYYY", "Day, Month and Year")
+        text = text.replace("YYYY-MM-DD", "Year, Month and Day")
+        text = text.replace("YYYY-DD-MM", "Year, Day and Month")
 
 
         """Replace abbreviations in the given text based on the specified language."""
@@ -1430,7 +1621,7 @@ class TextParser:
                 continue
             else:
                 try:
-                # print("text : ", text, key)
+                    # print("text : ", text, key)
                     text = step(text)
                     # print("text : ", text, key)
                 except Exception as e:

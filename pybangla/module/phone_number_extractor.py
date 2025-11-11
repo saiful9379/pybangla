@@ -74,10 +74,25 @@ class PhoneNumberExtractor:
 
             return num_mapping[num]
         return num
+    
+    def contains_only_english(self, input_string):
+        # Check if all characters in the string are English (ASCII) characters
+        return all(ord(char) < 128 for char in input_string)
 
-    def label_repeats(self, number):
+    def label_repeats(self, number, lang="en", helpine=False):
+
+        is_english_digit_string = self.contains_only_english(number)
+        # print("is_english_digit_string : ", is_english_digit_string, number)
         result = []
         digit_map = cfg.data["en"]["number_mapping"]
+        if is_english_digit_string == False and helpine==True:
+            for n in number:
+                if n in digit_map:
+                    result.append(digit_map[n])
+                elif n == "-":
+                    result.append(", ")
+            return " ".join(result)
+
         c_number = []
         for i in number:
             status = self.contains_only_english(i)
