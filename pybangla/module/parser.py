@@ -948,12 +948,15 @@ class TextParser:
             matches = re.finditer(pattern, text)
             sorted_matches = sorted(matches, key=lambda x: x.group(), reverse=True)
             for match in sorted_matches:
+                # print("birth year match : ", match)
                 if match is None:
                     continue
                 birth_year_word = self.npr.year_in_number(match.group(1))
                 start_pos, end_pos = match.span(1)
                 group_word = (match.group()).replace(match.group(1), birth_year_word)
-                text = text[:start_pos] + group_word + text[end_pos:]
+                # print("group_word : ", group_word)
+                # text = text[:start_pos] + group_word + text[end_pos:]
+                text = text.replace(match.group(0), group_word)
         return text 
 
 
@@ -977,7 +980,10 @@ class TextParser:
                 # print("replace_text : ", replace_text)
                 text = text.replace(d_e, replace_text)
 
+        # print("text 1.5 ", text)
+
         text = self.birth_year(text)
+        # print("text 1.5 ", text)
         _year_with_hyphen = re.findall(r"\b(\d{4}[-–—―]\d{2})\b", text)
         replce_map = {}
         for year in _year_with_hyphen:
