@@ -28,7 +28,8 @@ class PhoneNumberExtractor:
             "০৯৬"
         ]
         # self.pattern = r'(?:\+?৮৮)?০১[৩-৯][০-৯]{2}-?[০-৯]{6}|(?:\+88)?01[3-9]\d{2}-?\d{6}'
-        self.pattern = r"(?:\+?৮৮)?০১[৩-৯][০-৯]{2}-?[০-৯]{6}(?=[, ]|$)|(?:\+88)?01[3-9]\d{2}-?\d{6}(?=[, ]|$)"
+        # self.pattern = r"(?:\+?৮৮)?০১[৩-৯][০-৯]{2}-?[০-৯]{6}(?=[, ]|$)|(?:\+88)?01[3-9]\d{2}-?\d{6}(?=[, ]|$)"
+        self.pattern = r"(?:\+?৮৮)?০১[৩-৯][০-৯]{2}-?[০-৯]{6}(?=(?:[,\s\.\!\?\-:;\"'।]|$))|(?:\+88)?01[3-9]\d{2}-?\d{6}(?=(?:[,\s\.\!\?\-:;\"'।]|$))"
         self.plux = {"+": "প্লাস"}
         self.ip_phone_number_patter = r"(?:০৯৬\d{2}-?[০-৯]{6})|(?:096\d{2}-?\d{6})"  # Pattern to match numbers starting with 096 (English) or ০৯৬ (Bengali)
 
@@ -229,7 +230,8 @@ class PhoneNumberExtractor:
 
 if __name__ == "__main__":
 
-    text = "তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773-550379"
+    # text = "তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773550379।"
+    text = "যোগাযোগ করতে হলে01790-540211অথবা"
     pne = PhoneNumberExtractor()
     # process_text = pne.phn_num_extractor(text)
     print("input : ", text)

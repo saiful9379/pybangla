@@ -20,6 +20,7 @@ from .email_url_normalization import EmailURLExtractor
 from .ordinals_normalizaiton import OrdinalConverter
 from .helpline_extractor import HelplineExtractor
 from .security_code import security_code_normalizer
+from .currency import extract_currencies
 
 
 dt = DateExtractor()
@@ -136,19 +137,16 @@ def extract_consecutive_numbers_with_separators(text):
         # Verify it contains ONLY Bengali digits
         if not re.search(r'[0-9]', matched_text):  # No English digits
             all_matches.append((match, 'bengali'))
-    
-    # Find English patterns  
+
+    # Find English patterns 
     for match in re.finditer(english_pattern, text):
         matched_text = match.group(0)
         # Verify it contains ONLY English digits
         if not re.search(r'[০-৯]', matched_text):  # No Bengali digits
             all_matches.append((match, 'english'))
-    
     # Sort all matches by position in reverse order
     reversed_sorted = sorted(all_matches, key=lambda x: x[0].start(), reverse=True)
-    
-    # print("reversed_sorted : ", [m[0] for m in reversed_sorted])
-    
+
     for match, num_type in reversed_sorted:
         matched_text = match.group(0)
         
@@ -158,7 +156,9 @@ def extract_consecutive_numbers_with_separators(text):
         else:  # english
             numbers = re.findall(r'\d+', matched_text)
 
-        if len(numbers) == 2:
+        # print("numbers : ", numbers)
+        print("matched_text : ", matched_text)
+        if len(numbers) == 2 and "-" in matched_text:
             continue
             
         data_map = data['bn']["number_mapping"]
@@ -171,10 +171,10 @@ def extract_consecutive_numbers_with_separators(text):
                     word = data_map[i]
                     internal_digits.append(word)
 
-            word = " ".join(internal_digits)
+            word = ", ".join(internal_digits)
             number_list.append(word)
 
-        number_string = ", ".join(number_list)
+        number_string = " - ".join(number_list)
         text = text.replace(matched_text, " " + number_string + " ")
 
     # print("final text : ", text)
@@ -293,6 +293,8 @@ class NumberParser:
             Bangla year in words. Example: "উনিশশো চুরানব্বই"
 
         """
+
+        # print()
 
         # print("year_in_number : ", year_in_number, language)
 
@@ -568,17 +570,21 @@ class NumberParser:
         return text
 
     def number_processing(self, text):
-        text, s_match  = security_code_normalizer(text)
-        # print("replaced_text : ", text)
         text = extract_consecutive_numbers_with_separators(text)
-
-        # print("befor processing text : ", text)
+        # print("replaced_text : ", text)
+        text, s_match  = security_code_normalizer(text)
+        
+        
         text = self.bai_extraction_pattern(text)
         # print("bai_extraction_pattern text : ", text)
         text = self.time_processing(text)
 
+        # print("befor processing text : ", text)
+
         pattern = r"[\d,\.]+"  # Matches numbers with commas and periods
         matches = [(match.group(), match.start(), match.end()) for match in re.finditer(pattern, text)]
+
+        # print(matches)
         
         # Sort matches based on length (longest first)
         sorted_matches = sorted(matches, key=lambda x: len(x[0]), reverse=True)
@@ -627,21 +633,18 @@ class NumberParser:
                     if "." in m_re:
                         bn_m = self.fraction_number_conversion(m_re, language="bn")
                     else:
-                        
                         bn_m = self.number_to_words(m_re)
                     # print("else : bn_m ", n, bn_m)
                     if n=="০" and len(bn_m.strip())==0:
                         bn_m = "শূণ্য"
                     elif n=="0" and len(bn_m.strip())==0:
                         bn_m = "জিরো"
-
                     if ti_status:
                         text = text.replace(str(n), " " + str(bn_m))
                     else:
                         text = text.replace(str(n), " " + str(bn_m)+" ")
 
         text = re.sub(cfg._whitespace_re, " ", text)
-    
         text = re.sub(r"\s*,\s*", ", ", text)
         # print("processing text : ", text)
 
@@ -1105,8 +1108,35 @@ class TextParser:
             results.append((block, start_pos, end_pos))
 
         return results
+    
+
+    def extract_detailed_year_ranges(self, text):
+        # Remove the ? at the end to make suffix REQUIRED
+        pattern = r'(?P<start>[০-৯]{4}|[0-9]{4})\s*[-–]\s*(?P<end>[০-৯]{4}|[0-9]{4})\s+(?P<suffix>সালে?|সাল|সালের|year[s]?|বছর|শতাব্দী|শতাব্দীর|শতাব্দীতে|খ্রিস্টাব্দ|খ্রিস্টাব্দের|খ্রিস্টপূর্বাব্দের)'
+        
+        results = []
+        for match in re.finditer(pattern, text):
+            full_match = match.group(0)
+            start_year = match.group('start')
+            end_year = match.group('end')
+            suffix = match.group('suffix')
+
+            start_year_word = self.npr.year_in_number(start_year)
+            end_year_word = self.npr.year_in_number(end_year)
+
+            # Replace years with words
+            normalized_year = full_match.replace(start_year, start_year_word)
+            normalized_year = normalized_year.replace(end_year, end_year_word)
+            normalized_year = normalized_year.replace("-", ", ")
+            
+            text = text.replace(full_match, normalized_year)
+        
+        return text
 
     def year_to_year(self, text):
+        # print("input text : ", text)
+        text = self.extract_detailed_year_ranges(text)
+        # print("hello : ", text)
         connectors = ["থেকে", "হতে", "চেয়ে"]
         suffixes = [
             "সালে",
@@ -1133,7 +1163,13 @@ class TextParser:
         # Find all matches with positions
         matches = regex.finditer(text)
 
+        # for match in matches:
+        #     print(match.group())
+
+        # print("matches : ", matches)
+
         # List comprehension to collect match details
+        # print("text year1 : ", text)
         result = [
             (
                 match.start(),  # start position
@@ -1152,6 +1188,7 @@ class TextParser:
         result.sort(key=lambda x: x[0], reverse=True)
         # Replace matched text in reverse order to avoid index shifting
         for start, end, original, replacement in result:
+            # print("original : ", original)
             text = text[:start] + " "+replacement + text[end:]
 
         # print("text year : ", text)
@@ -1186,41 +1223,74 @@ class TextParser:
             text = text[:start_pos] + i + text[end_pos:]
         # print("text year : ", text)
         return text
+    
+    def detect_currency_position(self, text: str, code: str = "CHF"):
+        """
+        Checks whether the currency code appears:
+        - at the start of the number,
+        - at the end of the number,
+        - or alone (without a number).
+        Returns one of: 'start', 'end', 'alone', or 'not_found'.
+        """
+        text = text.strip()
+
+        # pattern: currency followed by number  → e.g. "CHF 123456"
+        pattern_start = rf'^{re.escape(code)}\s*\d'
+        # pattern: number followed by currency → e.g. "123456 CHF"
+        pattern_end   = rf'\d\s*{re.escape(code)}$'
+        # pattern: only currency (no digits)
+        pattern_alone = rf'^{re.escape(code)}$'
+
+        if re.search(pattern_start, text):
+            return "start"
+        elif re.search(pattern_end, text):
+            return "end"
+        elif re.fullmatch(pattern_alone, text):
+            return "alone"
+        else:
+            return "not_found"
 
     def extract_currency_amounts(self, text):
-        split_text = (text.replace("\t", " ")).split(" ")
-        matches = re.findall(self.currency_pattern, text)
-        pattern = cfg.currency_pattern
-        sorted_matches = sorted(matches, key=len, reverse=True)
-        for m in sorted_matches:
-            index = next((i for i, item in enumerate(split_text) if m in item), None)
-            currency = re.findall(pattern, m)
-            if currency:
-                n_m = m.replace(currency[0], "")
-                n_m = n_m.replace(",", "")
-                language = "en" if self.npr.contains_only_english(n_m) else "bn"
+        norm, info = extract_currencies(text)
+        for n in info:
+            match_text = n["match_text"]
+            amount_raw = n["amount_raw"]
+            currency_raw = n["currency_raw"]
+            language = "en" if self.npr.contains_only_english(amount_raw) else "bn"
+            if "." in amount_raw:
+                word = self.npr.fraction_number_conversion(amount_raw, language=language)
+            else:
+                word = self.npr.number_to_words(amount_raw)
+            # print("Process word : ", word)
+            if currency_raw in cfg.DOLLAR_SIGN_MAPPING_BN:
+                word_currency = cfg.DOLLAR_SIGN_MAPPING_BN[currency_raw]
+                position = "end"
+            elif currency_raw in cfg.currency_bn:
+                word_currency = cfg.currency_bn[currency_raw]
+                position = "end"
+            else:
+                position = self.detect_currency_position(match_text, currency_raw)
+                word_currency =  currency_raw
 
-                # print("language : ", language)
-                if "." in n_m:
-                    word = self.npr.fraction_number_conversion(n_m, language=language)
-                    if index != len(split_text)-1 and split_text[index+1].strip() in cfg.decimale_chunks:
-                        r_word = " " + word + " "+split_text[index+1] +" "+ _currency[currency[0]] + ", "
-                        r_m = m + " "+ split_text[index+1]
-                        text = text.replace(r_m, r_word)
-                    else:
-                        r_word = " " + word + " " + _currency[currency[0]] + " "
-                        text = text.replace(m, r_word)
-                else:
-                    word = self.npr.number_to_words(n_m)
-                    if index != len(split_text)-1 and split_text[index+1].strip() in cfg.decimale_chunks:
-                        n_word = " " + word + " "+split_text[index+1] +" "+ _currency[currency[0]] + ", "
-                        r_m = m+" "+split_text[index+1]
-                        text = text.replace(r_m, n_word)
+            add_currency = True
+            if position == "end" and word_currency:
+            # Check if text already has currency word after match_text
+            # This handles "৳2,50,000.00 টাকা" or "৳2,50,000.00 টাকাও"
+                temp_text = text.replace(match_text, "")
+                # print("temp_text : ", temp_text)
+                remaining_text = text[text.find(match_text) + len(match_text):]
+                # print("remaining_text : ", remaining_text)
+                if remaining_text.lstrip().startswith(word_currency):
+                    add_currency = False
 
-                    else:
-                        n_word = " " + word + " " + _currency[currency[0]] + " "
-                        text = text.replace(m, n_word)
-        # print("text1 : ", text)
+            # print("add_currency : ", add_currency, position)
+            if add_currency and position == "end":
+                amount_with_currncy_symbl_word = word + " " +word_currency
+            elif position=="start":
+                amount_with_currncy_symbl_word = word_currency+ " "+word
+            else:
+                amount_with_currncy_symbl_word = word
+            text = text.replace(match_text, " "+amount_with_currncy_symbl_word+" ")
         return text
 
     def matching_similariy_of_months(self, input_word):
@@ -1251,7 +1321,6 @@ class TextParser:
             return status, (sorted_similar_months[0][0], sorted_similar_months[0][1])
         # print("status : ", True)
         return status, (None, None)
-    
 
     def date_formate_validation(self, date, text):
         n_data = date.strip().split(" ")
@@ -1494,7 +1563,6 @@ class TextParser:
 
             # print("short_name : ", short_name)
             # print("original_text : ", original_text)
-            
             if short_name in original_text or short_name.capitalize() in original_text:
                 # print(short_name)
                 bn_name = cfg.data["bn"]["months"][s_index]
