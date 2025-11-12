@@ -19,6 +19,7 @@ from .number_service import NumberNormalizationService
 from .email_url_normalization import EmailURLExtractor
 from .ordinals_normalizaiton import OrdinalConverter
 from .helpline_extractor import HelplineExtractor
+from .security_code import security_code_normalizer
 
 
 dt = DateExtractor()
@@ -118,54 +119,6 @@ def parse_bengali_date(text):
     return all_matches
 
 def extract_consecutive_numbers_with_separators(text):
-    # """Extract consecutive numbers separated by spaces and/or hyphens"""
-    # # Pattern for Bengali consecutive numbers with spaces or hyphens
-    # bengali_pattern = r'[০-৯]+(?:[\s\-]+[০-৯]+)+'
-    # # Pattern for English consecutive numbers with spaces or hyphens  
-    # english_pattern = r'\d+(?:[\s\-]+\d+)+'
-    # # Combined pattern
-    # combined_pattern = f'({bengali_pattern})|({english_pattern})'
-    # matches = []
-    # # reserver_sorted = sorted re.finditer(combined_pattern, text)
-    # reversed_sorted = sorted(re.finditer(combined_pattern, text), key=lambda m: m.start(), reverse=True)
-
-    # print("reversed_sorted : ", reversed_sorted)
-    # for match in reversed_sorted:
-    #     matched_text = match.group(0)
-    #     print("matched_text : ", matched_text)
-    #     # Extract individual numbers (remove spaces and hyphens)
-    #     if re.match(r'[০-৯]', matched_text):  # Bengali
-    #         numbers = re.findall(r'[০-৯]+', matched_text)
-    #         num_type = 'bengali'
-    #     else:  # English
-    #         numbers = re.findall(r'\d+', matched_text)
-    #         num_type = 'english'
-
-    #     if len(numbers) == 2:
-    #         continue
-    #     data_map = data['bn']["number_mapping"]
-    #     # print("numbers : ", data_map)
-    #     number_list = []
-    #     for n in numbers:
-    #         internal_digits = []
-    #         for i in n:
-    #             # print("i : ", i)
-    #             if i in data_map:
-    #                 word = data_map[i]
-    #                 internal_digits.append(word)
-
-    #         word = " ".join(internal_digits)
-    #         number_list.append(word)
-
-    #     number_string = ", ".join(number_list)
-    #     # print("number_string : ", number_string)
-    #     # text = text[:match.start()] + " " + number_string + " " + text[match.end():]
-    #     print("matched_text : ", matched_text)
-    #     text = text.replace(matched_text, " " + number_string + " ")
-
-    # print("final text : ", text)
-    # return text
-
     """Extract consecutive numbers separated by spaces and/or hyphens, maintaining language consistency"""
     
     # Pattern for Bengali consecutive numbers (only Bengali digits)
@@ -615,8 +568,8 @@ class NumberParser:
         return text
 
     def number_processing(self, text):
-
-
+        text, s_match  = security_code_normalizer(text)
+        # print("replaced_text : ", text)
         text = extract_consecutive_numbers_with_separators(text)
 
         # print("befor processing text : ", text)

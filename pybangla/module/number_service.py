@@ -39,46 +39,46 @@ class NumberNormalizationService:
         # Updated field patterns to handle alphanumeric identifiers
         self.field_patterns = [
             # Account variations
-            (r'(?i)(একাউন্ট|account|a/c|A/C|a c|A C|acc|acct|হিসাব)\s*(নম্বর|নাম্বার|নং|ন\.|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'account_number'),
+            (r'(?i)(ভোটার|একাউন্ট|account|a/c|A/C|a c|A C|acc|acct|হিসাব)\s*(নম্বর|নাম্বার|নং|ন\.|number|no|id|আইডি\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'account_number'),
             
             # Receipt variations
-            (r'(?i)(রিসিপ্ট|রশিদ|রসিদ|receipt|ricipt|rcpt|rec)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'receipt_number'),
+            (r'(?i)(রিসিপ্ট|রশিদ|রসিদ|receipt|ricipt|rcpt|rec)\s*(নম্বর|নাম্বার|নং|number|no|id|আইডি\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'receipt_number'),
             
             # Transaction variations
-            (r'(?i)(ট্রানজেকশন|লেনদেন|transaction|transcrition|trans|txn|trx)\s*(নম্বর|নাম্বার|নং|number|no|id\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'transaction_number'),
+            (r'(?i)(ট্রানজেকশন|লেনদেন|টিকেট|transaction|transcrition|trans|txn|trx)\s*(নম্বর|নাম্বার|নং|number|no|id|আইডি\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'transaction_number'),
             
             # Slip variations
-            (r'(?i)(শ্লিপ|স্লিপ|slip|cilip)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'slip_number'),
+            (r'(?i)(শ্লিপ|স্লিপ|চেক|slip|cilip)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'slip_number'),
             
             # Card variations
-            (r'(?i)(কার্ড|card)\s*(নম্বর|নাম্বার|number|নং|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'card_number'),
+            (r'(?i)(কার্ড|card)\s*(নম্বর|নাম্বার|number|নং|no|id|আইডি\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'card_number'),
             
             # Token variations
-            (r'(?i)(টোকেন|token)(?:\s*id)?\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'token_number'),
+            (r'(?i)(টোকেন|token)(?:\s*id)?\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'token_number'),
             
             # Bill variations
-            (r'(?i)(বিল|bill)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'bill_number'),
+            (r'(?i)(বিল|bill)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'bill_number'),
             
             # Invoice variations - UPDATED to handle alphanumeric patterns
-            (r'(?i)(চালান|ইনভয়েস|invoice|inv)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'invoice_number'),
+            (r'(?i)(চালান|ইনভয়েস|invoice|inv)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'invoice_number'),
             
             # Voucher variations
-            (r'(?i)(ভাউচার|voucher)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'voucher_number'),
+            (r'(?i)(ভাউচার|voucher)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'voucher_number'),
             
             # Order variations - UPDATED to handle alphanumeric patterns
-            (r'(?i)(অর্ডার|order)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'order_number'),
+            (r'(?i)(অর্ডার|order)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'order_number'),
             
             # Reference variations - UPDATED to handle alphanumeric patterns
-            (r'(?i)(রেফারেন্স|reference|ref)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'reference_number'),
+            (r'(?i)(রেফারেন্স|reference|ref)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'reference_number'),
             
             # Payment variations
             (r'(?i)(পেমেন্ট|payment)(?:\s*(?:id|আইডি|নম্বর|নাম্বার|number))?\s*:?\s*([০-৯\d\-\s\.]+)', 'payment_id'),
             
             # Tracking variations - UPDATED to handle alphanumeric patterns
-            (r'(?i)(ট্র্যাকিং|tracking|track)\s*(নম্বর|নাম্বার|নং|number|no\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'tracking_number'),
+            (r'(?i)(ট্র্যাকিং|tracking|track)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'tracking_number'),
             
             # Customer variations
-            (r'(?i)(গ্রাহক|কাস্টমার|customer|cust)\s*(id|আইডি|নম্বর|number)?\s*:?\s*([০-৯\d\-\s\.]+)', 'customer_id'),
+            (r'(?i)(গ্রাহক|কাস্টমার|customer|cust)\s*(id|আইডি|নম্বর|number|no)?\s*:?\s*([০-৯\d\-\s\.]+)', 'customer_id'),
             # Passport variations
             (r'(?i)(e-passport|ই-পাসপোর্ট|e passport|ই পাসপোর্ট|passport|পাসপোর্ট)\s*(id|আইডি|নম্বর|নাম্বার|নং|number|no)?\s*:?-?\s*([A-Zএ-ঔ]?[০-৯0-9]+)', 'passport_id')
         ]

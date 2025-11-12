@@ -39,21 +39,26 @@ class NIDNumber:
     BENGALI_TO_ENGLISH = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
     
     # Updated pattern to match both Bengali and English digits
+    # NID_PATTERNS = [
+    #     r'\b(?:NID|NID নম্বর|জাতীয় পরিচয়পত্র নং|জাতীয় পরিচয়পত্র নম্বর|জাতীয় পরিচয়পত্র|পরিচয়পত্র|'
+    #     r'জাতীয় পরিচয় নম্বর|NID Number|NID নং|এনআইডি|এনআইডি নম্বর|এনআইডি Number|এনআইডি নং)\s*[:ঃ]?\s*([০-৯\d]{10,17})\b'
+    # ]
+
     NID_PATTERNS = [
-        r'\b(?:NID|NID নম্বর|জাতীয় পরিচয়পত্র নং|জাতীয় পরিচয়পত্র নম্বর|'
-        r'জাতীয় পরিচয় নম্বর|NID Number|NID নং|এনআইডি|এনআইডি নম্বর|এনআইডি Number|এনআইডি নং)\s*[:ঃ]?\s*([০-৯\d]{10,17})\b'
+        r'(?:NID|NID নম্বর|জাতীয় পরিচয়পত্র নং|জাতীয় পরিচয়পত্র নম্বর|জাতীয় পরিচয়পত্র|পরিচয়পত্র|লাইসেন্স|ড্রাইভিং লাইসেন্স'
+        r'জাতীয় পরিচয় নম্বর|NID Number|NID নং|এনআইডি|এনআইডি নম্বর|এনআইডি Number|এনআইডি নং)\s*[:ঃ]?\s*([০-৯0-9]+(?:\s+[০-৯0-9]+)*)'
     ]
 
     def __post_init__(self) -> None:
         """Validate the NID number format after initialization"""
-        if not self._is_valid_format():
-            raise ValueError("Invalid NID number format")
+        # if not self._is_valid_format():
+        #     raise ValueError("Invalid NID number format")
 
-    def _is_valid_format(self) -> bool:
-        """Check if the NID number has valid format"""
-        # Convert Bengali digits to English first if needed
-        english_value = self.value.translate(self.BENGALI_TO_ENGLISH)
-        return len(english_value) >= 10 and len(english_value) <= 17 and english_value.isdigit()
+    # def _is_valid_format(self) -> bool:
+    #     """Check if the NID number has valid format"""
+    #     # Convert Bengali digits to English first if needed
+    #     english_value = self.value.translate(self.BENGALI_TO_ENGLISH)
+    #     return len(english_value) >= 10 and len(english_value) <= 17 and english_value.isdigit()
 
     def to_bengali(self) -> str:
         """Convert the NID number to Bengali digits"""
@@ -128,7 +133,8 @@ def main() -> None:
         "NID Number: 1234567890",
         "জাতীয় পরিচয় নম্বরঃ 0987654321 জাতীয় পরিচয় নম্বরঃ 0987654321",
         "এনআইডি নম্বরঃ 1234567890",
-        "এনআইডি নম্বরঃ ১২৩৪৫৬৭৮৯০"
+        "এনআইডি নম্বরঃ ১২৩৪৫৬৭৮৯০ hello 12345"
+        "জাতীয় পরিচয়পত্র ৪৫৬৭"
     ]
 
     normalizer = NIDNormalizer()

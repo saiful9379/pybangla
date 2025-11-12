@@ -59,24 +59,25 @@ The performance of PyBangla was evaluated using **200** sentences. However, no e
 | **V2.11.5**    | 399            | 0.0146        |0.0061           | N/A           |
 | **V2.11.7**    | 399            | 0.0112      |0.0037           | N/A           |
 | **V2.11.8**    | 399            | 0.0112      |0.0037           | N/A           |
-| **V2.13.0**    | 399            | 0.0117      |0035           | N/A           |
+| **V2.13.0**    | 399            | 0.0117      |0.0035           | N/A           |
+| **V2.15.0**    | 399            |0.0185       |0.0078        | N/A           |
 ```
 ============================================================
 EVALUATION SUMMARY
 ============================================================
 Total Samples: 399
-Exact Matches: 335 (83.96%)
-Average CER: 0.0035
-Average WER: 0.0117
-Average Processing Time: 0.55 ms
-Samples with CER < 0.05: 384
-Samples with CER < 0.10: 398
+Exact Matches: 324 (81.20%)
+Average CER: 0.0078
+Average WER: 0.0185
+Average Processing Time: 0.56 ms
+Samples with CER < 0.05: 382
+Samples with CER < 0.10: 396
 ============================================================
 
 Reports saved to:
-  - Excel: ./report/eval_data_2.13.0.xlsx
-  - CSV: ./report/eval_data_2.13.0_detailed.csv
-  - Comparison: ./report/eval_data_2.13.0_comparison.txt
+  - Excel: ./report/eval_data_2.15.0.xlsx
+  - CSV: ./report/eval_data_2.15.0_detailed.csv
+  - Comparison: ./report/eval_data_2.15.0_comparison.txt
 ```
 
 __N.B : For more detail and all of processing category listed here please check : [link](./pybangla/eval_data/eval_data_2.11.2_v2.xlsx)__
