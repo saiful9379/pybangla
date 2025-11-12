@@ -66,18 +66,18 @@ The performance of PyBangla was evaluated using **200** sentences. However, no e
 EVALUATION SUMMARY
 ============================================================
 Total Samples: 399
-Exact Matches: 324 (81.20%)
-Average CER: 0.0078
-Average WER: 0.0185
-Average Processing Time: 0.56 ms
-Samples with CER < 0.05: 382
-Samples with CER < 0.10: 396
+Exact Matches: 295 (73.93%)
+Average CER: 0.009
+Average WER: 0.0323
+Average Processing Time: 0.59 ms
+Samples with CER < 0.05: 369
+Samples with CER < 0.10: 394
 ============================================================
 
 Reports saved to:
-  - Excel: ./report/eval_data_2.15.0.xlsx
-  - CSV: ./report/eval_data_2.15.0_detailed.csv
-  - Comparison: ./report/eval_data_2.15.0_comparison.txt
+  - Excel: ./report/eval_data_2.18.0.xlsx
+  - CSV: ./report/eval_data_2.18.0_detailed.csv
+  - Comparison: ./report/eval_data_2.18.0_comparison.txt
 ```
 
 __N.B : For more detail and all of processing category listed here please check : [link](./pybangla/eval_data/eval_data_2.11.2_v2.xlsx)__
