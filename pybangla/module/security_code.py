@@ -9,7 +9,7 @@ number_mapping = {
 
 def digits_to_words(digits: str) -> str:
     """Convert a string of ASCII/Bengali digits to space-separated words using number_mapping."""
-    return " ".join(number_mapping.get(ch, ch) for ch in digits)
+    return ", ".join(number_mapping.get(ch, ch) for ch in digits)
 
 def build_patterns():
     digit = r'[0-9০-৯]+'

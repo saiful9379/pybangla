@@ -925,7 +925,7 @@ class TextParser:
                 if not year:
                     continue
                 year_in_word = self.npr.year_in_number(year[0])
-                replace_text = d_e.replace(year[0], year_in_word)
+                replace_text = d_e.replace(year[0], year_in_word+", ")
                 day = re.findall(r"\b\d{1,2}\b|\b[০-৯]{1,2}\b", d_e)
                 if day:
                     day_in_word = self.npr.number_to_words(day[0])

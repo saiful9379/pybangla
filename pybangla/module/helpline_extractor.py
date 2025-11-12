@@ -75,7 +75,7 @@ class HelplineExtractor:
             else:
                 # If digit not found, keep as is
                 words.append(digit)
-        return ' '.join(words)
+        return ', '.join(words)
     
     def extract_numbers_with_positions(self, text: str) -> List[Tuple[str, int, int]]:
         """Extract numbers with their positions (number, start, end)"""
