@@ -165,21 +165,16 @@ class EmailURLExtractor:
             url = match['url']
             start = match['start']
             end = match['end']
-            
             # Normalize URL for pronunciation
             normalized_url = self.normalize_url(url, lang)
-            
             # print(f"Normalizing URL: {url} -> {normalized_url}")
 
             # extract number from url and replace with words
-            
             normalized_url = self.replace_numbers(normalized_url, lang)
 
             # Replace in text using span
             text = text[:start] + normalized_url + text[end:]
-        
         return text
-    
 
 
 

@@ -23,7 +23,7 @@ class DigitConverter:
             else:
                 words.append(char)
         
-        return ' '.join(words)
+        return ', '.join(words)
 
 
 class CodeExtractor:

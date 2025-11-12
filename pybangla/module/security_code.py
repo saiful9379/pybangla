@@ -88,6 +88,10 @@ def security_code_normalizer(text: str):
     for m in matches_sorted:
         s, e = m['span']
         original_digits = replaced_text[s:e]
+
+        if not original_digits.isdigit():
+            continue
+        # print("original_digits : ", original_digits)
         # Map the digits in the current slice; guard in case earlier replacements shifted content
         replacement = digits_to_words(original_digits)
         replaced_text = replaced_text[:s] + replacement + replaced_text[e:]
@@ -101,19 +105,20 @@ def security_code_normalizer(text: str):
 # -----------------------------
 if __name__ == "__main__":
     test_texts = [
-        "ওটিপি (OTP): 123456",
-        "কোড (code): 999888",
-        "পিন (PIN): 4321",
-        "সিভিভি (CVV): 123",
-        "শেষ ৪ সংখ্যা  1234",
-        "সংখ্যা 1234",
-        "আপনার 123456",
-        "আপনার ওটিপি (OTP): 123456 এবং পিন (PIN): 1234",
-        "CVV (সিভিভি) ৯৮৭",  # Reverse format
-        "ওটিপি 938221",       # Simple format
-        "সিকিউরিটি code 938221",
-        "পাসওয়ার্ড 123456",
-        "ওটিপি 12345",
+        # "ওটিপি (OTP): 123456",
+        # "কোড (code): 999888",
+        # "পিন (PIN): 4321",
+        # "সিভিভি (CVV): 123",
+        # "শেষ ৪ সংখ্যা  1234",
+        # "সংখ্যা 1234",
+        # "আপনার 123456",
+        # "আপনার ওটিপি (OTP): 123456 এবং পিন (PIN): 1234",
+        # "CVV (সিভিভি) ৯৮৭",  # Reverse format
+        # "ওটিপি 938221",       # Simple format
+        # "সিকিউরিটি code 938221",
+        # "পাসওয়ার্ড 123456",
+        # "ওটিপি 12345",
+        "নাম আর শেষ ৪ সংখ্যা ৪৫৬৭। ওটিপি 938221।"
     ]
 
     for t in test_texts:

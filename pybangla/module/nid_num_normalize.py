@@ -96,7 +96,7 @@ class NIDNormalizer:
                 bengali_value =  nid_number.value
             else:
                 bengali_value= nid_number.to_bengali()
-            bengali_value = ', '.join(mapping.get(char, char) for char in bengali_value)
+            bengali_value = ' '.join(mapping.get(char, char) for char in bengali_value)
             # print("bengali_value", bengali_value)
             matches.append(NIDMatch(
                 value=nid_number.value,

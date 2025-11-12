@@ -70,6 +70,7 @@ class HelplineExtractor:
         """Convert a number to its word representation"""
         words = []
         for digit in number:
+            print("digit : ", digit)
             if digit in self.number_to_word:
                 words.append(self.number_to_word[digit])
             else:
