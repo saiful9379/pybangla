@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Tuple, Optional
 import re
+from .number_pronunciation import normalize_with_3_pattern
 
 mapping = {
     "০": "শূন্য",
@@ -96,13 +97,18 @@ class NIDNormalizer:
                 bengali_value =  nid_number.value
             else:
                 bengali_value= nid_number.to_bengali()
+
+
             bengali_value = ' '.join(mapping.get(char, char) for char in bengali_value)
             # print("bengali_value", bengali_value)
+
+            norm_bengali_value = normalize_with_3_pattern(bengali_value.split(" "))
+
             matches.append(NIDMatch(
                 value=nid_number.value,
                 start=number_start,
                 end=number_end,
-                bengali_value=bengali_value
+                bengali_value=norm_bengali_value
             ))
             # except ValueError:
             #     # Skip invalid NID numbers
@@ -118,7 +124,7 @@ class NIDNormalizer:
             # print("match----> ", match)
 
             # print("match.bengali_value : ", match.bengali_value)
-            result = result[:match.start] + match.bengali_value.replace(" ", ", ") +", "+result[match.end:]
+            result = result[:match.start] + match.bengali_value +" "+result[match.end:]
         return result
     
 def main() -> None:

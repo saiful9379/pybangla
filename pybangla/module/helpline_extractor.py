@@ -70,12 +70,12 @@ class HelplineExtractor:
         """Convert a number to its word representation"""
         words = []
         for digit in number:
-            print("digit : ", digit)
             if digit in self.number_to_word:
                 words.append(self.number_to_word[digit])
             else:
                 # If digit not found, keep as is
                 words.append(digit)
+        
         return ', '.join(words)
     
     def extract_numbers_with_positions(self, text: str) -> List[Tuple[str, int, int]]:

@@ -88,12 +88,13 @@ class CodeConverter:
                 else:
                     # Keep letters as is
                     converted_segments.append(segment)
+            # print("converted_segments : ", converted_segments)
             
             # Join segments with space
             converted_parts.append(' '.join(converted_segments))
         
         # Join parts with hyphen
-        return ' - '.join(converted_parts)
+        return '। '.join(converted_parts)
 
 
 class ProductNormalizer:

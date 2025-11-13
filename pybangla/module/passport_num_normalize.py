@@ -4,8 +4,10 @@ from dataclasses import dataclass
 
 try:
     from .config import Config as cfg
+    from .number_pronunciation import normalize_with_3_pattern
 except ImportError:
     from config import Config as cfg
+    from number_pronunciation import normalize_with_3_pattern
 
 @dataclass
 class PassportNumber:
@@ -48,21 +50,11 @@ class NumberNormalizer:
     
     @classmethod
     def to_bengali_words(cls, number: str) -> str:
-        return ' '.join(cls.BENGALI_NUMBERS.get(digit, digit) for digit in number)
+        norm_bengali_value = normalize_with_3_pattern(number)
+        return norm_bengali_value
 #  self.passport_pattern = r'(?i)(?:e-passport|ই-পাসপোর্ট|e\s+passport|ই\s+পাসপোর্ট|passport|পাসপোর্ট)\s*(?:id|আইডি|নম্বর|নাম্বার|নং|number|no)?\s*[:=\-]?\s*([A-Za-z\u0985-\u09B9]?[\s\-]?[\u09E6-\u09EF0-9]+)'
 class PassportParser:
-    # Pattern to match Bangladesh Passport Numbers with optional prefix, Bengali/English digits, and separators
-    # PATTERN = r'''
-    #     (?:                                                    # Required group (no ? at the end)
-    #         (e-passport|ই-পাসপোর্ট|e\s+passport|ই\s+পাসপোর্ট|passport|পাসপোর্ট)  # Required passport prefix
-    #         \s*
-    #         (?:id|আইডি|নম্বর|নাম্বার|নং|number|no)?           # Optional ID/number label
-    #         \s*:?\s*
-    #     )
-    #     (?P<prefix>[A-Zএ-ঔ])?                                 # Optional letter prefix
-    #     [\s\-\.]?
-    #     (?P<number>[০-৯0-9]{7,9})                             # 7-9 digits
-    # '''
+
 
     PATTERN = r'''
         (?i)                                                # Case insensitive
@@ -121,12 +113,11 @@ class PassportFormatter:
             # print("formatted----> ", formatted)
             span_text = span_text.replace(passport.prefix+passport.number, formatted.replace(" ", ", "))
             # print("span text after replace----> ", span_text)
-            result = result[:start] + " " + span_text + ", " + result[end:]
+            result = result[:start] + " " + span_text +", " + result[end:]
         # print("result----> ", result)
-                        # print("text : ", text)
         result = re.sub(cfg._whitespace_re, " ", result)
     
-        result = re.sub(r"\s*,\s*", ", ", result)
+        result = re.sub(r"\s*,\s*", " ", result)
         return result
 
 if __name__ == "__main__":
@@ -139,7 +130,7 @@ if __name__ == "__main__":
     তার পাসপোর্ট নম্বর P87654321 ছিল।
     তার পাসপোর্ট নম্বর P০১২৩৪৫৬৭ ছিল।
     বাংলা নম্বর হিসেবে পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও ই১২৩৪৫৬৭৮।
-    পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও এ১২৩৪৫৬৭৮।       
+    পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও এ১২৩৪৫৬৭৮।
     """
     
     # Parse passport numbers

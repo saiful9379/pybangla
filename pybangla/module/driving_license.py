@@ -1,6 +1,7 @@
 import re
 from typing import List, Tuple
 from dataclasses import dataclass
+from .number_pronunciation import normalize_with_3_pattern
 
 @dataclass
 class DrivingLicense:
@@ -36,7 +37,20 @@ class NumberNormalizer:
     
     @classmethod
     def to_bengali_words(cls, number: str) -> str:
-        return ', '.join(cls.BENGALI_NUMBERS.get(digit, digit) for digit in number)
+
+        norm_bengali_value = normalize_with_3_pattern(number)
+
+        # norm_bengali_value = ""
+        # i = 0
+        # for digit in number:
+        #     # normalize_string += mapping.get(char, char)
+        #     norm_bengali_value += (cls.BENGALI_NUMBERS.get(digit, digit))
+        #     if i % 3 == 0:   # প্রতি ৩টার পর
+        #         norm_bengali_value += '। '  # এখানে দাড়ি যোগ করছি
+        #     else:
+        #         norm_bengali_value+= ", "
+        #     i+=1
+        return norm_bengali_value
 
 class DrivingLicenseParser:
     REGION_CODES = {
@@ -156,7 +170,8 @@ if __name__ == "__main__":
     # তার ড্রাইভিং লাইসেন্স নম্বর ঢাকা-12-6789।
     # Sample text
     texts = """
-    তার ড্রাইভিং লাইসেন্স 6789।
+    # তার ড্রাইভিং লাইসেন্স 6789।
+    আমার নতুন ড্রাইভিং লাইসেন্স নম্বর রাজশাহী-৫৪৩২১-১২৩৪৫৬।
     """
 
     dlf = DrivingLicenseFormatter()

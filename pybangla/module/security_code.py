@@ -1,4 +1,5 @@
 import re
+from .number_pronunciation import normalize_with_3_pattern
 
 number_mapping = {
     "0": "জিরো", "1": "ওয়ান", "2": "টু", "3": "থ্রি", "4": "ফোর",
@@ -9,7 +10,8 @@ number_mapping = {
 
 def digits_to_words(digits: str) -> str:
     """Convert a string of ASCII/Bengali digits to space-separated words using number_mapping."""
-    return ", ".join(number_mapping.get(ch, ch) for ch in digits)
+    normalized_text = normalize_with_3_pattern(digits)
+    return normalized_text
 
 def build_patterns():
     digit = r'[0-9০-৯]+'

@@ -7,7 +7,8 @@ import csv
 import difflib
 from datetime import datetime
 import numpy as np
-
+import math
+import re
 from module.main import Normalizer
 
 nrml = Normalizer()
@@ -58,6 +59,10 @@ def evaluate_normalization(data, output_path):
                                                           desc="Processing")):
         # Normalize text
         start_time = time.time()
+        print("input_text : ", input_text)
+
+        if input_text is None or (isinstance(input_text, float) and math.isnan(input_text)):
+            continue
         normalized_text = nrml.text_normalizer(input_text, all_operation=True)
 
         print("Input Text: ", input_text)
@@ -224,7 +229,7 @@ def generate_comparison_report(results_df, output_path):
 if __name__ == "__main__":
     # Configuration
     input_eval_data_path = "./eval_data/eval_data.xlsx"
-    output_eval_data_path = "./report/eval_data_2.18.0.xlsx"
+    output_eval_data_path = "./report/eval_data_2.19.0.xlsx"
     
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_eval_data_path), exist_ok=True)

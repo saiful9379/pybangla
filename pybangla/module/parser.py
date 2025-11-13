@@ -21,6 +21,7 @@ from .ordinals_normalizaiton import OrdinalConverter
 from .helpline_extractor import HelplineExtractor
 from .security_code import security_code_normalizer
 from .currency import extract_currencies
+from .number_pronunciation import normalize_with_3_pattern
 
 
 dt = DateExtractor()
@@ -49,6 +50,7 @@ bangla_numeric_words = cfg._bangla_numeric_words
 _STANDARDIZE_ZW = cfg._STANDARDIZE_ZW
 _DELETE_ZW = cfg._DELETE_ZW
 
+data_map = data['bn']["number_mapping"]
 
 def extract_bengali_dates_with_spans(text):
     """Extract Bengali dates from text with their span positions"""
@@ -149,7 +151,6 @@ def extract_consecutive_numbers_with_separators(text):
 
     for match, num_type in reversed_sorted:
         matched_text = match.group(0)
-        
         # Extract individual numbers
         if num_type == 'bengali':
             numbers = re.findall(r'[০-৯]+', matched_text)
@@ -157,13 +158,11 @@ def extract_consecutive_numbers_with_separators(text):
             numbers = re.findall(r'\d+', matched_text)
 
         # print("numbers : ", numbers)
-        print("matched_text : ", matched_text)
+        # print("matched_text : ", matched_text)
         if len(numbers) == 2 and "-" in matched_text:
             continue
-            
-        data_map = data['bn']["number_mapping"]
+        # data_map = data['bn']["number_mapping"]
         number_list = []
-        
         for n in numbers:
             internal_digits = []
             for i in n:
@@ -174,12 +173,104 @@ def extract_consecutive_numbers_with_separators(text):
             word = ", ".join(internal_digits)
             number_list.append(word)
 
-        number_string = " - ".join(number_list)
+        number_string = " । ".join(number_list)
         text = text.replace(matched_text, " " + number_string + " ")
 
     # print("final text : ", text)
     return text
 
+def alpbanet_with_number(text):
+
+    # Correct Bengali alphabet range (excluding digits)
+    # Bengali consonants: \u0995-\u09B9
+    # Bengali vowels: \u0985-\u0994
+    # Bengali vowel signs: \u09BE-\u09CC
+    # Various other Bengali letters: \u09DC-\u09DD, \u09DF, \u09F0-\u09F1
+    
+    # Pattern with correct Bengali alphabet ranges (excluding digit range \u09E6-\u09EF)
+    bengali_letters = r'[\u0985-\u09B9\u09BE-\u09E5\u09F0-\u09F1]'
+    english_letters = r'[A-Za-z]'
+    alphabet_pattern = f'(?:{bengali_letters}|{english_letters})+'
+    digit_pattern = r'[0-9\u09E6-\u09EF]+'
+    
+    pattern = rf'\b({alphabet_pattern})({digit_pattern})\b'
+    
+    matches = []
+    for match in re.finditer(pattern, text):
+
+        full_match = match.group(0)
+        prefix = match.group(1)
+        number = match.group(2)
+
+        if prefix in cfg.CURRENCY_CODES_BN:
+            continue
+        # print(number)
+        normalize_string = normalize_with_3_pattern(number)
+        full_match_norm = full_match.replace(number, " "+normalize_string+" ")
+
+        text = text.replace(full_match, full_match_norm+" ")
+    return text
+
+
+
+def extract_month_year_patterns(text):
+    """
+    Extract patterns like 'month year' in both Bengali and English
+    """
+    # Define month names
+    bengali_months = {
+        'জানুয়ারি': 'January',
+        'ফেব্রুয়ারি': 'February', 
+        'মার্চ': 'March',
+        'এপ্রিল': 'April',
+        'মে': 'May',
+        'জুন': 'June',
+        'জুলাই': 'July',
+        'আগস্ট': 'August',
+        'সেপ্টেম্বর': 'September',
+        'অক্টোবর': 'October',
+        'নভেম্বর': 'November',
+        'ডিসেম্বর': 'December'
+    }
+    # Pattern for Bengali months
+    bengali_month_pattern = '|'.join(bengali_months.keys())
+    
+    # Pattern for English months (with common variations)
+    english_month_pattern = r'[Jj]an(?:uary?)?|[Ff]eb(?:ruary?)?|[Mm]ar(?:ch)?|[Aa]pr(?:il)?|[Mm]ay|[Jj]un[ei]?|[Jj]ul[yi]?|[Aa]ug(?:ust)?|[Ss]ep(?:t(?:ember)?)?|[Oo]ct(?:ober)?|[Nn]ov(?:ember)?|[Dd]ec(?:ember)?'
+    
+    # Pattern for years (both Bengali ০-৯ and English 0-9 digits)
+    # Also handle optional day before or after month
+    year_pattern = r'[\d\u09E6-\u09EF]{4}'
+    day_pattern = r'[\d\u09E6-\u09EF]{1,2}'
+    
+    # Pattern 1: Month Year (like "ফেব্রুয়ারি ২০২৩" or "January 1995")
+    pattern1 = rf'(?:({bengali_month_pattern})|({english_month_pattern}))\s+({year_pattern})'
+    
+    # Pattern 2: Day Month Year (like "১৫ ফেব্রুয়ারি ২০২৩" or "15 January 1995")
+    pattern2 = rf'({day_pattern})\s+(?:({bengali_month_pattern})|({english_month_pattern}))\s+({year_pattern})'
+    
+    # Pattern 3: Month Day, Year (like "January 15, 1995")
+    pattern3 = rf'(?:({bengali_month_pattern})|({english_month_pattern}))\s+({day_pattern}),?\s+({year_pattern})'
+    results = []
+    # Extract Pattern 1: Month Year
+    for match in re.finditer(pattern1, text, re.IGNORECASE):
+        bengali_month = match.group(1)
+        english_month = match.group(2)
+        year = match.group(3)
+        result = {
+            'full_match': match.group(0),
+            'type': 'month_year',
+            'month': bengali_month or english_month,
+            'month_lang': 'Bengali' if bengali_month else 'English',
+            'year': year,
+            'has_bengali_digits': bool(re.search(r'[\u09E6-\u09EF]', year)),
+            'start': match.start(),
+            'end': match.end(),
+            'pronunciation': 'onk'  # Contains alphabets
+        }
+        results.append(result)
+
+    return results
 class NumberParser:
     def __init__(self):
         self.english_digits = english_digits
@@ -299,10 +390,13 @@ class NumberParser:
         # print("year_in_number : ", year_in_number, language)
 
         english_status = self.contains_only_english(year_in_number)
+        # print("english_status : ", english_status)
         if english_status:
             year_in_number = "".join(
                 [cfg._english2bangla2_digits_mapping[i] for i in year_in_number]
             )
+
+        # print("year_in_number : ", year_in_number)
         if language == "bn":
             mid_text = "শো "
         else:
@@ -570,6 +664,7 @@ class NumberParser:
         return text
 
     def number_processing(self, text):
+        # print("text : ", text)
         text = extract_consecutive_numbers_with_separators(text)
         # print("replaced_text : ", text)
         text, s_match  = security_code_normalizer(text)
@@ -579,7 +674,21 @@ class NumberParser:
         # print("bai_extraction_pattern text : ", text)
         text = self.time_processing(text)
 
+        result = extract_month_year_patterns(text)
+        # for solving exception year
+        if result:
+            #===============================================
+            for r in result:
+                full_match = r["full_match"]
+                year = r["year"]
+                # print(year)
+                word_year = self.year_in_number(year)
+
+                norm_full_match = full_match.replace(year, word_year)
+                text = text.replace(full_match, norm_full_match)
+
         # print("befor processing text : ", text)
+        text = alpbanet_with_number(text)
 
         pattern = r"[\d,\.]+"  # Matches numbers with commas and periods
         matches = [(match.group(), match.start(), match.end()) for match in re.finditer(pattern, text)]
@@ -860,10 +969,6 @@ class TextParser:
         self.year_pattern = (
             r"(?:\b|^\d+)(\d{4})\s*(?:সালে?র?|শতাব্দী(?:র)?|শতাব্দীতে|এর|তারিখের|তারিখ)+"
         )
-        self.currency_pattern = (
-            r"(?:\$|£|৳|€|¥|₹|₽|₺|₽)?(?:\d+(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)"
-        )
-        # self.currency_pattern = re.compile(r"(?:\$|£|৳|€|¥|₹|₽|₺)?(?:[\d০-৯]+(?:,[\d০-৯]{3})*(?:\.[\d০-৯]+)?|[\d০-৯]+(?:\.[\d০-৯]+)?)")
         self.npr = NumberParser()
         self.dp = DateParser()
         self.nid_normalizer = NIDNormalizer()
@@ -908,6 +1013,7 @@ class TextParser:
                 if match is None:
                     continue
                 birth_year_word = self.npr.year_in_number(match.group(1))
+                # print("birth_year_word : ", birth_year_word)
                 start_pos, end_pos = match.span(1)
                 group_word = (match.group()).replace(match.group(1), birth_year_word)
                 # print("group_word : ", group_word)
@@ -928,6 +1034,7 @@ class TextParser:
                 if not year:
                     continue
                 year_in_word = self.npr.year_in_number(year[0])
+                # print("year_in_word : ", year_in_word)
                 replace_text = d_e.replace(year[0], year_in_word+", ")
                 day = re.findall(r"\b\d{1,2}\b|\b[০-৯]{1,2}\b", d_e)
                 if day:
@@ -943,6 +1050,7 @@ class TextParser:
         _year_with_hyphen = re.findall(r"\b(\d{4}[-–—―]\d{2})\b", text)
         replce_map = {}
         for year in _year_with_hyphen:
+            # print("year")
             rep_year = year.replace("–", "-")
             rep_year = rep_year.replace("—", "-")
             rep_year = rep_year.replace("―", "-")

@@ -1,10 +1,8 @@
 import re
 from typing import Dict, Tuple, Optional, List
 from num2words import num2words
-# try:
-#     from .config import Config as cfg
-# except ImportError:
-#     from config import Config as cfg
+from .number_pronunciation import normalize_with_3_pattern
+
 class NumberNormalizationService:
     def __init__(self):
         # Bengali to English digit mapping
@@ -35,53 +33,99 @@ class NumberNormalizationService:
 
         self.number_pattern = r'([A-Za-z\u0985-\u09B9]?[\s\-]?[\u09E6-\u09EF0-9]{7,9})'
 
-        
-        # Updated field patterns to handle alphanumeric identifiers
+
         self.field_patterns = [
-            # Account variations
-            (r'(?i)(ভোটার|একাউন্ট|account|a/c|A/C|a c|A C|acc|acct|হিসাব)\s*(নম্বর|নাম্বার|নং|ন\.|number|no|id|আইডি\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'account_number'),
-            
-            # Receipt variations
-            (r'(?i)(রিসিপ্ট|রশিদ|রসিদ|receipt|ricipt|rcpt|rec)\s*(নম্বর|নাম্বার|নং|number|no|id|আইডি\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'receipt_number'),
-            
-            # Transaction variations
-            (r'(?i)(ট্রানজেকশন|লেনদেন|টিকেট|transaction|transcrition|trans|txn|trx)\s*(নম্বর|নাম্বার|নং|number|no|id|আইডি\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'transaction_number'),
-            
-            # Slip variations
-            (r'(?i)(শ্লিপ|স্লিপ|চেক|slip|cilip)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'slip_number'),
-            
-            # Card variations
-            (r'(?i)(কার্ড|card)\s*(নম্বর|নাম্বার|number|নং|no|id|আইডি\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'card_number'),
-            
-            # Token variations
-            (r'(?i)(টোকেন|token)(?:\s*id)?\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'token_number'),
-            
-            # Bill variations
-            (r'(?i)(বিল|bill)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'bill_number'),
-            
-            # Invoice variations - UPDATED to handle alphanumeric patterns
-            (r'(?i)(চালান|ইনভয়েস|invoice|inv)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'invoice_number'),
-            
-            # Voucher variations
-            (r'(?i)(ভাউচার|voucher)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([০-৯\d\-\s\.]+)', 'voucher_number'),
-            
-            # Order variations - UPDATED to handle alphanumeric patterns
-            (r'(?i)(অর্ডার|order)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'order_number'),
-            
-            # Reference variations - UPDATED to handle alphanumeric patterns
-            (r'(?i)(রেফারেন্স|reference|ref)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'reference_number'),
-            
-            # Payment variations
-            (r'(?i)(পেমেন্ট|payment)(?:\s*(?:id|আইডি|নম্বর|নাম্বার|number))?\s*:?\s*([০-৯\d\-\s\.]+)', 'payment_id'),
-            
-            # Tracking variations - UPDATED to handle alphanumeric patterns
-            (r'(?i)(ট্র্যাকিং|tracking|track)\s*(নম্বর|নাম্বার|নং|number|no|আইডি|id\.?)?\s*:?\s*([A-Z]*-?[০-৯\d\-\s\.]+)', 'tracking_number'),
-            
-            # Customer variations
-            (r'(?i)(গ্রাহক|কাস্টমার|customer|cust)\s*(id|আইডি|নম্বর|number|no)?\s*:?\s*([০-৯\d\-\s\.]+)', 'customer_id'),
-            # Passport variations
-            (r'(?i)(e-passport|ই-পাসপোর্ট|e passport|ই পাসপোর্ট|passport|পাসপোর্ট)\s*(id|আইডি|নম্বর|নাম্বার|নং|number|no)?\s*:?-?\s*([A-Zএ-ঔ]?[০-৯0-9]+)', 'passport_id')
+            # Account variations (label REQUIRED)
+            (r'(?i)(ভোটার|একাউন্ট|account|a/c|A/C|a c|A C|acc|acct|হিসাব)\s*'
+            r'(?:নম্বর|নাম্বার|নং|ন\.|number|no\.?|id|আইডি\.?)\s*:?\s*'
+            r'(?P<account_number>[০-৯0-9][০-৯0-9\-\.\s]*[০-৯0-9])',
+            'account_number'),
+
+            # Receipt variations (label REQUIRED)
+            (r'(?i)(রিসিপ্ট|রশিদ|রসিদ|receipt|ricipt|rcpt|rec)\s*'
+            r'(?:নম্বর|নাম্বার|নং|number|no\.?|id|আইডি\.?)\s*:?\s*'
+            r'(?P<receipt_number>[০-৯0-9][০-৯0-9\-\.\s]*[০-৯0-9])',
+            'receipt_number'),
+
+            # Transaction variations (label REQUIRED)
+            (r'(?i)(ট্রানজেকশন|লেনদেন|টিকেট|transaction|transcription|trans|txn|trx)\s*'
+            r'(?:নম্বর|নাম্বার|নং|number|no\.?|id|আইডি\.?)\s*:?\s*'
+            r'(?P<transaction_number>[০-৯0-9][০-৯0-9\-\.\স]*[০-৯0-9])',
+            'transaction_number'),
+
+            # Slip variations (label REQUIRED)
+            (r'(?i)(শ্লিপ|স্লিপ|চেক|slip|cilip)\s*'
+            r'(?:নম্বর|নাম্বার|নং|number|no\.?|আইডি|id\.?)\s*:?\s*'
+            r'(?P<slip_number>[০-৯0-9][০-৯0-9\-\.\s]*[০-৯0-9])',
+            'slip_number'),
+
+            # Card variations (label REQUIRED)
+            (r'(?i)(কার্ড|card)\s*'
+            r'(?:নম্বর|নাম্বার|number|নং|no\.?|id|আইডি\.?)\s*:?\s*'
+            r'(?P<card_number>[০০-৯0-9][০-৯0-9\-\.\s]*[০-৯0-9])',
+            'card_number'),
+
+            # Token variations (label REQUIRED)
+            (r'(?i)(টোকেন|token)(?:\s*id)?\s*'
+            r'(?:নম্বর|নাম্বার|নং|number|no\.?|আইডি|id\.?)\s*:?\s*'
+            r'(?P<token_number>[০-৯0-9][০-৯0-9\-\.\s]*[০-৯0-9])',
+            'token_number'),
+
+            # Bill variations (label REQUIRED)
+            (r'(?i)(বিল|bill)\s*'
+            r'(?:নম্বর|নাম্বার|নং|number|no\.?|আইডি|id\.?)\s*:?\s*'
+            r'(?P<bill_number>[০-৯0-9][০-৯0-9\-\.\s]*[০-৯0-9])',
+            'bill_number'),
+
+            # Invoice variations — alphanumeric allowed (label REQUIRED)
+            (r'(?i)(চালান|ইনভয়েস|invoice|inv)\s*'
+            r'(?:নম্বর|নাম্বার|নং|number|no\.?|আইডি|id\.?)\s*:?\s*'
+            r'(?P<invoice_number>[A-Z0-9০-৯][A-Z0-9০-৯\-\.\s]*[A-Z0-9০-৯])',
+            'invoice_number'),
+
+            # Voucher variations (label REQUIRED)
+            (r'(?i)(ভাউচার|voucher)\s*'
+            r'(?:নম্বর|নাম্বার|নং|number|no\.?|আইডি|id\.?)\s*:?\s*'
+            r'(?P<voucher_number>[০-৯0-9][০-৯0-9\-\.\s]*[০-৯0-9])',
+            'voucher_number'),
+
+            # Order variations — alphanumeric allowed (label REQUIRED)
+            (r'(?i)(অর্ডার|order)\s*'
+            r'(?:নম্বর|নাম্বার|নং|number|no\.?|আইডি|id\.?)\s*:?\s*'
+            r'(?P<order_number>[A-Z0-9০-৯][A-Z0-9০-৯\-\.\s]*[A-Z0-9০-৯])',
+            'order_number'),
+
+            # Reference variations — alphanumeric allowed (label REQUIRED)
+            (r'(?i)(রেফারেন্স|reference|ref)\s*'
+            r'(?:নম্বর|নাম্বার|নং|number|no\.?|আইডি|id\.?)\s*:?\s*'
+            r'(?P<reference_number>[A-Z0-9০-৯][A-Z0-9০-৯\-\.\s]*[A-Z0-9০-৯])',
+            'reference_number'),
+
+            # Payment variations (label REQUIRED now)
+            (r'(?i)(পেমেন্ট|payment)\s*'
+            r'(?:id|আইডি|নম্বর|নাম্বার|number|no\.?)\s*:?\s*'
+            r'(?P<payment_id>[০-৯0-9][০-৯0-9\-\.\s]*[০-৯0-9])',
+            'payment_id'),
+
+            # Tracking variations — alphanumeric allowed (label REQUIRED)
+            (r'(?i)(ট্র্যাকিং|tracking|track)\s*'
+            r'(?:নম্বর|নাম্বার|নং|number|no\.?|আইডি|id\.?)\s*:?\s*'
+            r'(?P<tracking_number>[A-Z0-9০-৯][A-Z0-9০-৯\-\.\s]*[A-Z0-9০-৯])',
+            'tracking_number'),
+
+            # Customer variations (label REQUIRED)
+            (r'(?i)(গ্রাহক|কাস্টমার|customer|cust)\s*'
+            r'(?:id|আইডি|নম্বর|number|no\.?)\s*:?\s*'
+            r'(?P<customer_id>[০-৯0-9][০-৯0-9\-\.\s]*[০-৯0-9])',
+            'customer_id'),
+
+            # Passport variations — 1 optional letter (A–Z or Bengali) + digits (label REQUIRED)
+            (r'(?i)(e-passport|ই-পাসপোর্ট|e passport|ই পাসপোর্ট|passport|পাসপোর্ট)\s*'
+            r'(?:id|আইডি|নম্বর|নাম্বার|নং|number|no\.?)\s*:?-?\s*'
+            r'(?P<passport_id>[A-Zএ-ঔঅ-হ]?[০-৯0-9]+)',
+            'passport_id'),
         ]
+
 
 
 
@@ -105,7 +149,6 @@ class NumberNormalizationService:
             # print("Found passport number:", string_pass, " at position:", index_span)
             # Extract digits from the cleaned passport string
             digits = re.findall(self.number_pattern, string_pass)
-            
 
             # print("digits:", digits)            
             for digit in digits:
@@ -115,7 +158,17 @@ class NumberNormalizationService:
                         words.append(self.mapping_normalization[d])
                     else:
                         words.append(d)
-                normalize_string = (", ".join(words))
+                # print("words : ", words)
+                # normalize_string = (", ".join(words))
+                normalize_string = normalize_with_3_pattern(words)
+                # i = 0
+                # for item in words:
+                #     normalize_string += item
+                #     if i % 3 == 0:   # প্রতি ৩টার পর
+                #         normalize_string += '। '  # এখানে দাড়ি যোগ করছি
+                #     else:
+                #         normalize_string+= ", "
+                #     i+=1
                 # print("normalize_string:", digit , "->", normalize_string)
 
                 string_pass = string_pass.replace(digit, " "+normalize_string+" ")
@@ -199,10 +252,23 @@ class NumberNormalizationService:
                 words.append(digit)
         
         # If there was a prefix, add it back
+        # print("words : ", words)
+        # i = 0
+        # normalize_string = ""
+        # for item in words:
+        #     normalize_string += item
+        #     if i % 3 == 0:   # প্রতি ৩টার পর
+        #         normalize_string += '। '  # এখানে দাড়ি যোগ করছি
+        #     else:
+        #         normalize_string+= ", "
+        #     i+=1
+
+        normalize_string = normalize_with_3_pattern(words)
+
         if prefix:
-            return prefix + ', '.join(words)
+            return prefix + normalize_string
         else:
-            return ', '.join(words)
+            return normalize_string
         
     def date_patter_procesing(self, text: str):
         """Find positions of date numbers that should not be normalized"""
@@ -245,7 +311,11 @@ class NumberNormalizationService:
                 words.append(self.mapping_normalization[digit])
             else:
                 words.append(digit)
-        return ', '.join(words)
+        # print("words : ", words)
+
+        normalize_string = normalize_with_3_pattern(words)
+
+        return normalize_string
     
     def replace_numbers_with_words(self, text: str) -> str:
         """Replace numbers in text with Bengali words using span-based replacement"""
@@ -253,6 +323,8 @@ class NumberNormalizationService:
         text = self.date_patter_procesing(text)
 
         text = self.extract_passport_unicode(text)
+
+        # print("text :" , text)
 
         lines = text.split('\n')
         processed_lines = []
@@ -298,143 +370,145 @@ if __name__ == "__main__":
     service = NumberNormalizationService()
     
     # Test the problematic cases
-    test_cases = [
-    "একাউন্ট নম্বর ১২৩৪৫৬৬",
-    "account number 1234567890",
-    "রিসিপ্ট  নম্বর 123452",
-    "ricipt number 123456677989",
-    "রশিদ  নম্বর 8904390",
-   " ট্রানজেকশন নাম্বার 893023",
-    "transcrition number 12338902983",
-    "শ্লিপ নম্বর 1234567890123",
-    "cilip number 1234567890123",
-    "card number 1234567890123",
-    "token id number 1234567890123",
-    "টোকেন নম্বর  ৪৫৬৭৮০৩৪৫",
-    "বিল নম্বর  ৪৫৬৭৮০৩৪৫ hello how are you",
-    "bill number 456780345",
-    "চালান নম্বর  ৪৫৬৭৮০৩৪৫",
-    "invoice number 456780345",
-    "আমার একাউন্ট নম্বর ১২৩৪৫৬৭৮৯০ থেকে টাকা কেটে নিয়েছে।",
-    "Please transfer the amount to account number 1234567890 before 5 PM.",
-    "গ্রাহকের A/C নং: ৯৮৭৬৫৪৩২১০ এ জমা করুন।",
-    "Your savings acc no. 123-456-7890 has been credited with BDT 5000.",
-    "আপনার হিসাব নাম্বার: ১২৩৪ ৫৬৭৮ ৯০১২ সফলভাবে খোলা হয়েছে।",
-    "The loan amount will be deducted from ACCT NUMBER: 1234.5678.9012 monthly.",
-    "আপনার একাউন্ট নম্বর ১২৩৪৫৬৬ সংরক্ষণ করুন।",
-    "Account No. 987-654-3210 is linked to your mobile number.",
-    "আপনার রিসিপ্ট নম্বর ৪৫৬৭৮৯০১২৩ সংরক্ষণ করুন ভবিষ্যতের জন্য।",
-    "রশিদ নং: ১২৩৪৫৬ দেখিয়ে আপনার পণ্য সংগ্রহ করুন।",
-    "মূল রসিদ নাম্বার ৯৮৭-৬৫৪-৩২১ ছাড়া রিটার্ন সম্ভব নয়।",
-    "Your payment receipt number: 123456789 has been generated successfully.",
-    "অনুগ্রহ করে Ricipt Number 876543210 টি প্রিন্ট করে রাখুন।",
-    "The rcpt no. 555-666-777 is required for warranty claims.",
-    "আপনার রিসিপ্ট নম্বর ৪৫৬৭৮৯০১২৩ সংরক্ষণ করুন ভবিষ্যতের জন্য।",
-    "রশিদ নং: ১২৩৪৫৬ দেখিয়ে আপনার পণ্য সংগ্রহ করুন।",
-    "মূল রসিদ নাম্বার ৯৮৭-৬৫৪-৩২১ ছাড়া রিটার্ন সম্ভব নয়।",
-    "Your payment receipt number: 123456789 has been generated successfully.",
-    "অনুগ্রহ করে Ricipt Number 876543210 টি প্রিন্ট করে রাখুন।",
-    "The rcpt no. 555-666-777 is required for warranty claims.",
-    "আপনার রিসিপ্ট নম্বর ৪৫৬৭৮৯০১২৩ সংরক্ষণ করুন ভবিষ্যতের জন্য।",
-    "রশিদ নং: ১২৩৪৫৬ দেখিয়ে আপনার পণ্য সংগ্রহ করুন।",
-    "মূল রসিদ নাম্বার ৯৮৭-৬৫৪-৩২১ ছাড়া রিটার্ন সম্ভব নয়।",
-    "Your payment receipt number: 123456789 has been generated successfully.",
-    "অনুগ্রহ করে Ricipt Number 876543210 টি প্রিন্ট করে রাখুন।",
-    "The rcpt no. 555-666-777 is required for warranty claims.",
-    "আপনার ট্রানজেকশন নম্বর 891২৩৪৫৬৭৮ দিয়ে অভিযোগ করুন।",
-    "আজকের লেনদেন নং: ৭৮৯০১২৩৪৫৬ সফল হয়েছে।",
-    "Your transaction number 123456789012 has been processed at 2:30 PM.",
-    "Failed transcrition number 999-888-777-666 will be reversed within 7 days.",
-    "দয়া করে Trans No. ৬৫৪৩২১০৯৮৭ রেফারেন্স হিসাবে ব্যবহার করুন।",
-    "TXN নাম্বার: 111222333444 এর জন্য ১০ টাকা চার্জ কাটা হয়েছে।",
-    "আপনার ট্রানজেকশন নম্বর 891২৩৪৫৬৭৮ দিয়ে অভিযোগ করুন।",
-    "আজকের লেনদেন নং: ৭৮৯০১২৩৪৫৬ সফল হয়েছে।",
-    "Your transaction number 123456789012 has been processed at 2:30 PM.",
-    "Failed transcrition number 999-888-777-666 will be reversed within 7 days.",
-    "ব্যাংক শ্লিপ নম্বর ৩৪৫৬৭৮৯০১২ জমা দেওয়া হয়েছে।",
-    "আপনার জমা স্লিপ নং: ৯৮৭৬৫৪৩২১০ অনুমোদন করা হয়েছে।",
-    "Please keep the deposit slip number 123-456-789 for your records.",
-    "উত্তোলন cilip number 555666777888 প্রসেসিং এ আছে।",
-    "Deposit slip no. 123456789012 has been verified.",
-    "আপনার শ্লিপ নম্বর ৩৪৫৬৭৮৯০১২ জমা দেওয়া হয়েছে।",
-    "আপনার কার্ড নম্বর ১২৩৪৫৬৭৮৯০১২৩ দিয়ে পেমেন্ট সফল হয়েছে।",
-    "Card number 9876-5432-1098-7654 is valid until 12/25.",
-    "আপনার কার্ড নম্বর ৪৫৬৭ ৮৯০১ ২৩৪৫ ৬৭৮৯ দিয়ে পেমেন্ট করুন।",
-    "Your new card number 1234-5678-9012-3456 will be activated within 24 hours.",
-    "অনুগ্রহ করে Card নং ৯৮৭৬৫৪৩২১০৯৮৭৬ এর CVV দিন।",
-    "Credit card no. 1234 5678 9012 3456 has been blocked due to suspicious activity.",
-    "আপনার কার্ড নম্বর ১২৩৪৫৬৭৮৯০১২৩ দিয়ে পেমেন্ট সফল হয়েছে।",
-    "Card number 9876-5432-1098-7654 is valid until 12/25.",
-    "আপনার কার্ড নম্বর ৪৫৬৭ ৮৯০১ ২৩৪৫ ৬৭৮৯ দিয়ে পেমেন্ট করুন।",
-    "Your new card number 1234-5678-9012-3456 will be activated within 24 hours.",
-    "অনুগ্রহ করে Card নং ৯৮৭৬৫৪৩২১০৯৮৭৬ এর CVV দিন।",
-    "Credit card no. 1234 5678 9012 3456 has been blocked due to suspicious activity.",
-    "আপনার টোকেন নম্বর ৫৬৭৮৯০১২৩৪ দিয়ে লগইন করুন।",
-    "Security token ID number 123456789012 expires at midnight.",
-    "নতুন Token নং: ৯৮৭-৬৫৪-৩২১ জেনারেট করা হয়েছে।",
-    "আপনার টোকেন নম্বর ৫৬৭৮৯০১২৩৪ দিয়ে লগইন করুন।",
-    "এই মাসের বিল নম্বর ৮৯০১২৩৪৫৬৭ এর বকেয়া ৫০০০ টাকা।",
-    "Your electricity bill number 202401-123456 is due on 15th January.",
-    "বিল নং: ৭৮৯০১২৩৪৫৬ অনলাইনে পরিশোধ করা যাবে।",
-    "আপনার বিদ্যুৎ বিল নম্বর ২০২৪০১-১২৩৪৫৬ ১৫ জানুয়ারি তারিখে পরিশোধ করতে হবে।",
-    "আমাদের চালান নম্বর ৬৭৮৯০১২৩৪৫ অনুযায়ী পেমেন্ট করুন।",
-    "Invoice number INV-2024-123456 has been sent to your email.",
-    "মূল inv নং ৪৫৬৭৮৯০১২৩ ছাড়া পণ্য ফেরত নেওয়া হবে না।",
-    "আপনার ইনভয়েস নম্বর ১২৩৪৫৬৭৮৯০১২ বৈধ।",
-    "আপনার ভাউচার নম্বর ৩৪৫৬৭৮৯০১২ ৩১ ডিসেম্বর পর্যন্ত বৈধ।",
-    "Gift voucher number 123-456-789-012 can be redeemed online.",
-    "ভাউচার নং: ৯৮৭৬৫৪৩২১০ ব্যবহার করে ২০% ছাড় পাবেন।",
-    "আপনার ভাউচার নম্বর ৩৪৫৬৭৮৯০১২ ৩১ ডিসেম্বর পর্যন্ত বৈধ।",
-    "Gift voucher number 123-456-789-012 can be redeemed online.",
-    "ভাউচার নং: ৯৮৭৬৫৪৩২১০ ব্যবহার করে ২০% ছাড় পাবেন।",
-    "আপনার ভাউচার নম্বর ৩৪৫৬৭৮৯০১২ ৩১ ডিসেম্বর পর্যন্ত বৈধ।",
-    "আপনার অর্ডার নম্বর ৮৯০১২৩৪৫৬৭ ট্র্যাক করুন।",
-    "Your order number ORD-2024-123456 has been shipped today.",
-    "অর্ডার নং: ৬৭৮৯০১২৩৪৫ এর ডেলিভারি ৩ দিনের মধ্যে হবে।",
-    "আমার অর্ডার নাম্বার ১২৩৪৫৬৭৮৯০১২ বাতিল করতে চাই।",
-    "Order No. 987-654-3210 has been delivered successfully.",
-    "অর্ডার নম্বর: ৫৬৭৮৯০১২৩৪৫ এর ডেলিভারি ৩ দিনের মধ্যে হবে।",
-    "দয়া করে রেফারেন্স নম্বর ৪৫৬৭৮৯০১২৩ উল্লেখ করুন।",
-    "Use reference number REF-123-456-789 for all correspondence.",
-    "আপনার Ref নং: ৯৮৭৬৫৪৩২১০ দিয়ে স্ট্যাটাস চেক করুন।",
-    "পেমেন্ট আইডি ১২৩৪৫৬৭৮৯০১২ নিশ্চিত হয়েছে BDT ১০,০০০ এর জন্য।",
-    "আপনার পেমেন্ট আইডি ৭৮৯০১২৩৪৫৬ সেভ করে রাখুন।",
-    "Payment ID 123456789012 confirmed for BDT 10,000.",
-    "পেমেন্ট নম্বর: ৫৬৭-৮৯০-১২৩ দিয়ে রিফান্ড ট্র্যাক করুন।",
-    "আপনার ট্র্যাকিং নম্বর ১২৩৪৫৬৭৮৯০১২ দিয়ে পণ্য ট্র্যাক করুন।",
-    "পার্সেল ট্র্যাকিং নম্বর ৬৭৮৯০১২৩৪৫৬৭৮ দিয়ে খুঁজুন।",
-    "Your tracking number TRK-123-456-789-012 shows delivery tomorrow.",
-    "ট্র্যাকিং নং: ৪৫৬৭৮৯০১২৩৪৫ অনলাইনে চেক করুন।",
-    "আপনার ট্র্যাকিং নম্বর ১২৩৪৫৬৭৮৯০১২ দিয়ে পণ্য ট্র্যাক করুন।",
-    "পার্সেল ট্র্যাকিং নম্বর ৬৭৮৯০১২৩৪৫৬৭৮ দিয়ে খুঁজুন।",
-    "আপনার গ্রাহক আইডি ৯০১২৩৪৫৬৭৮ প্রোফাইলে আপডেট করুন।",
+#     test_cases = [
+#     "একাউন্ট নম্বর ১২৩৪৫৬৬",
+#     "account number 1234567890",
+#     "রিসিপ্ট  নম্বর 123452",
+#     "ricipt number 123456677989",
+#     "রশিদ  নম্বর 8904390",
+#    " ট্রানজেকশন নাম্বার 893023",
+#     "transcrition number 12338902983",
+#     "শ্লিপ নম্বর 1234567890123",
+#     "cilip number 1234567890123",
+#     "card number 1234567890123",
+#     "token id number 1234567890123",
+#     "টোকেন নম্বর  ৪৫৬৭৮০৩৪৫",
+#     "বিল নম্বর  ৪৫৬৭৮০৩৪৫ hello how are you",
+#     "bill number 456780345",
+#     "চালান নম্বর  ৪৫৬৭৮০৩৪৫",
+#     "invoice number 456780345",
+#     "আমার একাউন্ট নম্বর ১২৩৪৫৬৭৮৯০ থেকে টাকা কেটে নিয়েছে।",
+#     "Please transfer the amount to account number 1234567890 before 5 PM.",
+#     "গ্রাহকের A/C নং: ৯৮৭৬৫৪৩২১০ এ জমা করুন।",
+#     "Your savings acc no. 123-456-7890 has been credited with BDT 5000.",
+#     "আপনার হিসাব নাম্বার: ১২৩৪ ৫৬৭৮ ৯০১২ সফলভাবে খোলা হয়েছে।",
+#     "The loan amount will be deducted from ACCT NUMBER: 1234.5678.9012 monthly.",
+#     "আপনার একাউন্ট নম্বর ১২৩৪৫৬৬ সংরক্ষণ করুন।",
+#     "Account No. 987-654-3210 is linked to your mobile number.",
+#     "আপনার রিসিপ্ট নম্বর ৪৫৬৭৮৯০১২৩ সংরক্ষণ করুন ভবিষ্যতের জন্য।",
+#     "রশিদ নং: ১২৩৪৫৬ দেখিয়ে আপনার পণ্য সংগ্রহ করুন।",
+#     "মূল রসিদ নাম্বার ৯৮৭-৬৫৪-৩২১ ছাড়া রিটার্ন সম্ভব নয়।",
+#     "Your payment receipt number: 123456789 has been generated successfully.",
+#     "অনুগ্রহ করে Ricipt Number 876543210 টি প্রিন্ট করে রাখুন।",
+#     "The rcpt no. 555-666-777 is required for warranty claims.",
+#     "আপনার রিসিপ্ট নম্বর ৪৫৬৭৮৯০১২৩ সংরক্ষণ করুন ভবিষ্যতের জন্য।",
+#     "রশিদ নং: ১২৩৪৫৬ দেখিয়ে আপনার পণ্য সংগ্রহ করুন।",
+#     "মূল রসিদ নাম্বার ৯৮৭-৬৫৪-৩২১ ছাড়া রিটার্ন সম্ভব নয়।",
+#     "Your payment receipt number: 123456789 has been generated successfully.",
+#     "অনুগ্রহ করে Ricipt Number 876543210 টি প্রিন্ট করে রাখুন।",
+#     "The rcpt no. 555-666-777 is required for warranty claims.",
+#     "আপনার রিসিপ্ট নম্বর ৪৫৬৭৮৯০১২৩ সংরক্ষণ করুন ভবিষ্যতের জন্য।",
+#     "রশিদ নং: ১২৩৪৫৬ দেখিয়ে আপনার পণ্য সংগ্রহ করুন।",
+#     "মূল রসিদ নাম্বার ৯৮৭-৬৫৪-৩২১ ছাড়া রিটার্ন সম্ভব নয়।",
+#     "Your payment receipt number: 123456789 has been generated successfully.",
+#     "অনুগ্রহ করে Ricipt Number 876543210 টি প্রিন্ট করে রাখুন।",
+#     "The rcpt no. 555-666-777 is required for warranty claims.",
+#     "আপনার ট্রানজেকশন নম্বর 891২৩৪৫৬৭৮ দিয়ে অভিযোগ করুন।",
+#     "আজকের লেনদেন নং: ৭৮৯০১২৩৪৫৬ সফল হয়েছে।",
+#     "Your transaction number 123456789012 has been processed at 2:30 PM.",
+#     "Failed transcrition number 999-888-777-666 will be reversed within 7 days.",
+#     "দয়া করে Trans No. ৬৫৪৩২১০৯৮৭ রেফারেন্স হিসাবে ব্যবহার করুন।",
+#     "TXN নাম্বার: 111222333444 এর জন্য ১০ টাকা চার্জ কাটা হয়েছে।",
+#     "আপনার ট্রানজেকশন নম্বর 891২৩৪৫৬৭৮ দিয়ে অভিযোগ করুন।",
+#     "আজকের লেনদেন নং: ৭৮৯০১২৩৪৫৬ সফল হয়েছে।",
+#     "Your transaction number 123456789012 has been processed at 2:30 PM.",
+#     "Failed transcrition number 999-888-777-666 will be reversed within 7 days.",
+#     "ব্যাংক শ্লিপ নম্বর ৩৪৫৬৭৮৯০১২ জমা দেওয়া হয়েছে।",
+#     "আপনার জমা স্লিপ নং: ৯৮৭৬৫৪৩২১০ অনুমোদন করা হয়েছে।",
+#     "Please keep the deposit slip number 123-456-789 for your records.",
+#     "উত্তোলন cilip number 555666777888 প্রসেসিং এ আছে।",
+#     "Deposit slip no. 123456789012 has been verified.",
+#     "আপনার শ্লিপ নম্বর ৩৪৫৬৭৮৯০১২ জমা দেওয়া হয়েছে।",
+#     "আপনার কার্ড নম্বর ১২৩৪৫৬৭৮৯০১২৩ দিয়ে পেমেন্ট সফল হয়েছে।",
+#     "Card number 9876-5432-1098-7654 is valid until 12/25.",
+#     "আপনার কার্ড নম্বর ৪৫৬৭ ৮৯০১ ২৩৪৫ ৬৭৮৯ দিয়ে পেমেন্ট করুন।",
+#     "Your new card number 1234-5678-9012-3456 will be activated within 24 hours.",
+#     "অনুগ্রহ করে Card নং ৯৮৭৬৫৪৩২১০৯৮৭৬ এর CVV দিন।",
+#     "Credit card no. 1234 5678 9012 3456 has been blocked due to suspicious activity.",
+#     "আপনার কার্ড নম্বর ১২৩৪৫৬৭৮৯০১২৩ দিয়ে পেমেন্ট সফল হয়েছে।",
+#     "Card number 9876-5432-1098-7654 is valid until 12/25.",
+#     "আপনার কার্ড নম্বর ৪৫৬৭ ৮৯০১ ২৩৪৫ ৬৭৮৯ দিয়ে পেমেন্ট করুন।",
+#     "Your new card number 1234-5678-9012-3456 will be activated within 24 hours.",
+#     "অনুগ্রহ করে Card নং ৯৮৭৬৫৪৩২১০৯৮৭৬ এর CVV দিন।",
+#     "Credit card no. 1234 5678 9012 3456 has been blocked due to suspicious activity.",
+#     "আপনার টোকেন নম্বর ৫৬৭৮৯০১২৩৪ দিয়ে লগইন করুন।",
+#     "Security token ID number 123456789012 expires at midnight.",
+#     "নতুন Token নং: ৯৮৭-৬৫৪-৩২১ জেনারেট করা হয়েছে।",
+#     "আপনার টোকেন নম্বর ৫৬৭৮৯০১২৩৪ দিয়ে লগইন করুন।",
+#     "এই মাসের বিল নম্বর ৮৯০১২৩৪৫৬৭ এর বকেয়া ৫০০০ টাকা।",
+#     "Your electricity bill number 202401-123456 is due on 15th January.",
+#     "বিল নং: ৭৮৯০১২৩৪৫৬ অনলাইনে পরিশোধ করা যাবে।",
+#     "আপনার বিদ্যুৎ বিল নম্বর ২০২৪০১-১২৩৪৫৬ ১৫ জানুয়ারি তারিখে পরিশোধ করতে হবে।",
+#     "আমাদের চালান নম্বর ৬৭৮৯০১২৩৪৫ অনুযায়ী পেমেন্ট করুন।",
+#     "Invoice number INV-2024-123456 has been sent to your email.",
+#     "মূল inv নং ৪৫৬৭৮৯০১২৩ ছাড়া পণ্য ফেরত নেওয়া হবে না।",
+#     "আপনার ইনভয়েস নম্বর ১২৩৪৫৬৭৮৯০১২ বৈধ।",
+#     "আপনার ভাউচার নম্বর ৩৪৫৬৭৮৯০১২ ৩১ ডিসেম্বর পর্যন্ত বৈধ।",
+#     "Gift voucher number 123-456-789-012 can be redeemed online.",
+#     "ভাউচার নং: ৯৮৭৬৫৪৩২১০ ব্যবহার করে ২০% ছাড় পাবেন।",
+#     "আপনার ভাউচার নম্বর ৩৪৫৬৭৮৯০১২ ৩১ ডিসেম্বর পর্যন্ত বৈধ।",
+#     "Gift voucher number 123-456-789-012 can be redeemed online.",
+#     "ভাউচার নং: ৯৮৭৬৫৪৩২১০ ব্যবহার করে ২০% ছাড় পাবেন।",
+#     "আপনার ভাউচার নম্বর ৩৪৫৬৭৮৯০১২ ৩১ ডিসেম্বর পর্যন্ত বৈধ।",
+#     "আপনার অর্ডার নম্বর ৮৯০১২৩৪৫৬৭ ট্র্যাক করুন।",
+#     "Your order number ORD-2024-123456 has been shipped today.",
+#     "অর্ডার নং: ৬৭৮৯০১২৩৪৫ এর ডেলিভারি ৩ দিনের মধ্যে হবে।",
+#     "আমার অর্ডার নাম্বার ১২৩৪৫৬৭৮৯০১২ বাতিল করতে চাই।",
+#     "Order No. 987-654-3210 has been delivered successfully.",
+#     "অর্ডার নম্বর: ৫৬৭৮৯০১২৩৪৫ এর ডেলিভারি ৩ দিনের মধ্যে হবে।",
+#     "দয়া করে রেফারেন্স নম্বর ৪৫৬৭৮৯০১২৩ উল্লেখ করুন।",
+#     "Use reference number REF-123-456-789 for all correspondence.",
+#     "আপনার Ref নং: ৯৮৭৬৫৪৩২১০ দিয়ে স্ট্যাটাস চেক করুন।",
+#     "পেমেন্ট আইডি ১২৩৪৫৬৭৮৯০১২ নিশ্চিত হয়েছে BDT ১০,০০০ এর জন্য।",
+#     "আপনার পেমেন্ট আইডি ৭৮৯০১২৩৪৫৬ সেভ করে রাখুন।",
+#     "Payment ID 123456789012 confirmed for BDT 10,000.",
+#     "পেমেন্ট নম্বর: ৫৬৭-৮৯০-১২৩ দিয়ে রিফান্ড ট্র্যাক করুন।",
+#     "আপনার ট্র্যাকিং নম্বর ১২৩৪৫৬৭৮৯০১২ দিয়ে পণ্য ট্র্যাক করুন।",
+#     "পার্সেল ট্র্যাকিং নম্বর ৬৭৮৯০১২৩৪৫৬৭৮ দিয়ে খুঁজুন।",
+#     "Your tracking number TRK-123-456-789-012 shows delivery tomorrow.",
+#     "ট্র্যাকিং নং: ৪৫৬৭৮৯০১২৩৪৫ অনলাইনে চেক করুন।",
+#     "আপনার ট্র্যাকিং নম্বর ১২৩৪৫৬৭৮৯০১২ দিয়ে পণ্য ট্র্যাক করুন।",
+#     "পার্সেল ট্র্যাকিং নম্বর ৬৭৮৯০১২৩৪৫৬৭৮ দিয়ে খুঁজুন।",
+#     "আপনার গ্রাহক আইডি ৯০১২৩৪৫৬৭৮ প্রোফাইলে আপডেট করুন।",
     "Customer ID 123456789012 is eligible for premium benefits.",
-    "কাস্টমার নম্বর: ৭৮৯-০১২-৩৪৫৬ দিয়ে লগইন করুন।",
-    "Your customer ID 123-456-789-012 is valid.",
-    "আমার account নম্বর ১২৩৪৫৬৭৮৯০ থেকে টাকা transfer করুন।",
-    "নতুন receipt নং: 987654321 জেনারেট হয়েছে।",
-    "আপনার transaction নাম্বার ৫৬৭৮৯০ সফল হয়েছে।",
-    "Havit HV-SC055 Laptop Cleaning Kit - HV-SC055 and the number is the 12345 and my acound amount is 1234567"
-    ]
+#     "কাস্টমার নম্বর: ৭৮৯-০১২-৩৪৫৬ দিয়ে লগইন করুন।",
+#     "Your customer ID 123-456-789-012 is valid.",
+#     "আমার account নম্বর ১২৩৪৫৬৭৮৯০ থেকে টাকা transfer করুন।",
+#     "নতুন receipt নং: 987654321 জেনারেট হয়েছে।",
+#     "আপনার transaction নাম্বার ৫৬৭৮৯০ সফল হয়েছে।",
+#     "Havit HV-SC055 Laptop Cleaning Kit - HV-SC055 and the number is the 12345 and my acound amount is 1234567"
+#     ]
 
     test_cases = [
-        "hello পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭, hi পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭,",
-        "passport number: A12345678 and amar account number A23456781 ",
-        "ই-পাসপোর্ট আইডি: উ৯৮৭৬৫৪৩২",
-        "e-passport no: ক১২৩৪৫৬৭৮",
-        "পাসপোর্ট: অ৯৯৯৯৯৯৯৯",
-        "পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭"
-        "পাসপোর্ট নম্বর স১২৩৪৫৬৭৭",
-        "hello পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭, hi পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭,",
-        "Your customer ID 123-456-789-012 is valid.",
-        "আমার পাসপোর্ট নম্বর A01234567 এবং তার পাসপোর্ট নম্বর 987654321।",
-        "নতুন ই-পাসপোর্ট নম্বর E12345678 ইস্যু করা হয়েছে।",
-        "তিনি পুরাতন পাসপোর্ট নম্বর 1234567 ব্যবহার করেছেন।",
-        "মেশিন রিডেবল পাসপোর্ট নম্বর B76543210।",
-        "তার পাসপোর্ট নম্বর P87654321 ছিল।",
-        "তার পাসপোর্ট নম্বর P০১২৩৪৫৬৭ ছিল।",
-        "বাংলা নম্বর হিসেবে পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও ই১২৩৪৫৬৭৮।",
-        "পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও ই১২৩৪৫৬৭৮।"   
+        # "hello পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭, hi পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭,",
+        # "passport number: A12345678 and amar account number A23456781 ",
+        # "ই-পাসপোর্ট আইডি: উ৯৮৭৬৫৪৩২",
+        # "e-passport no: ক১২৩৪৫৬৭৮",
+        # "পাসপোর্ট: অ৯৯৯৯৯৯৯৯",
+        # "পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭"
+        # "পাসপোর্ট নম্বর স১২৩৪৫৬৭৭",
+        # "hello পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭, hi পাসপোর্ট নম্বর ই১২৩৪৫৬৭৭,",
+        "Customer ID 123456789012 is eligible for premium benefits.",
+        # "Your customer ID 123-456-789-012 is valid.",
+        # "আমার পাসপোর্ট নম্বর A01234567 এবং তার পাসপোর্ট নম্বর 987654321।",
+        # "নতুন ই-পাসপোর্ট নম্বর E12345678 ইস্যু করা হয়েছে।",
+        # "তিনি পুরাতন পাসপোর্ট নম্বর 1234567 ব্যবহার করেছেন।",
+        # "মেশিন রিডেবল পাসপোর্ট নম্বর B76543210।",
+        # "তার পাসপোর্ট নম্বর P87654321 ছিল।",
+        # "তার পাসপোর্ট নম্বর P০১২৩৪৫৬৭ ছিল।",
+        # "বাংলা নম্বর হিসেবে পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও ই১২৩৪৫৬৭৮।",
+        # "পাসপোর্ট নম্বর এ০১২৩৪৫৬৭ ও ই১২৩৪৫৬৭৮।",
+        # " ডিএসইতে লেনদেন ৩০০ কোটি টাকার নিচে নেমে এসেছে। লেনদেন হয়েছে ২৯০ কোটি ১৩ লাখ টাকার। গতকাল মঙ্গলবার লেনদেন হয়েছে ৩৩৯ কোটি ৭৫ লাখ টাকার।"
     ]
     
     print("Testing Alphanumeric Number Normalization\n")
