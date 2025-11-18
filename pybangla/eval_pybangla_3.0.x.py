@@ -60,6 +60,8 @@ def evaluate_normalization(data, output_path):
         tqdm(zip(input_texts, reviewed_texts), total=len(input_texts), desc="Processing")
     ):
         # Normalize text
+        if pd.isna(reviewed_text):
+            continue
         start_time = time.time()
         print("input_text : ", input_text)
 
@@ -67,6 +69,10 @@ def evaluate_normalization(data, output_path):
             continue
         normalized_text = nrml.text_normalizer(input_text, all_operation=True)
 
+        # remove punctuation
+        reviewed_text = re.sub(r"[।,!?]", "", str(reviewed_text))
+        normalized_text = re.sub(r"[।,!?]", "", normalized_text)
+        
         print("Input Text: ", input_text)
         print("Reviewed Text: ", reviewed_text)
         print("Normalized Text: ", normalized_text)
