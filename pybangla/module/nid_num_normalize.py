@@ -1,6 +1,7 @@
-from dataclasses import dataclass
-from typing import List, Tuple, Optional
 import re
+from dataclasses import dataclass
+from typing import List, Optional, Tuple
+
 from .number_pronunciation import normalize_with_3_pattern
 
 mapping = {
@@ -14,13 +15,23 @@ mapping = {
     "৭": "সাত",
     "৮": "আট",
     "৯": "নয়",
-    '0': 'জিরো', '1': 'ওয়ান', '2': 'টু', '3': 'থ্রি', '4': 'ফোর', 
-    '5': 'ফাইভ', '6': 'সিক্স', '7': 'সেভেন', '8': 'এইট', '9': 'নাইন',
+    "0": "জিরো",
+    "1": "ওয়ান",
+    "2": "টু",
+    "3": "থ্রি",
+    "4": "ফোর",
+    "5": "ফাইভ",
+    "6": "সিক্স",
+    "7": "সেভেন",
+    "8": "এইট",
+    "9": "নাইন",
 }
+
 
 @dataclass
 class NIDMatch:
     """Class to represent a matched NID number with its position in text"""
+
     value: str
     start: int
     end: int
@@ -33,12 +44,13 @@ class NIDMatch:
 @dataclass
 class NIDNumber:
     """Class to represent and validate Bangladesh National ID numbers"""
+
     value: str
-    
+
     # Class constants
     BENGALI_DIGITS = str.maketrans("0123456789", "০১২৩৪৫৬৭৮৯")
     BENGALI_TO_ENGLISH = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
-    
+
     # Updated pattern to match both Bengali and English digits
     # NID_PATTERNS = [
     #     r'\b(?:NID|NID নম্বর|জাতীয় পরিচয়পত্র নং|জাতীয় পরিচয়পত্র নম্বর|জাতীয় পরিচয়পত্র|পরিচয়পত্র|'
@@ -46,8 +58,8 @@ class NIDNumber:
     # ]
 
     NID_PATTERNS = [
-        r'(?:NID|NID নম্বর|জাতীয় পরিচয়পত্র নং|জাতীয় পরিচয়পত্র নম্বর|জাতীয় পরিচয়পত্র|পরিচয়পত্র|লাইসেন্স|ড্রাইভিং লাইসেন্স|জাতীয় পরিচয় নম্বর|'
-        r'জাতীয় পরিচয় নম্বর|NID Number|NID নং|এনআইডি|এনআইডি নম্বর|এনআইডি Number|এনআইডি নং)\s*[:ঃ]?\s*([০-৯0-9]+(?:\s+[০-৯0-9]+)*)'
+        r"(?:NID|NID নম্বর|জাতীয় পরিচয়পত্র নং|জাতীয় পরিচয়পত্র নম্বর|জাতীয় পরিচয়পত্র|পরিচয়পত্র|লাইসেন্স|ড্রাইভিং লাইসেন্স|জাতীয় পরিচয় নম্বর|"
+        r"জাতীয় পরিচয় নম্বর|NID Number|NID নং|এনআইডি|এনআইডি নম্বর|এনআইডি Number|এনআইডি নং)\s*[:ঃ]?\s*([০-৯0-9]+(?:\s+[০-৯0-9]+)*)"
     ]
 
     def __post_init__(self) -> None:
@@ -70,7 +82,7 @@ class NIDNumber:
         return english_value
 
     @classmethod
-    def from_bengali(cls, bengali_number: str) -> 'NIDNumber':
+    def from_bengali(cls, bengali_number: str) -> "NIDNumber":
         """Create NIDNumber from Bengali digits"""
         english_number = bengali_number.translate(cls.BENGALI_TO_ENGLISH)
         return cls(english_number)
@@ -78,9 +90,9 @@ class NIDNumber:
 
 class NIDNormalizer:
     """Class to normalize NID numbers in text"""
-    
+
     def __init__(self) -> None:
-        self.nid_pattern = re.compile('|'.join(NIDNumber.NID_PATTERNS))
+        self.nid_pattern = re.compile("|".join(NIDNumber.NID_PATTERNS))
 
     def extract_nids(self, text: str) -> List[NIDMatch]:
         """Extract all NID numbers with their positions from text"""
@@ -94,22 +106,23 @@ class NIDNormalizer:
             number_end = match.end(1)
 
             if nid_number.value.isdigit():
-                bengali_value =  nid_number.value
+                bengali_value = nid_number.value
             else:
-                bengali_value= nid_number.to_bengali()
+                bengali_value = nid_number.to_bengali()
 
-
-            bengali_value = ' '.join(mapping.get(char, char) for char in bengali_value)
+            bengali_value = " ".join(mapping.get(char, char) for char in bengali_value)
             # print("bengali_value", bengali_value)
 
             norm_bengali_value = normalize_with_3_pattern(bengali_value.split(" "))
 
-            matches.append(NIDMatch(
-                value=nid_number.value,
-                start=number_start,
-                end=number_end,
-                bengali_value=norm_bengali_value
-            ))
+            matches.append(
+                NIDMatch(
+                    value=nid_number.value,
+                    start=number_start,
+                    end=number_end,
+                    bengali_value=norm_bengali_value,
+                )
+            )
             # except ValueError:
             #     # Skip invalid NID numbers
             #     continue
@@ -124,9 +137,10 @@ class NIDNormalizer:
             # print("match----> ", match)
 
             # print("match.bengali_value : ", match.bengali_value)
-            result = result[:match.start] + match.bengali_value +" "+result[match.end:]
+            result = result[: match.start] + match.bengali_value + " " + result[match.end :]
         return result
-    
+
+
 def main() -> None:
     """Example usage of the NID classes"""
     sample_texts = [
@@ -139,12 +153,11 @@ def main() -> None:
         "NID Number: 1234567890",
         "জাতীয় পরিচয় নম্বরঃ 0987654321 জাতীয় পরিচয় নম্বরঃ 0987654321",
         "এনআইডি নম্বরঃ 1234567890",
-        "এনআইডি নম্বরঃ ১২৩৪৫৬৭৮৯০ hello 12345"
-        "জাতীয় পরিচয়পত্র ৪৫৬৭"
+        "এনআইডি নম্বরঃ ১২৩৪৫৬৭৮৯০ hello 12345" "জাতীয় পরিচয়পত্র ৪৫৬৭",
     ]
 
     normalizer = NIDNormalizer()
-    
+
     for text in sample_texts:
         print(f"\nOriginal: {text}")
         # Extract and print NID matches with positions

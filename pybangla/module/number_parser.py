@@ -1,12 +1,12 @@
 import re
-from .parser import NumberParser, TextParser
+
 from .config import Config as cfg
+from .parser import NumberParser, TextParser
 
 npr, tp = NumberParser(), TextParser()
 
 
 class Word2NumberMap:
-
     def __init__(self):
         pass
 
@@ -55,7 +55,7 @@ class Word2NumberMap:
                 return_value = func(number, fraction_value)
                 # print("return value : ", str(int(return_value)), sum_status)
                 return str(int(return_value)), sum_status
-            
+
         # print("return value : ", value, sum_status)
         return value, sum_status
 
@@ -75,10 +75,7 @@ class Word2NumberMap:
         """
         status_list = []
         for sublist in lst:
-            x = [
-                "1" if i in sublist else "0"
-                for i in cfg.checking_hunderds + cfg.checking_adjust
-            ]
+            x = ["1" if i in sublist else "0" for i in cfg.checking_hunderds + cfg.checking_adjust]
             if "1" in x:
                 status_list.append(True)
             else:
@@ -109,10 +106,7 @@ class Word2NumberMap:
                     output.append(temp_sequence)
                 else:
                     temp_sequence.append(input_list[i])
-            elif (
-                input_list[i] in cfg.decimale_chunks
-                or input_list[i] in cfg.fraction_int
-            ):
+            elif input_list[i] in cfg.decimale_chunks or input_list[i] in cfg.fraction_int:
                 temp_sequence.append(input_list[i])
             elif input_list[i] in cfg.hundreds:
                 temp_sequence.append(input_list[i])
@@ -222,9 +216,7 @@ class Word2NumberMap:
         # print("final_value : ", final_value)
         return final_value, index
 
-    def converting2digits(
-        self, results: list, text_list: list, sum_status_list: list
-    ) -> str:
+    def converting2digits(self, results: list, text_list: list, sum_status_list: list) -> str:
         """
 
         Converting word to digit and if have hunderds only then cluster again
@@ -234,16 +226,13 @@ class Word2NumberMap:
 
         replance_text_and_spaning_number = []
         for result_chunk, status in zip(results, sum_status_list):
-
             # checking hunderds only and return status
             hundreds_status = self.checking_hundreds_only(result_chunk)
             # print("hundreds_status : ", hundreds_status, result_chunk, status)
 
             # generate number clustring
             if hundreds_status:
-                clustring_data, clustring_status = self.clustring_consecutive_hunderd(
-                    result_chunk
-                )
+                clustring_data, clustring_status = self.clustring_consecutive_hunderd(result_chunk)
             else:
                 clustring_data, clustring_status = [result_chunk], [status]
             for c_data, c_status in zip(clustring_data, clustring_status):
@@ -255,13 +244,9 @@ class Word2NumberMap:
 
                 index, final_value = 0, []
                 for c_d in c_data:
-                    final_value, index = self.converting_condition(
-                        c_d, final_value, c_data, index
-                    )
+                    final_value, index = self.converting_condition(c_d, final_value, c_data, index)
                     index += 1
-                value, status = self.adjust_value_conversion(
-                    final_value, sum_status=c_status
-                )
+                value, status = self.adjust_value_conversion(final_value, sum_status=c_status)
                 # print("return value2 : ", value, status)
                 if status:
                     numbers = str(sum(int(num) for num in value))
@@ -270,7 +255,9 @@ class Word2NumberMap:
                 else:
                     numbers = "".join(value)
 
-                replance_text_and_spaning_number.append([numbers, (word_spanning[0], word_spanning[1])])
+                replance_text_and_spaning_number.append(
+                    [numbers, (word_spanning[0], word_spanning[1])]
+                )
         sorted_data = sorted(replance_text_and_spaning_number, key=lambda x: x[1][0], reverse=True)
         unique_data = []
         seen = set()
@@ -280,7 +267,9 @@ class Word2NumberMap:
                 seen.add((item[0], item[1]))
 
         for value in unique_data:
-            original_text = npr.replace_text_at_position(original_text, value[0], value[1][0], value[1][1])
+            original_text = npr.replace_text_at_position(
+                original_text, value[0], value[1][0], value[1][1]
+            )
         # print(original_text)
 
         return original_text
@@ -321,9 +310,7 @@ class Word2NumberMap:
             if status:
                 if word not in cfg.bn_word_map:
                     if word[:-2] in cfg.bn_word_map:
-                        rword = npr.number_processing(
-                            str(int(cfg.bn_word_map[word[:-2]]) * 100)
-                        )
+                        rword = npr.number_processing(str(int(cfg.bn_word_map[word[:-2]]) * 100))
                         rword = rword.replace(" শত", "শো")
                         text_list.extend(rword.split(" "))
                     else:
@@ -344,7 +331,6 @@ class Word2NumberMap:
 
 
 if __name__ == "__main__":
-
     texts = [
         "আমি এক দুই তিন চার পাঁচ টু থ্রি ফাইভ ছয় সেভেন এইট নাইন শূন্য আমার ফোন নাম্বার জিরো ওয়ান ডাবল সেভেন",
         "ওয়ান ডাবল নাইন টু",

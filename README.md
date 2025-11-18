@@ -6,7 +6,7 @@ Abstract
 Although significant progress has been made in voice cloning and text-to-speech (TTS) models, especially in generating natural-sounding speech, low-resource languages such as Bangla (Bn) and other languages remain nearly unexplored. Despite recent advancements, TTS systems for the Bangla language still encounter difficulties due to the intricate phonology and morphology. Furthermore, no previous work has been done on voice cloning for Bangla. To address the research gap, we provide a voice cloning method that uses the limited amount of speech data possible to build a TTS system for Bangla. Additionally, we introduce PYBANGLA, a text normalization tool created especially for Bangla language processing. Voice cloning can be accomplished by honing the top-performing TTS models with just a few target speaker samples. Both subjective and objective evaluation metrics have been conducted to assess the system, and the results show that our BnVITS model performs better than the earlier Bangla TTS model. This approach opens up new opportunities for individualized voice technology by paving the road for more efficient Bangla TTS approaches in terms of speech data.
 
 Paper Link : https://doi.org/10.21203/rs.3.rs-6530449/v1
- 
+
 __PyBangla:__
 
 PyBangla is a python3 package for Bangla Number, DateTime and Text Normalizer and Date Extraction. This package can be used to Normalize the text number and date (ex: number to text vice versa). This framework  also can be used Django, Flask, FastAPI, and others. PyBangla module supported operating systems Linux/Unix, Mac OS and Windows.
@@ -119,7 +119,7 @@ __Parameters:__
 - `all_operation` (bool): Make this `True` if you need all operations to take place or `False`
 - `number_plate` (bool, default=False): Converts or normalizes vehicle number plates if present in the text.
 - `abbreviations` (bool, default=False): Expands common abbreviations into their full forms.
-- `year` (bool, default=False): Handles and formats years correctly. 
+- `year` (bool, default=False): Handles and formats years correctly.
 - `punctuation` (bool, default=False): Removes or standardizes unwanted punctuation marks.
 - `phone_number` (bool, default=False): Extracts and normalizes phone numbers.
 - `symbols` (bool, default=False): Expands common symbols into their textual representation.
@@ -142,7 +142,7 @@ __Example:__
 import pybangla
 nrml = pybangla.Normalizer()
 text = "রাহিম ক্লাস ওয়ান এ ১ম, এন্ড বাসার ক্লাস এ ৩৩ তম, সে জন্য ২০৩০ শতাব্দীতে ¥২০৩০.১২৩৪ দিতে হয়েছে"
-print(f"Input: {text} \nOutput {nrml.text_normalizer(text, 
+print(f"Input: {text} \nOutput {nrml.text_normalizer(text,
                                                      all_operation=True)}")
 
 print(text)
@@ -258,7 +258,7 @@ nrml = pybangla.Normalizer()
 today = nrml.today()
 print(today)
 
-Output: 
+Output:
 {'date': '৩০', 'month': 'এপ্রিল', 'year': '২০২৪', 'txt_date': 'ত্রিশ', 'txt_year': 'দুই হাজার চব্বিশ', 'weekday': 'মঙ্গলবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
 ```
 
@@ -303,10 +303,10 @@ input2 = "উনিশশো ছিয়ানব্বই সালের ছয় 
 
 print(nrml.text_diff(input1, input2))
 
-#Output: 
+#Output:
 
 (
-    ['১৯৯৬সালের ৬', 'সেপ্টেম্বররণ', '২০৩০সালের', '৬সেপ্টেম্বর'], 
+    ['১৯৯৬সালের ৬', 'সেপ্টেম্বররণ', '২০৩০সালের', '৬সেপ্টেম্বর'],
     ['উনিশশো ছিয়ানব্বই সালের ছয়', 'সেপ্টেম্বর রণ', 'দুই হাজার ত্রিশ সালের ছয়', 'সেপ্টেম্বর']
 )
 

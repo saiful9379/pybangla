@@ -1,4 +1,3 @@
-import re
 from .parser import NumberParser, TextParser
 
 np, tp = NumberParser(), TextParser()
@@ -242,7 +241,6 @@ def equation_of_arai(value, fraction):
 
 
 def adjust_value_conversion(value, sum_status=False):
-
     status, adjust_name = False, ""
 
     for v in value:
@@ -330,7 +328,8 @@ def sum_status(lst):
 
 def extract_values(input_list):
     output, temp_sequence = [], []
-    i, previous_index = 0, 0
+
+    i = 0
     while i < len(input_list):
         if input_list[i].isdigit():
             if len(input_list) - 1 == i:
@@ -356,7 +355,6 @@ def extract_values(input_list):
 
 
 def checkin_hundreds_only(input_list):
-
     all_numeric_status = all(item.isdigit() for item in input_list)
     if all_numeric_status:
         return False
@@ -393,12 +391,10 @@ def split_consecutive_hunderd(input_list):
 
 
 def converting2digits(results: list, text_list: list, sum_status_list: list) -> str:
-
     # print("text_list : ", text_list)
     original_text = " ".join(text_list)
     print("original_text", original_text)
     for result_chunk, status in zip(results, sum_status_list):
-
         print("result_chunk :", result_chunk)
 
         hundreds_status = checkin_hundreds_only(result_chunk)
@@ -412,7 +408,6 @@ def converting2digits(results: list, text_list: list, sum_status_list: list) -> 
             clustring_data, clustring_status = [result_chunk], [status]
 
         for c_data, c_status in zip(clustring_data, clustring_status):
-
             # print("list : ", result_chunk)
             replance_text = " ".join(c_data)
             # print("replance_text : ", replance_text)
@@ -475,7 +470,6 @@ def converting2digits(results: list, text_list: list, sum_status_list: list) -> 
 
 
 def word2number(text):
-
     text = normalize(text + " ")
     text_list = replace_word_to_number_string(text)
     results = extract_values(text_list)
@@ -488,7 +482,6 @@ def word2number(text):
 
 
 if __name__ == "__main__":
-
     texts = [
         "আমি এক দুই তিন চার পাঁচ টু থ্রি ফাইভ ছয় সেভেন এইট নাইন শূন্য আমার ফোন নাম্বার জিরো ওয়ান ডাবল সেভেন",
         "ওয়ান ডাবল নাইন টু",

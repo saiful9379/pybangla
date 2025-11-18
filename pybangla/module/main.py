@@ -1,15 +1,17 @@
-import re
-import time
 import datetime
 import difflib
+import re
+import time
+
+from loguru import logger
+
 from .config import Config as cfg
-from .parser import DateParser, TextParser, NumberParser, EmojiRemoval
-from .number_parser import Word2NumberMap
 from .date_extractor import DateExtractor
-from .phone_number_extractor import PhoneNumberExtractor
 # from .nid_num_normalize import NIDNormalizer\
 from .driving_license import DrivingLicenseFormatter
-from loguru import logger
+from .number_parser import Word2NumberMap
+from .parser import DateParser, EmojiRemoval, NumberParser, TextParser
+from .phone_number_extractor import PhoneNumberExtractor
 
 dp, tp, npr, wnmp, emr = (
     DateParser(),
@@ -22,6 +24,7 @@ pne = PhoneNumberExtractor()
 dt = DateExtractor()
 data = cfg.data
 # nid_normalizer = NIDNormalizer()
+
 
 class CheckDiff:
     def __init__(self):
@@ -212,30 +215,33 @@ class Normalizer:
         }
         return data
 
-    def text_normalizer(self, text,
-                        all_operation,
-                        email_normalization=False,
-                        url_normalization=False,
-                        product_number=False,
-                        unit_normalization=False,
-                        driving_license=False,
-                        number_plate=False, 
-                        abbreviations=False, 
-                        year=False, 
-                        puntuation=False,
-                        phone_number=False, 
-                        symbols=False, 
-                        ordinals=False, 
-                        currency=False, 
-                        date=False, 
-                        nid=False, 
-                        nns=False,
-                        passport=False,
-                        ordinal_en=False,
-                        helpline_phn=False,
-                        number=False,
-                        symbols_normalize=False,
-                        emoji=False):
+    def text_normalizer(
+        self,
+        text,
+        all_operation,
+        email_normalization=False,
+        url_normalization=False,
+        product_number=False,
+        unit_normalization=False,
+        driving_license=False,
+        number_plate=False,
+        abbreviations=False,
+        year=False,
+        puntuation=False,
+        phone_number=False,
+        symbols=False,
+        ordinals=False,
+        currency=False,
+        date=False,
+        nid=False,
+        nns=False,
+        passport=False,
+        ordinal_en=False,
+        helpline_phn=False,
+        number=False,
+        symbols_normalize=False,
+        emoji=False,
+    ):
         """
         Processes a given text by applying various normalization techniques based on specified boolean parameters.
 
@@ -244,7 +250,7 @@ class Normalizer:
         - `all_operation` (bool): Make this `True` if you need all operations to take place or `False`
         - `number_plate` (bool, default=False): Converts or normalizes vehicle number plates if present in the text.
         - `abbreviations` (bool, default=False): Expands common abbreviations into their full forms.
-        - `year` (bool, default=False): Handles and formats years correctly. 
+        - `year` (bool, default=False): Handles and formats years correctly.
         - `punctuation` (bool, default=False): Removes or standardizes unwanted punctuation marks.
         - `phone_number` (bool, default=False): Extracts and normalizes phone numbers.
         - `symbols` (bool, default=False): Expands common symbols into their textual representation.
@@ -261,13 +267,13 @@ class Normalizer:
 
         This function is useful for preprocessing text in speech-to-text systems, NLP applications, and text-to-speech (TTS) models where textual consistency is crucial.
         """
-        
+
         if all_operation:
             processing_map = {
                 "email_normalization": True,
                 "url_normalization": True,
-                "product_number" : True,
-                "unit_normalization" : True,
+                "product_number": True,
+                "unit_normalization": True,
                 "driving_license": True,
                 "number_plate": True,
                 "abbreviations": True,
@@ -282,16 +288,32 @@ class Normalizer:
                 "currency": True,
                 "date": True,
                 "nid": True,
-                "nns" : True,
+                "nns": True,
                 "passport": True,
-                "ordinal_en" : True,
+                "ordinal_en": True,
                 "helpline_phn": True,
                 "number": True,
                 "symbols_normalize": True,
-                "collapse_whitespace": True  # Always included
+                "collapse_whitespace": True,  # Always included
             }
         else:
-            if email_normalization or url_normalization or number_plate or abbreviations or year or puntuation or phone_number or symbols or ordinals or currency or date or nid or passport or number or emoji:
+            if (
+                email_normalization
+                or url_normalization
+                or number_plate
+                or abbreviations
+                or year
+                or puntuation
+                or phone_number
+                or symbols
+                or ordinals
+                or currency
+                or date
+                or nid
+                or passport
+                or number
+                or emoji
+            ):
                 processing_map = {
                     "email_normalization": email_normalization,
                     "url_normalization": url_normalization,
@@ -311,13 +333,13 @@ class Normalizer:
                     "currency": currency,
                     "date": date,
                     "nid": nid,
-                    "nns" : nns,
+                    "nns": nns,
                     "passport": passport,
-                    "ordinal_en" : ordinal_en,
+                    "ordinal_en": ordinal_en,
                     "helpline_phn": helpline_phn,
                     "number": number,
                     "symbols_normalize": symbols_normalize,
-                    "collapse_whitespace": True  # Always included
+                    "collapse_whitespace": True,  # Always included
                 }
             else:
                 raise ValueError("At least one of the operations must be True")
@@ -340,12 +362,11 @@ class Normalizer:
         return text
 
     def data_normalizer(self, text):
-
         text = tp.data_normailization(text)
         return text
-    
+
     def driving_license_norlization(self, text):
-        text = DrivingLicenseFormatter.replace_in_text(text, 'bengali_words')
+        text = DrivingLicenseFormatter.replace_in_text(text, "bengali_words")
         return text
 
     # def remove_emoji(self, text):
@@ -361,7 +382,6 @@ class Normalizer:
         return text
 
     def date_extraction(self, text):
-
         dates = dt.get_dates(text)
         formated_date = [self.date_format(i) for i in dates]
         # print(f"Input: {sentence}: Output: {dates}")
@@ -375,14 +395,12 @@ class Normalizer:
         return remove_chunk, add_chunk
 
     def process_phone_number(self, text):
-
         text = pne.phn_num_extractor(text)
 
         return text
 
 
 if __name__ == "__main__":
-
     # Testing Date format
     date_list = [
         "০১-এপ্রিল/২০২৩",

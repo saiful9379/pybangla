@@ -12,7 +12,7 @@
 #         "খ্রিস্টাব্দের",
 #         "খ্রিস্টপূর্বাব্দের",
 #     ]
-    
+
 #     # Create patterns
 #     digit_pattern = r"[0-9০-৯]{4}"
 #     connector_pattern = "|".join(connectors)
@@ -56,12 +56,13 @@
 #         "2023 চেয়ে 2014খ্রিস্টপূর্বাব্দের বাংলাদেশ আর মানুষ বুজতে শুরু ক 2023 চেয়ে 2030 খ্রিস্টাব্দ",
 #         "2023 চেয়ে 1115 বাংলাদেশ আর মানুষ বুজতে শুরু ক",
 #     ]
-    
+
 #     for sentence in sentences:
 #         year_to_year(sentence)
 
 
 import re
+
 
 def year_to_year(sentence):
     connectors = ["থেকে", "হতে", "চেয়ে"]
@@ -75,14 +76,16 @@ def year_to_year(sentence):
         "খ্রিস্টাব্দের",
         "খ্রিস্টপূর্বাব্দের",
     ]
-    
+
     # Create patterns
     digit_pattern = r"[0-9০-৯]{4}"
     connector_pattern = "|".join(connectors)
     suffix_pattern = "|".join(suffixes)
 
     # Regular expression pattern
-    pattern = rf"({digit_pattern})\s*({connector_pattern})\s*({digit_pattern})\s*({suffix_pattern})"
+    pattern = (
+        rf"({digit_pattern})\s*({connector_pattern})\s*({digit_pattern})\s*({suffix_pattern})"
+    )
 
     # Compile the regex for better performance
     regex = re.compile(pattern)
@@ -95,19 +98,23 @@ def year_to_year(sentence):
         extracted_block = " ".join(match)
         print("extracted_block:", extracted_block)
         start_year = match.group(1)  # First year
-        end_year = match.group(3)    # Second year
-        start_pos, end_pos = match.span()  # Get the starting and ending position of the entire match
-        result.append({
-            "years": [start_year, end_year],
-            "start_pos": start_pos,
-            "end_pos": end_pos
-        })
-    
+        end_year = match.group(3)  # Second year
+        (
+            start_pos,
+            end_pos,
+        ) = match.span()  # Get the starting and ending position of the entire match
+        result.append(
+            {"years": [start_year, end_year], "start_pos": start_pos, "end_pos": end_pos}
+        )
+
     if result:
         for res in result:
-            print(f"Extracted years: {res['years']}, Start position: {res['start_pos']}, End position: {res['end_pos']}")
+            print(
+                f"Extracted years: {res['years']}, Start position: {res['start_pos']}, End position: {res['end_pos']}"
+            )
     else:
         print("No match found in sentence.")
+
 
 if __name__ == "__main__":
     # Sample sentences
@@ -129,9 +136,8 @@ if __name__ == "__main__":
         "2023 চেয়ে 2014 খ্রিস্টাব্দ বাংলাদেশ আর মানুষ বুজতে শুরু ক",
         "2023 চেয়ে 2014 খ্রিস্টপূর্বাব্দের বাংলাদেশ আর মানুষ বুজতে শুরু ক 2023চেয়ে 2030 খ্রিস্টাব্দ",
         "2023 চেয়ে 1115 বাংলাদেশ আর মানুষ বুজতে শুরু ক",
-        "2023 , 1115 বাংলাদেশ আর মানুষ বুজতে শুরু ক ২০১৪ সালে"
+        "2023 , 1115 বাংলাদেশ আর মানুষ বুজতে শুরু ক ২০১৪ সালে",
     ]
-    
+
     for sentence in sentences:
         year_to_year(sentence)
-

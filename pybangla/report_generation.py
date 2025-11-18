@@ -1,9 +1,8 @@
-import pandas as pd
-import time
 import csv
 import difflib
-
 import time
+
+import pandas as pd
 from module.main import Normalizer
 
 nrml = Normalizer()
@@ -20,7 +19,7 @@ def read_test_file(file_path, lj_speach=False):
     if lj_speach:
         data_list = []
         for i in data:
-            audio, text = i.split("|")[0], i.split("|")[1:]
+            _, text = i.split("|")[0], i.split("|")[1:]
             # text = i
             data_list.append((" ".join(text)).strip())
     else:
@@ -29,7 +28,6 @@ def read_test_file(file_path, lj_speach=False):
 
 
 def read_excel_file(file_path, sheet_names):
-
     # Read the specified sheets from the Excel file
     sheets = pd.read_excel(file_path, sheet_name=sheet_names)
 
@@ -62,7 +60,7 @@ def find_changes(string1, string2):
 
     # print("Differences found:", list(diff))
     added_chunk, added_chunks, removed_chunk, removed_chunks = [], [], [], []
-    
+
     for change in diff:
         if change.startswith("+ "):
             # Before adding to added_chunk, finalize any pending removed_chunk
@@ -84,7 +82,7 @@ def find_changes(string1, string2):
             if removed_chunk:
                 removed_chunks.append(" ".join(removed_chunk))
                 removed_chunk = []
-    
+
     # Append any remaining chunks at the end
     if added_chunk:
         added_chunks.append(" ".join(added_chunk))
@@ -103,14 +101,13 @@ def find_changes(string1, string2):
 
 
 if __name__ == "__main__":
-
     # file_path = "./test_data/evaluation_data.xlsx"
     file_path = "./test_data/test_data.txt"
     # sheet_names = [
     #     'saiful',
     # ]
     # texts = read_excel_file(file_path, sheet_names)
-    output_path="report/pybangla_report_v2.12.5_v4.csv" 
+    output_path = "report/pybangla_report_v2.12.5_v4.csv"
     texts = read_test_file(file_path)
     texts = ["তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773-550379"]
     # print(len(texts))
@@ -121,15 +118,13 @@ if __name__ == "__main__":
     process_list = []
     for text in texts:
         print("input  : ", index, text)
-        p_text = nrml.text_normalizer(text,  all_operation=True)
+        p_text = nrml.text_normalizer(text, all_operation=True)
         print("process text : ", p_text)
         removed_chunks, added_chunks = find_changes(text, p_text)
         # Output the results
         print(f"Removed chunks: {removed_chunks}")
         print(f"Added chunks: {added_chunks}")
-        process_list.append(
-            [text, p_text, text == p_text, removed_chunks, added_chunks]
-        )
+        process_list.append([text, p_text, text == p_text, removed_chunks, added_chunks])
         index += 1
     print("time : ", time.time() - s_time)
     print("process_list :", process_list)
