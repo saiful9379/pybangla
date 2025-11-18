@@ -342,14 +342,13 @@ class NumberParser:
 
         # print("en_extraction : ", en_extraction)
         if en_extraction and language=="en":
-            number = " কোর ".join(
+            number = " ক্রোর ".join(
                 [
                     self.number_to_words_converting_process(chunk, lang="en")
                     for chunk in chunks
                 ]
             )
             number = number.replace("zero", "")
-            # print("number : ", number)
         else:
             number = " কোটি ".join(
                 [
@@ -357,9 +356,7 @@ class NumberParser:
                     for chunk in chunks
                 ]
             )
-            # print(number)
             number = number.replace("শূন্য", "")
-        # print("number.split() : ", number.split())
 
         return (" ".join(number.split())).replace(" শো", "শো")
 
@@ -972,6 +969,7 @@ class TextParser:
         self.npr = NumberParser()
         self.dp = DateParser()
         self.nid_normalizer = NIDNormalizer()
+        
     def collapse_whitespace(self, text):
         # print("text : ", text)
         text = re.sub(_whitespace_re, " ", text)
@@ -1756,9 +1754,7 @@ class TextParser:
                 continue
             else:
                 try:
-                    # print("text : ", text, key)
                     text = step(text)
-                    # print("text : ", text, key)
                 except Exception as e:
                     logger.error(f"An error occurred in {step.__name__}: {e}")
                     continue

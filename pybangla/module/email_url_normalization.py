@@ -1,37 +1,100 @@
 import re
 from typing import List, Tuple, Dict
 
+email_ending_part = {
+    '.com': {"bn": "ডট কম।", "en": "dot com"},
+    '.org': {"bn": "ডট ও আর জি।", "en": "dot org"},
+    '.net': {"bn": "ডট নেট।", "en": "dot net"},
+    '.edu': {"bn": "ডট এডু।", "en": "dot edu"},
+    '.gov': {"bn": "ডট গভ।", "en": "dot gov"},
+    '.bd': {"bn": "ডট বিডি।", "en": "dot bd"},
 
+    # ⭐ Modern & Very Popular Global TLDs
+    '.io': {"bn": "ডট আই, ও।", "en": "dot io"},
+    '.co': {"bn": "ডট কো। ", "en": "dot co"},
+    '.me': {"bn": "ডট মি।", "en": "dot me"},
+    '.info': {"bn": "ডট ইনফো।", "en": "dot info"},
+    '.xyz': {"bn": "ডট এক্স-ওয়াই-জেড।", "en": "dot xyz"},
+    '.biz': {"bn": "ডট বিজ।", "en": "dot biz"},
+
+    # ⭐ Very Common Country TLDs (Emails, companies, gov)
+    '.uk': {"bn": "ডট ইউকে।", "en": "dot uk"},
+    '.de': {"bn": "ডট ডি, ই।", "en": "dot de"},
+    '.fr': {"bn": "ডট এফ আর।", "en": "dot fr"},
+    '.in': {"bn": "ডট ইন।", "en": "dot in"},
+    '.au': {"bn": "ডট এ, ইউ।", "en": "dot au"},
+    '.ca': {"bn": "ডট সি, এ।", "en": "dot ca"},
+
+    # ⭐ Email-heavy Asia TLDs
+    '.co.jp': {"bn": "ডট কো ডট জে, পি।", "en": "dot co dot jp"},
+    '.jp': {"bn": "ডট জে, পি।", "en": "dot jp"},
+    '.cn': {"bn": "ডট সি, এন।", "en": "dot cn"},
+    '.sg': {"bn": "ডট এস, জি।", "en": "dot sg"},
+
+    # ⭐ Security & Tech Popular Domains
+    '.dev': {"bn": "ডট ডেভ।", "en": "dot dev"},
+    '.app': {"bn": "ডট অ্যাপ।", "en": "dot app"}
+    }
 
 email_replace_unit = {
-    "." : {"en":"dot", "bn": "ডট"},
     "@": {"en":"at the rate", "bn": "অ্যাট দ্য রেট"},
     ":": {"en":"colon", "bn": "কলন"},
-    "/": {"en":"slash", "bn": "স্ল্যাশ"}
-    }
+    "/": {"en":"slash", "bn": "স্ল্যাশ"},
+    '_': {"en": "underscore", "bn": "আন্ডার স্কোর,"},
+    "." : {"en":"dot", "bn": "ডট"},
+}
 
 url_replace_unit = {
-        'http://': {"bn": "এইচ, টি, টি, পি। কোলন স্ল্যাশ, স্ল্যাশ", "en": "http clone. slash slash"},
-        'https://': {"bn": "এইচ, টি, টি, পি, এস। কোলন স্ল্যাশ, স্ল্যাশ", "en": "https clone. slash slash"},
-        'www.': {"bn": "ডব্লিউ, ডব্লিউ, ডব্লিউ, ডট। ", "en": "www dot"},
-        '.com': {"bn": "ডট কম,", "en": "dot com"},
-        '.org': {"bn": "ডট org,", "en": "dot org"},
-        '.net': {"bn": "ডট নেট,", "en": "dot net"},
-        '.edu': {"bn": "ডট edu,", "en": "dot edu"},
-        '.gov': {"bn": "ডট গভ,", "en": "dot gov"},
-        '.bd': {"bn": "ডট বিডি,", "en": "dot bd"},
-        '/': {"bn": "স্ল্যাশ,", "en": "slash"},
-        '-': {"bn": "ড্যাশ,", "en": "dash"},
-        '_': {"bn": "আন্ডারস্কোর,", "en": "underscore"},
-        '@': {"bn": "অ্যাট,", "en": "at"},
-        '.': {"bn": "ডট,", "en": "dot"},
-        ':': {"bn": "কোলন,", "en": "colon"},
-        "=" :{"bn": "একুয়াল,", "en": "equals"},
-        "?": {"bn": "কোয়েশ্চেন মার্ক,", "en": "question mark"},
-        "&": {"bn": "এন্ড,", "en": "and"},
-        "%": {"bn": "পারসেন্ট,", "en": "percent"},
-        "#": {"bn": "হ্যাশ", "en": "hash"},
-    }
+    'http://': {"bn": "এইচ, টি, টি, পি। কোলন ডাবল স্ল্যাশ", "en": "http clone. double slash"},
+    'https://': {"bn": "এইচ, টি, টি, পি, এস। কোলন ডাবল স্ল্যাশ", "en": "https clone. double slash"},
+    'www.': {"bn": "ডব্লিউ, ডব্লিউ, ডব্লিউ, ডট। ", "en": "www dot"},
+
+    '.com': {"bn": "ডট কম। ", "en": "dot com"},
+    '.org': {"bn": "ডট ও আর জি। ", "en": "dot org"},
+    '.net': {"bn": "ডট নেট। ", "en": "dot net"},
+    '.edu': {"bn": "ডট এডু। ", "en": "dot edu"},
+    '.gov': {"bn": "ডট গভ। ", "en": "dot gov"},
+    '.bd': {"bn": "ডট বিডি। ", "en": "dot bd"},
+
+    # ⭐ Modern & Very Popular Global TLDs
+    '.io':   {"bn": "ডট আই, ও। ", "en": "dot io"},
+    '.co':   {"bn": "ডট কো। ", "en": "dot co"},
+    '.me':   {"bn": "ডট মি। ", "en": "dot me"},
+    '.info': {"bn": "ডট ইনফো। ", "en": "dot info"},
+    '.xyz':  {"bn": "ডট এক্স-ওয়াই-জেড। ", "en": "dot xyz"},
+    '.biz':  {"bn": "ডট বিজ। ", "en": "dot biz"},
+
+    # ⭐ Very Common Country TLDs (Emails, companies, gov)
+    '.uk':   {"bn": "ডট ইউকে। ", "en": "dot uk"},
+    '.de':   {"bn": "ডট ডি, ই।", "en": "dot de"},
+    '.fr':   {"bn": "ডট এফ আর।", "en": "dot fr"},
+    '.in':   {"bn": "ডট ইন।", "en": "dot in"},
+    '.au':   {"bn": "ডট এ, ইউ।", "en": "dot au"},
+    '.ca':   {"bn": "ডট সি, এ।", "en": "dot ca"},
+
+    # ⭐ Email-heavy Asia TLDs
+    '.co.jp': {"bn": "ডট কো ডট জে, পি।", "en": "dot co dot jp"},
+    '.jp': {"bn": "ডট জে, পি। ", "en": "dot jp"},
+    '.cn':    {"bn": "ডট সি, এন। ", "en": "dot cn"},
+    '.sg':    {"bn": "ডট এস, জি। ", "en": "dot sg"},
+
+    # ⭐ Security & Tech Popular Domains
+    '.dev':  {"bn": "ডট ডেভ। ", "en": "dot dev"},
+    '.app':  {"bn": "ডট অ্যাপ। ", "en": "dot app"},
+    
+    # Others
+    '/': {"bn": "স্ল্যাশ। ", "en": "slash"},
+    '-': {"bn": "ড্যাশ,", "en": "dash"},
+    '_': {"bn": "আন্ডার স্কোর,", "en": "underscore"},
+    '@': {"bn": "অ্যাট,", "en": "at"},
+    '.': {"bn": "ডট,", "en": "dot"},
+    ':': {"bn": "কোলন,", "en": "colon"},
+    "=" :{"bn": "একুয়াল,", "en": "equals"},
+    "?": {"bn": "কোয়েশ্চেন মার্ক,", "en": "question mark"},
+    "&": {"bn": "এন্ড,", "en": "and"},
+    "%": {"bn": "পারসেন্ট,", "en": "percent"},
+    "#": {"bn": "হ্যাশ", "en": "hash"},
+}
 
 bn_number_map = {
     '0': 'জিরো', '1': 'ওয়ান', '2': 'টু', '3': 'থ্রি', '4': 'ফোর',
@@ -128,12 +191,20 @@ class EmailURLExtractor:
             
             # Normalize email for pronunciation
             normalized_email = email
+            
+            if "@" in normalized_email and lang == "bn":
+                normalized_email = normalized_email.replace("@", "।@")
+            
+            for char, replacement in email_ending_part.items():
+                if normalized_email.endswith(char):
+                    normalized_email = normalized_email[:-len(char)] + f" {replacement[lang]} "
+                    
             for char, replacement in email_replace_unit.items():
                 if char in normalized_email:
                     normalized_email = normalized_email.replace(char, f" {replacement[lang]} ")
             
             normalized_email = normalized_email.strip()
-            # print(f"Normalizing: {email} -> {normalized_email}")
+            print(f"Normalizing: {email} -> {normalized_email}")
 
             normalized_email = self.replace_numbers(normalized_email, lang)
 
