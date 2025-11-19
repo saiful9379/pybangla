@@ -49,6 +49,7 @@ def evaluate_normalization(data, output_path):
     results = []
 
     # Get input and reviewed texts
+    data = data.drop_duplicates(subset=["Input_Text"], keep="first")
     input_texts = data["Input_Text"].tolist()
     reviewed_texts = data["Human_Review"].tolist()
 
