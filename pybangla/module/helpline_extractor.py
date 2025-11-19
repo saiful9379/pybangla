@@ -1,5 +1,6 @@
 import re
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
+
 try:
     from phone_number_extractor import PhoneNumberExtractor
 except ImportError:
@@ -7,65 +8,93 @@ except ImportError:
 
 pne = PhoneNumberExtractor()
 
+
 class HelplineExtractor:
     def __init__(self):
         # Single merged pattern combining all Bangla, English and Mixed patterns
-        self.extraction_pattern = r'(?:' + '|'.join([
-            # Bangla service patterns
-            r'(?:হটলাইন|এজেন্ট|কল\s*সেন্টার|সাপোর্ট|অভিযোগ|গ্রাহক\s*সেবা|কাস্টমার\s*সেবা|জরুরি|টেকনিক্যাল\s*সাপোর্ট)(?:\s+নম্বর)?(?:\s*[:]\s*|\s+)([১][০-৯]{4})',
-            r'(?:হটলাইন|এজেন্ট|কল\s*সেন্টার|সাপোর্ট|অভিযোগ|সেবা)(?:(?:\s+নম্বর)?\s+কল\s+করুন|ে\s+কল\s+করুন|\s+পেতে\s+কল\s+করুন|র\s+সাথে\s+যোগাযোগ|\s+জানাতে)\s*([১][০-৯]{4})',
-            r'(?:ফোন|মোবাইল|যোগাযোগ)\s+(?:নম্বর\s+)?([১][০-৯]{4})',
-            r'(?:কল\s+করুন|যোগাযোগ\s+করুন)\s*([১][০-৯]{4})',
-            r'জরুরি\s+সেবা\s*([১][০-৯]{4})',  # Added for "জরুরি সেবা"
-            r'(?:রুম\s+নম্বর|ফোন:)\s*([1][0-9]{4})',  # Added for "জরুরি সেবা"
-            r'রুম\s+নম্বর\s*[:।]?\s*(\d+)',
-            r'ফোন(?:\s+নম্বর)?\s*:\s*(\d+)',
-            r'(?:নম্বর|নাম্বার|number)\s*(?:হলো|হল|is)?\s*[:।]?\s*(\d+)',
-            
-            # English service patterns
-            r'(?:hotline|agent|call\s*center|support|complaint|customer\s*service|emergency|technical\s*support)(?:\s+number)?(?:\s*[:]\s*|\s+)([1][0-9]{4})',
-            r'(?:call|contact)\s+(?:our\s+)?(?:hotline|agent|support|service|center)\s+(?:at\s+)?([1][0-9]{4})',  # Fixed for "call X at"
-            r'(?:phone|mobile|contact)\s+(?:number\s+)?([1][0-9]{4})',
-            r'(?:call|contact)\s+(?:us\s+at\s+)?([1][0-9]{4})',
-            r'Call\s+(?:for\s+)?(?:service|support)\s+(?:at\s+)?([1][0-9]{4})',  # Added for "Call for service"
-            r'(?:file\s+)?complaint\s+(?:at\s+)?([1][0-9]{4})',  # Added for "File complaint at"
-            r'(?:emergency\s+)?service\s+([1][0-9]{4})',  # Added for "Emergency service"
-            
-            # Mixed language patterns
-            r'(?:Customer|Emergency|support|Technical)\s+(?:সেবা|হটলাইন)\s*([১1][০-৯0-9]{4})',
-            r'(?:Call|Phone)\s+করুন\s*([১1][০-৯0-9]{4})',
-            r'কল\s+করুন\s*([১1][০-৯0-9]{4})',
-            r'(?:Agent|Service)\s+(?:সেবার\s+জন্য|এর\s+জন্য\s+যোগাযোগ)\s*([১1][০-৯0-9]{4})',  # Added for "Agent সেবার জন্য"
-            r'(?:Customer\s+care|support)\s+(?:নম্বর|হটলাইন)\s*([১1][০-৯0-9]{4})',  # Added for "Customer care নম্বর"
-            r'(?:Complaint|Service)\s+(?:করতে\s+কল\s+করুন|এর\s+জন্য\s+যোগাযোগ)\s*([১1][০-৯0-9]{4})',  # Added for mixed patterns
-            r'(?:Hotline|support)\s+এ\s+কল\s+করুন\s*([১1][০-৯0-9]{4})',  # For "Hotline এ কল করুন"
-            r'(?:agent|support)\s+service\s+কল\s+করুন\s*([১1][০-৯0-9]{4})',
-            r'(?:agent|call center)\s+service\s+at\s*([১1][০-৯0-9]{4})',
-            
-            # Additional patterns for better coverage
-            r'(?:হটলাইন|এজেন্ট|সাপোর্ট|সেবা)\s+(?:এর\s+জন্য\s+)?(?:কল\s+করুন|নম্বর)\s*([1][0-9]{4})',
-            r'(?:Customer|Emergency|support|Agent|Service)\s+(?:সেবা|হটলাইন|নম্বর)\s*([1][0-9]{4})',
-            r'(?:Customer|Emergency|support)\s+এর\s+জন্য\s+কল\s+করুন\s*([1][0-9]{4})'
-        ]) + r')\b'
-        
+        self.extraction_pattern = (
+            r"(?:"
+            + "|".join(
+                [
+                    # Bangla service patterns
+                    r"(?:হটলাইন|এজেন্ট|কল\s*সেন্টার|সাপোর্ট|অভিযোগ|গ্রাহক\s*সেবা|কাস্টমার\s*সেবা|জরুরি|টেকনিক্যাল\s*সাপোর্ট)(?:\s+নম্বর)?(?:\s*[:]\s*|\s+)([১][০-৯]{4})",
+                    r"(?:হটলাইন|এজেন্ট|কল\s*সেন্টার|সাপোর্ট|অভিযোগ|সেবা)(?:(?:\s+নম্বর)?\s+কল\s+করুন|ে\s+কল\s+করুন|\s+পেতে\s+কল\s+করুন|র\s+সাথে\s+যোগাযোগ|\s+জানাতে)\s*([১][০-৯]{4})",
+                    r"(?:ফোন|মোবাইল|যোগাযোগ)\s+(?:নম্বর\s+)?([১][০-৯]{4})",
+                    r"(?:কল\s+করুন|যোগাযোগ\s+করুন)\s*([১][০-৯]{4})",
+                    r"জরুরি\s+সেবা\s*([১][০-৯]{4})",  # Added for "জরুরি সেবা"
+                    r"(?:রুম\s+নম্বর|ফোন:)\s*([1][0-9]{4})",  # Added for "জরুরি সেবা"
+                    r"রুম\s+নম্বর\s*[:।]?\s*(\d+)",
+                    r"ফোন(?:\s+নম্বর)?\s*:\s*(\d+)",
+                    r"(?:নম্বর|নাম্বার|number)\s*(?:হলো|হল|is)?\s*[:।]?\s*(\d+)",
+                    # English service patterns
+                    r"(?:hotline|agent|call\s*center|support|complaint|customer\s*service|emergency|technical\s*support)(?:\s+number)?(?:\s*[:]\s*|\s+)([1][0-9]{4})",
+                    r"(?:call|contact)\s+(?:our\s+)?(?:hotline|agent|support|service|center)\s+(?:at\s+)?([1][0-9]{4})",  # Fixed for "call X at"
+                    r"(?:phone|mobile|contact)\s+(?:number\s+)?([1][0-9]{4})",
+                    r"(?:call|contact)\s+(?:us\s+at\s+)?([1][0-9]{4})",
+                    r"Call\s+(?:for\s+)?(?:service|support)\s+(?:at\s+)?([1][0-9]{4})",  # Added for "Call for service"
+                    r"(?:file\s+)?complaint\s+(?:at\s+)?([1][0-9]{4})",  # Added for "File complaint at"
+                    r"(?:emergency\s+)?service\s+([1][0-9]{4})",  # Added for "Emergency service"
+                    # Mixed language patterns
+                    r"(?:Customer|Emergency|support|Technical)\s+(?:সেবা|হটলাইন)\s*([১1][০-৯0-9]{4})",
+                    r"(?:Call|Phone)\s+করুন\s*([১1][০-৯0-9]{4})",
+                    r"কল\s+করুন\s*([১1][০-৯0-9]{4})",
+                    r"(?:Agent|Service)\s+(?:সেবার\s+জন্য|এর\s+জন্য\s+যোগাযোগ)\s*([১1][০-৯0-9]{4})",  # Added for "Agent সেবার জন্য"
+                    r"(?:Customer\s+care|support)\s+(?:নম্বর|হটলাইন)\s*([১1][০-৯0-9]{4})",  # Added for "Customer care নম্বর"
+                    r"(?:Complaint|Service)\s+(?:করতে\s+কল\s+করুন|এর\s+জন্য\s+যোগাযোগ)\s*([১1][০-৯0-9]{4})",  # Added for mixed patterns
+                    r"(?:Hotline|support)\s+এ\s+কল\s+করুন\s*([১1][০-৯0-9]{4})",  # For "Hotline এ কল করুন"
+                    r"(?:agent|support)\s+service\s+কল\s+করুন\s*([১1][০-৯0-9]{4})",
+                    r"(?:agent|call center)\s+service\s+at\s*([১1][০-৯0-9]{4})",
+                    # Additional patterns for better coverage
+                    r"(?:হটলাইন|এজেন্ট|সাপোর্ট|সেবা)\s+(?:এর\s+জন্য\s+)?(?:কল\s+করুন|নম্বর)\s*([1][0-9]{4})",
+                    r"(?:Customer|Emergency|support|Agent|Service)\s+(?:সেবা|হটলাইন|নম্বর)\s*([1][0-9]{4})",
+                    r"(?:Customer|Emergency|support)\s+এর\s+জন্য\s+কল\s+করুন\s*([1][0-9]{4})",
+                ]
+            )
+            + r")\b"
+        )
+
         self.number_to_word = {
-            "0": "জিরো", "1": "ওয়ান", "2": "টু", "3": "থ্রি", "4": "ফোর",
-            "5": "ফাইভ", "6": "সিক্স", "7": "সেভেন", "8": "এইট", "9": "নাইন",
-            "০": "শূন্য", "১": "এক", "২": "দুই", "৩": "তিন", "৪": "চার",
-            "৫": "পাঁচ", "৬": "ছয়", "৭": "সাত", "৮": "আট", "৯": "নয়"
+            "0": "জিরো",
+            "1": "ওয়ান",
+            "2": "টু",
+            "3": "থ্রি",
+            "4": "ফোর",
+            "5": "ফাইভ",
+            "6": "সিক্স",
+            "7": "সেভেন",
+            "8": "এইট",
+            "9": "নাইন",
+            "০": "শূন্য",
+            "১": "এক",
+            "২": "দুই",
+            "৩": "তিন",
+            "৪": "চার",
+            "৫": "পাঁচ",
+            "৬": "ছয়",
+            "৭": "সাত",
+            "৮": "আট",
+            "৯": "নয়",
         }
-    
+
     def convert_bangla_to_english(self, bangla_num: str) -> str:
         """Convert Bangla numerals to English numerals"""
         bangla_to_english = {
-            '০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4',
-            '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9'
+            "০": "0",
+            "১": "1",
+            "২": "2",
+            "৩": "3",
+            "৪": "4",
+            "৫": "5",
+            "৬": "6",
+            "৭": "7",
+            "৮": "8",
+            "৯": "9",
         }
-        english_num = ''
+        english_num = ""
         for digit in bangla_num:
             english_num += bangla_to_english.get(digit, digit)
         return english_num
-    
+
     def number_to_words(self, number: str) -> str:
         """Convert a number to its word representation"""
         words = []
@@ -75,14 +104,14 @@ class HelplineExtractor:
             else:
                 # If digit not found, keep as is
                 words.append(digit)
-        
-        return ', '.join(words)
-    
+
+        return ", ".join(words)
+
     def extract_numbers_with_positions(self, text: str) -> List[Tuple[str, int, int]]:
         """Extract numbers with their positions (number, start, end)"""
         pattern = re.compile(self.extraction_pattern, re.IGNORECASE)
         results = []
-        
+
         for match in pattern.finditer(text):
             # Get the captured group that is not None
             for i in range(1, len(match.groups()) + 1):
@@ -92,40 +121,40 @@ class HelplineExtractor:
                     full_match_start = match.start()
                     full_match_text = match.group(0)
                     number_pos_in_match = full_match_text.rfind(number)
-                    
+
                     start_pos = full_match_start + number_pos_in_match
                     end_pos = start_pos + len(number)
-                    
+
                     results.append((number, start_pos, end_pos))
                     break
-        
+
         return results
-    
+
     def extract_numbers(self, text: str) -> List[str]:
         """Extract numbers using the single merged pattern"""
         results = self.extract_numbers_with_positions(text)
         return [num for num, _, _ in results]
-    
+
     def normalize_text_with_word_conversion(self, text: str) -> str:
         """Replace extracted numbers with their word representation"""
         # Get numbers with positions
         numbers_with_positions = self.extract_numbers_with_positions(text)
-        
+
         # Sort by position in reverse order (from end to start)
         # This ensures we don't mess up positions when replacing
         numbers_with_positions.sort(key=lambda x: x[1], reverse=True)
-        
+
         # Create a mutable version of the text
         result_text = text
-        
+
         # Replace each number with its word representation
         for number, start, end in numbers_with_positions:
             # word_representation = self.number_to_words(number)
             word_representation = pne.label_repeats(number, helpine=True)
             result_text = result_text[:start] + word_representation + result_text[end:]
-        
+
         return result_text
-    
+
     def helpline_normalization(self, text: str) -> Dict:
         """Get detailed extraction information"""
         numbers_with_positions = self.extract_numbers_with_positions(text)
@@ -134,7 +163,6 @@ class HelplineExtractor:
         # Sort by position in reverse order
         numbers_with_positions.sort(key=lambda x: x[1], reverse=True)
         for number, start, end in numbers_with_positions:
-
             # print(f"Replacing number '{number}' at positions ({start}, {end})")
             # word_string = self.number_to_words(number)
             word_string = pne.label_repeats(number, helpine=True)
@@ -142,6 +170,7 @@ class HelplineExtractor:
             text = text[:start] + word_string + text[end:]
         # print("Normalized Text:", text)
         return text
+
 
 if __name__ == "__main__":
     # Initialize extractor
@@ -263,12 +292,12 @@ if __name__ == "__main__":
     #     """
     print("Testing Extraction with Positions and Word Conversion:")
     print("=" * 80)
-    
+
     for text in test_lines.split("\n"):
         if text.strip():
-          print(f"\nOriginal Text: {text}")
-          print("-" * 40)
-          # Get detailed extraction results
-          text = extractor.helpline_normalization(text)
-          print("Final Normalized Text:", text)
-          print("-" * 40)
+            print(f"\nOriginal Text: {text}")
+            print("-" * 40)
+            # Get detailed extraction results
+            text = extractor.helpline_normalization(text)
+            print("Final Normalized Text:", text)
+            print("-" * 40)

@@ -56,16 +56,16 @@ Supported Date Format:
 
 ```py
   "০১-এপ্রিল/২০২৩",
-  "১ এপ্রিল ২০২৩" 
-  "2023-04-05",  
-  "06-04-2023", 
-  "04/01/2023",  
-  "07 April, 2023", 
-  "Apr 1, 2023",  
-  "2023/04/01", 
-  "01-Apr-2023", 
-  "01-Apr/2023",  
-  "20230401",  
+  "১ এপ্রিল ২০২৩"
+  "2023-04-05",
+  "06-04-2023",
+  "04/01/2023",
+  "07 April, 2023",
+  "Apr 1, 2023",
+  "2023/04/01",
+  "01-Apr-2023",
+  "01-Apr/2023",
+  "20230401",
   "20042024",
   ["1", "4", "2025"]
 ```
@@ -73,7 +73,7 @@ output :
 
 
 ```
-Bangla : 
+Bangla :
 {'date': '০৪', 'month': 'জানুয়ারি', 'year': '২০২৩', 'weekday': 'বুধবার', 'ls_month': 'বৈশাখ', 'seasons': 'গ্রীষ্ম'}
 
 or
@@ -87,7 +87,7 @@ nrml = pybangla.Normalizer()
 
 date = dt.date_format("01-Apr/2023", language="bn")
 print(f"{date}")
-# Output: 
+# Output:
 {'date': '০১', 'month': '৪', 'year': '২০২৩', 'txt_date': 'এক', 'txt_month': 'এপ্রিল', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'শনিবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
 
 ```
@@ -116,7 +116,7 @@ dates = nrml.date_extraction(text)
 #output:
 
 [
-    {'date': '০৫', 'month': '৯', 'year': '২০২৩', 'txt_date': 'পাঁচ', 'txt_month': 'সেপ্টেম্বর', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'মঙ্গলবার', 'ls_month': 'পৌষ', 'seasons': 'শীত'}, 
+    {'date': '০৫', 'month': '৯', 'year': '২০২৩', 'txt_date': 'পাঁচ', 'txt_month': 'সেপ্টেম্বর', 'txt_year': 'দুই হাজার তেইশ', 'weekday': 'মঙ্গলবার', 'ls_month': 'পৌষ', 'seasons': 'শীত'},
 
 {'date': '১৬', 'month': '৫', 'year': '২০২৪', 'txt_date': 'ষোল', 'txt_month': 'মে', 'txt_year': 'দুই হাজার চব্বিশ', 'weekday': 'বৃহস্পতিবার', 'ls_month': 'ভাদ্র', 'seasons': 'শরৎ'}
 ]

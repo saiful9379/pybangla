@@ -1,14 +1,12 @@
 import re
-from typing import List, Tuple, Dict
+
 try:
-    
     from .config import Config as cfg
 except ImportError:
     from config import Config as cfg
 
 
 class PhoneNumberExtractor:
-
     def __init__(self):
         self.number_extention = ["+88", "+৮৮"]
         self.phn_number = [
@@ -25,7 +23,7 @@ class PhoneNumberExtractor:
             "০১৮",
             "০১৯",
             "096",
-            "০৯৬"
+            "০৯৬",
         ]
         # self.pattern = r'(?:\+?৮৮)?০১[৩-৯][০-৯]{2}-?[০-৯]{6}|(?:\+88)?01[3-9]\d{2}-?\d{6}'
         # self.pattern = r"(?:\+?৮৮)?০১[৩-৯][০-৯]{2}-?[০-৯]{6}(?=[, ]|$)|(?:\+88)?01[3-9]\d{2}-?\d{6}(?=[, ]|$)"
@@ -33,11 +31,11 @@ class PhoneNumberExtractor:
         self.plux = {"+": "প্লাস"}
         self.ip_phone_number_patter = r"(?:০৯৬\d{2}-?[০-৯]{6})|(?:096\d{2}-?\d{6})"  # Pattern to match numbers starting with 096 (English) or ০৯৬ (Bengali)
 
-        self.postfix_pattern = r"\[\d{5}-PHN_NUMBER\]|\[[০-৯]{5}-PHN_NUMBER\]" 
+        self.postfix_pattern = r"\[\d{5}-PHN_NUMBER\]|\[[০-৯]{5}-PHN_NUMBER\]"
 
     def checking_postfix_phn_number(self, text):
         # Pattern to match both English and Bengali patterns for PHN_NUMBER
-        
+
         # Input text
         # text = """
         # Here are some patterns:[16622-PHN_NUMBER]patterns, [১৬৬৭৮-PHN_NUMBER], and some other text without the pattern.
@@ -47,11 +45,10 @@ class PhoneNumberExtractor:
         for phn_n in matches:
             r_phn = (phn_n.replace("[", "")).split("-PHN_NUMBER")[0]
             textual_phn_num = self.label_repeats(r_phn)
-            text = text.replace(phn_n, " "+textual_phn_num+" ")
+            text = text.replace(phn_n, " " + textual_phn_num + " ")
         return text
 
     def ip_phone_number(self, text):
-
         # # Pattern to match numbers starting with 096 (English) or ০৯৬ (Bengali)
         # pattern = r"(?:০৯৬\d{2}-?[০-৯]{6})|(?:096\d{2}-?\d{6})"
         # # Input text
@@ -72,21 +69,19 @@ class PhoneNumberExtractor:
             **cfg.data["bn"]["number_mapping"],
         }
         if num in num_mapping:
-
             return num_mapping[num]
         return num
-    
+
     def contains_only_english(self, input_string):
         # Check if all characters in the string are English (ASCII) characters
         return all(ord(char) < 128 for char in input_string)
 
     def label_repeats(self, number, lang="en", helpine=False):
-
         is_english_digit_string = self.contains_only_english(number)
         # print("is_english_digit_string : ", is_english_digit_string, number)
         result = []
         digit_map = cfg.data["en"]["number_mapping"]
-        if is_english_digit_string == False and helpine==True:
+        if is_english_digit_string == False and helpine == True:
             for n in number:
                 if n in digit_map:
                     result.append(digit_map[n])
@@ -124,12 +119,15 @@ class PhoneNumberExtractor:
                 i += 1
 
         return " ".join(result)
-    
+
     def add_space_into_text(self, text):
         # text = text.replace('"', " ")
         # text = text.replace("'", " ")
         # Find all number blocks with their positions
-        number_blocks = [(match.group(), match.start(), match.end()) for match in re.finditer(r'\d+[-,./]?\d*', text)]
+        number_blocks = [
+            (match.group(), match.start(), match.end())
+            for match in re.finditer(r"\d+[-,./]?\d*", text)
+        ]
         # print(number_blocks)
 
         extracted_data = []
@@ -144,42 +142,38 @@ class PhoneNumberExtractor:
             first_3_character = number.strip()[:3]
             # print("first_3_character : ", first_3_character)
             if first_3_character in self.number_extention or first_3_character in self.phn_number:
-                if len(number)<=11 or len(number)<= 14: 
+                if len(number) <= 11 or len(number) <= 14:
                     # print("number1 : ", number)
                     # print("text lenght : ", len(text), start, end)
-                    if start !=0 and text[start-1]!=" ":
-                        if text[start-1]=="+":
-                            text = text[:start-1] + ' ' + text[start-1:]
-                            end = end+1
-                        elif text[start-1]=="." or text[start-1]==",":
-                            text = text 
+                    if start != 0 and text[start - 1] != " ":
+                        if text[start - 1] == "+":
+                            text = text[: start - 1] + " " + text[start - 1 :]
+                            end = end + 1
+                        elif text[start - 1] == "." or text[start - 1] == ",":
+                            text = text
                         else:
-                            text = text[:start] + ' ' + text[start:]
-                            end = end+1
-                    if len(text)>end+1:
-                        if end !=len(text) and text[end+1]!=" ":
-                            if text[end+1]=="." or text[end+1]==",":
+                            text = text[:start] + " " + text[start:]
+                            end = end + 1
+                    if len(text) > end + 1:
+                        if end != len(text) and text[end + 1] != " ":
+                            if text[end + 1] == "." or text[end + 1] == ",":
                                 text = text
                             else:
-                                text = text[:end] + ' ' + text[end:]
-        text = re.sub(r'\s+', ' ', text).strip()
+                                text = text[:end] + " " + text[end:]
+        text = re.sub(r"\s+", " ", text).strip()
         # print(text)
         return text
 
     def phn_num_extractor(self, text):
-
         # print("input text:", text)
 
         # add spance numerical value staring and ending point
         text = self.checking_postfix_phn_number(text)
         text = self.add_space_into_text(text)
 
-
         phone_numbers = re.finditer(self.pattern, text)
-        #handel 096 patter phone number
+        # handel 096 patter phone number
         ip_phone_number = self.ip_phone_number(text)
-
-
 
         phone_number_list = [(i.group(), i.span()) for i in list(phone_numbers)]
         ip_phone_number_list = [(i.group(), i.span()) for i in list(ip_phone_number)]
@@ -191,7 +185,6 @@ class PhoneNumberExtractor:
 
         if sorted_matches:
             for phone_number_info in sorted_matches:
-
                 phone_number = phone_number_info[0]
                 phone_number_span = phone_number_info[1]
 
@@ -207,13 +200,10 @@ class PhoneNumberExtractor:
                     or 11 <= len(modify_phone_number)
                     or len(modify_phone_number) <= 14
                 ):
-
                     temp_string = ""
                     if "+" == modify_phone_number[0]:
                         # print(modify_phone_number[1:])
-                        temp_string = (
-                            "প্লাস" + " " + self.label_repeats(modify_phone_number[1:])
-                        )
+                        temp_string = "প্লাস" + " " + self.label_repeats(modify_phone_number[1:])
                     else:
                         repate_string = self.label_repeats(modify_phone_number)
                         # print(repate_number)
@@ -229,7 +219,6 @@ class PhoneNumberExtractor:
 
 
 if __name__ == "__main__":
-
     # text = "তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773550379।"
     text = "যোগাযোগ করতে হলে01790-540211অথবা"
     pne = PhoneNumberExtractor()

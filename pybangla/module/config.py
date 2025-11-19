@@ -168,7 +168,6 @@ class Config:
     en_regex = r"[0-9]+"
     samples = ["-", ",", "/", " "]
 
-
     currency_pattern = r"[৳$£€¥₹₽₺₽]"
     currency_list = [
         "$",  # US Dollar, Canadian Dollar, Australian Dollar, etc.
@@ -209,44 +208,83 @@ class Config:
     }
 
     CURRENCY_CODES_BN = {
-        "USD": "ডলার", "EUR": "ইউরো", "JPY": "ইয়েন", "CNY": "ইয়েন", "RMB": "ইউয়ান",
-        "KRW": "ওন", "INR": "রুপি", "BDT": "টাকা", "PKR": "রুপি", "NPR": "রুপি",
-        "GBP": "পাউন্ড", "AUD": "ডলার", "CAD": "ডলার", "NZD": "ডলার", "HKD": "ডলার",
-        "SGD": "ডলার", "CHF": "ফ্রাঙ্ক", "SEK": "ক্রোনা", "NOK": "ক্রোনে", "DKK": "ক্রোন",
-        "RUB": "রুবেল", "TRY": "লিরা", "PLN": "য্লোটি", "CZK": "চেক ক্রোনা", "HUF": "ফোরিন্ট",
-        "ILS": "শেকেল", "MXN": "পেসো", "BRL": "রিয়াল", "ZAR": "র‌্যান্ড",
-        "SAR": "রিয়াল", "AED": "দিরহাম", "QAR": "রিয়াল", "OMR": "রিয়াল",
-        "KWD": "দিনার", "BHD": "দিনার", "TND": "দিনার", "DZD": "দিনার", "LYD": "দিনার",
-        "MAD": "দিরহাম", "EGP": "পাউন্ড", "GEL": "লারি", "AZN": "মানাত", "AFN": "আফগানি",
-        "IRR": "রিয়াল", "UAH": "হ্রিভনিয়া", "GHS": "সেডি", "PYG": "গুয়ারানি",
-        "CRC": "কলন", "NGN": "নাইরা", "THB": "বাহত", "VND": "ডং",
+        "USD": "ডলার",
+        "EUR": "ইউরো",
+        "JPY": "ইয়েন",
+        "CNY": "ইয়েন",
+        "RMB": "ইউয়ান",
+        "KRW": "ওন",
+        "INR": "রুপি",
+        "BDT": "টাকা",
+        "PKR": "রুপি",
+        "NPR": "রুপি",
+        "GBP": "পাউন্ড",
+        "AUD": "ডলার",
+        "CAD": "ডলার",
+        "NZD": "ডলার",
+        "HKD": "ডলার",
+        "SGD": "ডলার",
+        "CHF": "ফ্রাঙ্ক",
+        "SEK": "ক্রোনা",
+        "NOK": "ক্রোনে",
+        "DKK": "ক্রোন",
+        "RUB": "রুবেল",
+        "TRY": "লিরা",
+        "PLN": "য্লোটি",
+        "CZK": "চেক ক্রোনা",
+        "HUF": "ফোরিন্ট",
+        "ILS": "শেকেল",
+        "MXN": "পেসো",
+        "BRL": "রিয়াল",
+        "ZAR": "র‌্যান্ড",
+        "SAR": "রিয়াল",
+        "AED": "দিরহাম",
+        "QAR": "রিয়াল",
+        "OMR": "রিয়াল",
+        "KWD": "দিনার",
+        "BHD": "দিনার",
+        "TND": "দিনার",
+        "DZD": "দিনার",
+        "LYD": "দিনার",
+        "MAD": "দিরহাম",
+        "EGP": "পাউন্ড",
+        "GEL": "লারি",
+        "AZN": "মানাত",
+        "AFN": "আফগানি",
+        "IRR": "রিয়াল",
+        "UAH": "হ্রিভনিয়া",
+        "GHS": "সেডি",
+        "PYG": "গুয়ারানি",
+        "CRC": "কলন",
+        "NGN": "নাইরা",
+        "THB": "বাহত",
+        "VND": "ডং",
     }
 
     DOLLAR_SIGN_MAPPING_BN = {
-        "US$": "মার্কিন ডলার",          # United States Dollar
-        "CA$": "কানাডিয়ান ডলার",       # Canadian Dollar
-        "AU$": "অস্ট্রেলিয়ান ডলার",    # Australian Dollar
-        "A$":  "অস্ট্রেলিয়ান ডলার",    # Short variant
-        "NZ$": "নিউজিল্যান্ড ডলার",      # New Zealand Dollar
-        "SG$": "সিঙ্গাপুর ডলার",        # Singapore Dollar
-        "S$":  "সিঙ্গাপুর ডলার",        # Short variant
-        "HK$": "হংকং ডলার",             # Hong Kong Dollar
-        "TW$": "তাইওয়ান ডলার",         # Taiwan Dollar (New Taiwan Dollar)
-        "MX$": "মেক্সিকান পেসো",         # Mexican Peso (symbol $)
-        "B$":  "ব্রুনেই ডলার",          # Brunei Dollar (symbol B$)
-        "FJ$": "ফিজি ডলার",             # Fiji Dollar
-        "TT$": "ত্রিনিদাদ ও টোবাগো ডলার", # Trinidad & Tobago Dollar
-        "EC$": "ইস্ট ক্যারিবিয়ান ডলার", # East Caribbean Dollar
-        "BB$": "বার্বাডোস ডলার",        # Barbados Dollar
-        "GY$": "গায়ানা ডলার",          # Guyana Dollar
-        "SR$": "সুরিনাম ডলার",          # Surinam Dollar
-        "LR$": "লাইবেরিয়ান ডলার",      # Liberian Dollar
-        "BZ$": "বেলিজ ডলার",            # Belize Dollar
-        "J$":  "জামাইকা ডলার",          # Jamaican Dollar
-        "N$":  "নামিবিয়ান ডলার",       # Namibian Dollar
-        "$":   "ডলার",                  # Generic dollar symbol
+        "US$": "মার্কিন ডলার",  # United States Dollar
+        "CA$": "কানাডিয়ান ডলার",  # Canadian Dollar
+        "AU$": "অস্ট্রেলিয়ান ডলার",  # Australian Dollar
+        "A$": "অস্ট্রেলিয়ান ডলার",  # Short variant
+        "NZ$": "নিউজিল্যান্ড ডলার",  # New Zealand Dollar
+        "SG$": "সিঙ্গাপুর ডলার",  # Singapore Dollar
+        "S$": "সিঙ্গাপুর ডলার",  # Short variant
+        "HK$": "হংকং ডলার",  # Hong Kong Dollar
+        "TW$": "তাইওয়ান ডলার",  # Taiwan Dollar (New Taiwan Dollar)
+        "MX$": "মেক্সিকান পেসো",  # Mexican Peso (symbol $)
+        "B$": "ব্রুনেই ডলার",  # Brunei Dollar (symbol B$)
+        "FJ$": "ফিজি ডলার",  # Fiji Dollar
+        "TT$": "ত্রিনিদাদ ও টোবাগো ডলার",  # Trinidad & Tobago Dollar
+        "EC$": "ইস্ট ক্যারিবিয়ান ডলার",  # East Caribbean Dollar
+        "BB$": "বার্বাডোস ডলার",  # Barbados Dollar
+        "GY$": "গায়ানা ডলার",  # Guyana Dollar
+        "SR$": "সুরিনাম ডলার",  # Surinam Dollar
+        "LR$": "লাইবেরিয়ান ডলার",  # Liberian Dollar
+        "BZ$": "বেলিজ ডলার",  # Belize Dollar
+        "J$": "জামাইকা ডলার",  # Jamaican Dollar
+        "N$": "নামিবিয়ান ডলার",  # Namibian Dollar
+        "$": "ডলার",  # Generic dollar symbol
     }
-
 
     currency_bn = {
         "৳": "টাকা",
@@ -322,9 +360,7 @@ class Config:
         "₳": "অস্ট্রাল",
         "₲": "গুয়ারানি",
     }
-    en_to_bn_digits_mapping = {
-        e: b for e, b in zip(data["en"]["number"], data["bn"]["number"])
-    }
+    en_to_bn_digits_mapping = {e: b for e, b in zip(data["en"]["number"], data["bn"]["number"])}
     bn_to_en_digits_mapping = {v: k for k, v in en_to_bn_digits_mapping.items()}
     en_month_shortname = [i[:3] for i in data["en"]["months"]]
 
@@ -347,9 +383,7 @@ class Config:
         "০": "0",
     }
 
-    _english2bangla2_digits_mapping = {
-        j: i for i, j in _bangla2english_digits_mapping.items()
-    }
+    _english2bangla2_digits_mapping = {j: i for i, j in _bangla2english_digits_mapping.items()}
 
     special_map = {
         "000": "ট্রিপল জিরো",
@@ -515,8 +549,6 @@ class Config:
         "হাজার": "1000",
     }
 
-    
-
     adjust_number = {
         "সাড়ে": 0.5,
         "সারে": 0.5,
@@ -529,7 +561,7 @@ class Config:
     en_number_mapping = {
         "জিরো": "0",
         "ওয়ান": "1",
-        "ওয়ান" : "1",
+        "ওয়ান": "1",
         "টু": "2",
         "থ্রি": "3",
         "ফোর": "4",
@@ -632,7 +664,7 @@ class Config:
                 ("আ:", "আব্দুর"),
                 ("ডাঃ", "ডাক্তার"),
             ]
-        ]
+        ],
     }
 
     _symbols = {
@@ -884,7 +916,7 @@ class Config:
         "hundred": "হান্ড্রেড",
         "thousand": "থাউজ্যান্ড",
         "lakh": "লাখ",
-        "crore": "কোটি"
+        "crore": "কোটি",
     }
 
     _STANDARDIZE_ZW = re.compile(r"(?<=\u09b0)[\u200c\u200d]+(?=\u09cd\u09af)")
@@ -1023,26 +1055,82 @@ class Config:
     }
 
     districts = [
-        "কুমিল্লা", "ফেনী", "ব্রাহ্মণবাড়িয়া", "রাঙ্গামাটি", "নোয়াখালী", "চাঁদপুর", "লক্ষ্মীপুর", "চট্টগ্রাম", "কক্সবাজার", "চট্ট", 
-        "খাগড়াছড়ি", "বান্দরবান", "সিরাজগঞ্জ", "পাবনা", "বগুড়া", "রাজশাহী", "নাটোর", "জয়পুরহাট", "চাঁপাইনবাবগঞ্জ", 
-        "নওগাঁ", "যশোর", "সাতক্ষীরা", "মেহেরপুর", "নড়াইল", "চুয়াডাঙ্গা", "কুষ্টিয়া", "মাগুরা", "খুলনা", "বাগেরহাট", 
-        "ঝিনাইদহ", "ঝালকাঠি", "পটুয়াখালী",  "পিরোজপুর", "বরিশাল", "ভোলা", "বরগুনা", "সিলেট", "মৌলভীবাজার", 
-        "হবিগঞ্জ", "সুনামগঞ্জ", "নরসিংদী", "গাজীপুর", "শরীয়তপুর", "নারায়ণগঞ্জ", "টাঙ্গাইল", "কিশোরগঞ্জ", "মানিকগঞ্জ", 
-        "ঢাকা", "মুন্সিগঞ্জ", "রাজবাড়ী", "মাদারীপুর", "গোপালগঞ্জ", "ফরিদপুর", "পঞ্চগড়", "দিনাজপুর", "লালমনিরহাট",
-        "নীলফামারী","গাইবান্ধা","ঠাকুরগাঁও","রংপুর","কুড়িগ্রাম","শেরপুর","ময়মনসিংহ","জামালপুর","নেত্রকোণা"
+        "কুমিল্লা",
+        "ফেনী",
+        "ব্রাহ্মণবাড়িয়া",
+        "রাঙ্গামাটি",
+        "নোয়াখালী",
+        "চাঁদপুর",
+        "লক্ষ্মীপুর",
+        "চট্টগ্রাম",
+        "কক্সবাজার",
+        "চট্ট",
+        "খাগড়াছড়ি",
+        "বান্দরবান",
+        "সিরাজগঞ্জ",
+        "পাবনা",
+        "বগুড়া",
+        "রাজশাহী",
+        "নাটোর",
+        "জয়পুরহাট",
+        "চাঁপাইনবাবগঞ্জ",
+        "নওগাঁ",
+        "যশোর",
+        "সাতক্ষীরা",
+        "মেহেরপুর",
+        "নড়াইল",
+        "চুয়াডাঙ্গা",
+        "কুষ্টিয়া",
+        "মাগুরা",
+        "খুলনা",
+        "বাগেরহাট",
+        "ঝিনাইদহ",
+        "ঝালকাঠি",
+        "পটুয়াখালী",
+        "পিরোজপুর",
+        "বরিশাল",
+        "ভোলা",
+        "বরগুনা",
+        "সিলেট",
+        "মৌলভীবাজার",
+        "হবিগঞ্জ",
+        "সুনামগঞ্জ",
+        "নরসিংদী",
+        "গাজীপুর",
+        "শরীয়তপুর",
+        "নারায়ণগঞ্জ",
+        "টাঙ্গাইল",
+        "কিশোরগঞ্জ",
+        "মানিকগঞ্জ",
+        "ঢাকা",
+        "মুন্সিগঞ্জ",
+        "রাজবাড়ী",
+        "মাদারীপুর",
+        "গোপালগঞ্জ",
+        "ফরিদপুর",
+        "পঞ্চগড়",
+        "দিনাজপুর",
+        "লালমনিরহাট",
+        "নীলফামারী",
+        "গাইবান্ধা",
+        "ঠাকুরগাঁও",
+        "রংপুর",
+        "কুড়িগ্রাম",
+        "শেরপুর",
+        "ময়মনসিংহ",
+        "জামালপুর",
+        "নেত্রকোণা",
     ]
 
     # Join districts with '|'
-    districts_pattern = '|'.join(districts)
+    districts_pattern = "|".join(districts)
     # Construct the final regex pattern
     number_regex_pattern = rf"({districts_pattern})(\s|)(মেট্রো|)-(অ|ই|উ|এ|ক|খ|গ|ঘ|ঙ|চ|ছ|জ|ঝ|ট|ঠ|ড|ঢ|ত|থ|দ|ন|প|ফ|ব|ভ|ম|য|র|ল|শ|স|হ)-\d{{2}}-\d{{4}}"
 
-
     # Create regex pattern for Bengali months
-    months_pattern = "|".join(data["bn"]["months"]+data["bn"]["months"])
+    months_pattern = "|".join(data["bn"]["months"] + data["bn"]["months"])
 
     # Regular expression pattern to match both formats
-    date_pattern = fr'\b(?:\d{{1,2}} ({months_pattern}) \d{{4}}|({months_pattern}) \d{{1,2}}, \d{{4}})\b'
-
-
-
+    date_pattern = (
+        rf"\b(?:\d{{1,2}} ({months_pattern}) \d{{4}}|({months_pattern}) \d{{1,2}}, \d{{4}})\b"
+    )

@@ -14,7 +14,7 @@ nrml = pybangla.Normalizer()
 today = nrml.today()
 print(today)
 
-# Output: 
+# Output:
 {'date': '৩০', 'month': 'এপ্রিল', 'year': '২০২৪', 'txt_date': 'ত্রিশ', 'txt_year': 'দুই হাজার চব্বিশ', 'weekday': 'মঙ্গলবার', 'ls_month': 'শ্রাবণ', 'seasons': 'বর্ষা'}
 ```
 
@@ -42,9 +42,9 @@ month = nrml.months()
 print(month)
 
 
-# Output: 
+# Output:
 {
-    'bn': ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'], 'bn_name': ['বৈশাখ', 'জ্যৈষ্ঠ', 'আষাঢ়', 'শ্রাবণ', 'ভাদ্র', 'আশ্বিন', 'কার্তিক', 'অগ্রহায়ণ', 'পৌষ', 'মাঘ', 'ফাল্গুন', 'চৈত্র'], 
+    'bn': ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'], 'bn_name': ['বৈশাখ', 'জ্যৈষ্ঠ', 'আষাঢ়', 'শ্রাবণ', 'ভাদ্র', 'আশ্বিন', 'কার্তিক', 'অগ্রহায়ণ', 'পৌষ', 'মাঘ', 'ফাল্গুন', 'চৈত্র'],
 
     'en': ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
 }
@@ -76,9 +76,9 @@ weekdays = nrml.weekdays()
 
 print(weekdays)
 
-# Output: 
+# Output:
 {
-    'bn': ['সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার', 'রবিবার'], 
+    'bn': ['সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার', 'রবিবার'],
     'en': ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 }
 ```
@@ -125,9 +125,9 @@ nrml = pybangla.Normalizer()
 seasons = nmlr.seasons()
 print(seasons)
 
-# Output: 
+# Output:
 {
-    'bn': ['গ্রীষ্ম', 'বর্ষা', 'শরৎ', 'হেমন্ত', 'শীত', 'বসন্ত'], 
+    'bn': ['গ্রীষ্ম', 'বর্ষা', 'শরৎ', 'হেমন্ত', 'শীত', 'বসন্ত'],
     'en': ['summer', 'wet season', 'autumn', 'dry season', 'winter', 'spring']
 }
 ```
@@ -135,14 +135,14 @@ print(seasons)
 seasons = nrml.seasons(language="bn")
 print(seasons)
 
-# Output: 
+# Output:
 ['গ্রীষ্ম', 'বর্ষা', 'শরৎ', 'হেমন্ত', 'শীত', 'বসন্ত']
 ```
 ```py
 seasons = nrml.seasons(language="en")
 print(seasons)
 
-# Output: 
+# Output:
 ['summer', 'wet season', 'autumn', 'dry season', 'winter', 'spring']
 ```
 
@@ -162,5 +162,3 @@ print(seasons)
 # output:
 {'summer': 'গ্রীষ্ম'}
 ```
-
-

@@ -1,55 +1,79 @@
 import re
+
 from .number_pronunciation import normalize_with_3_pattern
 
 number_mapping = {
-    "0": "জিরো", "1": "ওয়ান", "2": "টু", "3": "থ্রি", "4": "ফোর",
-    "5": "ফাইভ", "6": "সিক্স", "7": "সেভেন", "8": "এইট", "9": "নাইন",
-    "০": "শূন্য", "১": "এক", "২": "দুই", "৩": "তিন", "৪": "চার",
-    "৫": "পাঁচ", "৬": "ছয়", "৭": "সাত", "৮": "আট", "৯": "নয়"
+    "0": "জিরো",
+    "1": "ওয়ান",
+    "2": "টু",
+    "3": "থ্রি",
+    "4": "ফোর",
+    "5": "ফাইভ",
+    "6": "সিক্স",
+    "7": "সেভেন",
+    "8": "এইট",
+    "9": "নাইন",
+    "০": "শূন্য",
+    "১": "এক",
+    "২": "দুই",
+    "৩": "তিন",
+    "৪": "চার",
+    "৫": "পাঁচ",
+    "৬": "ছয়",
+    "৭": "সাত",
+    "৮": "আট",
+    "৯": "নয়",
 }
+
 
 def digits_to_words(digits: str) -> str:
     """Convert a string of ASCII/Bengali digits to space-separated words using number_mapping."""
     normalized_text = normalize_with_3_pattern(digits)
     return normalized_text
 
+
 def build_patterns():
-    digit = r'[0-9০-৯]+'
+    digit = r"[0-9০-৯]+"
     patterns = [
         # Last/First X digits
-        (rf'(?:শেষ|প্রথম)\s*{digit}\s*(?:সংখ্যা|ডিজিট)\s*({digit})', 'Last X digits'),
-
+        (rf"(?:শেষ|প্রথম)\s*{digit}\s*(?:সংখ্যা|ডিজিট)\s*({digit})", "Last X digits"),
         # OTP
-        (rf'(?:ওটিপি\s*\(OTP\)|OTP\s*\(ওটিপি\)|ওটিপি|otp|OTP)\s*[:=-]?\s*({digit})', 'OTP'),
-
+        (rf"(?:ওটিপি\s*\(OTP\)|OTP\s*\(ওটিপি\)|ওটিপি|otp|OTP)\s*[:=-]?\s*({digit})", "OTP"),
         # PIN
-        (rf'(?:পিন\s*\(PIN\)|PIN\s*\(পিন\)|পিন|pin|PIN)\s*[:=-]?\s*({digit})', 'PIN'),
-
+        (rf"(?:পিন\s*\(PIN\)|PIN\s*\(পিন\)|পিন|pin|PIN)\s*[:=-]?\s*({digit})", "PIN"),
         # Code
-        (rf'(?:কোড\s*\(code\)|code\s*\(কোড\)|কোড|code|CODE)\s*[:=-]?\s*({digit})', 'Code'),
-
+        (rf"(?:কোড\s*\(code\)|code\s*\(কোড\)|কোড|code|CODE)\s*[:=-]?\s*({digit})", "Code"),
         # CVV / CVC
-        (rf'(?:সিভিভি\s*\(CVV\)|CVV\s*\(সিভিভি\)|সিভিভি|cvv|CVV)\s*[:=-]?\s*({digit})', 'CVV'),
-        (rf'(?:সিভিসি\s*\(CVC\)|CVC\s*\(সিভিসি\)|সিভিসি|cvc|CVC)\s*[:=-]?\s*({digit})', 'CVV'),
-
+        (rf"(?:সিভিভি\s*\(CVV\)|CVV\s*\(সিভিভি\)|সিভিভি|cvv|CVV)\s*[:=-]?\s*({digit})", "CVV"),
+        (rf"(?:সিভিসি\s*\(CVC\)|CVC\s*\(সিভিসি\)|সিভিসি|cvc|CVC)\s*[:=-]?\s*({digit})", "CVV"),
         # Generic সংখ্যা
-        (rf'সংখ্যা\s*({digit})', 'সংখ্যা'),
-
+        (rf"সংখ্যা\s*({digit})", "সংখ্যা"),
         # Security code
-        (rf'(?:সিকিউরিটি\s*কোড\s*\(security\s*code\)|security\s*code\s*\(সিকিউরিটি\s*কোড\)|সিকিউরিটি\s*কোড|security\s*code)\s*[:=-]?\s*({digit})', 'Security Code'),
-
+        (
+            rf"(?:সিকিউরিটি\s*কোড\s*\(security\s*code\)|security\s*code\s*\(সিকিউরিটি\s*কোড\)|সিকিউরিটি\s*কোড|security\s*code)\s*[:=-]?\s*({digit})",
+            "Security Code",
+        ),
         # Verification Code
-        (rf'(?:ভেরিফিকেশন\s*কোড\s*\(verification\s*code\)|verification\s*code\s*\(ভেরিফিকেশন\s*কোড\)|ভেরিফিকেশন\s*কোড|verification\s*code)\s*[:=-]?\s*({digit})', 'Verification Code'),
-
+        (
+            rf"(?:ভেরিফিকেশন\s*কোড\s*\(verification\s*code\)|verification\s*code\s*\(ভেরিফিকেশন\s*কোড\)|ভেরিফিকেশন\s*কোড|verification\s*code)\s*[:=-]?\s*({digit})",
+            "Verification Code",
+        ),
         # Token number
-        (rf'(?:টোকেন\s*\(token\)|token\s*\(টোকেন\)|টোকেন|token)\s*(?:নম্বর|number)?\s*[:=-]?\s*({digit})', 'Token'),
-
+        (
+            rf"(?:টোকেন\s*\(token\)|token\s*\(টোকেন\)|টোকেন|token)\s*(?:নম্বর|number)?\s*[:=-]?\s*({digit})",
+            "Token",
+        ),
         # Password (digits only)
-        (rf'(?:পাসওয়ার্ড\s*\(password\)|password\s*\(পাসওয়ার্ড\)|পাসওয়ার্ড|password)\s*[:=-]?\s*({digit})', 'Password'),
+        (
+            rf"(?:পাসওয়ার্ড\s*\(password\)|password\s*\(পাসওয়ার্ড\)|পাসওয়ার্ড|password)\s*[:=-]?\s*({digit})",
+            "Password",
+        ),
     ]
     return [(re.compile(p, re.IGNORECASE), name) for p, name in patterns]
 
+
 _COMPILED_PATTERNS = build_patterns()
+
 
 def extract_digit_patterns_with_spans(text: str):
     """
@@ -65,13 +89,16 @@ def extract_digit_patterns_with_spans(text: str):
     for regex, name in _COMPILED_PATTERNS:
         for m in regex.finditer(text):
             g_start, g_end = m.span(1)  # span of the capturing group with the digits
-            results.append({
-                'type': name,
-                'digits': m.group(1),
-                'span': (g_start, g_end),
-                'full_match_span': m.span(0),
-            })
+            results.append(
+                {
+                    "type": name,
+                    "digits": m.group(1),
+                    "span": (g_start, g_end),
+                    "full_match_span": m.span(0),
+                }
+            )
     return results
+
 
 def security_code_normalizer(text: str):
     """
@@ -84,11 +111,11 @@ def security_code_normalizer(text: str):
 
     # If multiple patterns match the same region, we still do deterministic replacement
     # by processing right-to-left to keep earlier spans valid.
-    matches_sorted = sorted(matches, key=lambda x: x['span'][0], reverse=True)
+    matches_sorted = sorted(matches, key=lambda x: x["span"][0], reverse=True)
 
     replaced_text = text
     for m in matches_sorted:
-        s, e = m['span']
+        s, e = m["span"]
         original_digits = replaced_text[s:e]
 
         if not original_digits.isdigit():
@@ -98,9 +125,10 @@ def security_code_normalizer(text: str):
         replacement = digits_to_words(original_digits)
         replaced_text = replaced_text[:s] + replacement + replaced_text[e:]
         # Update the match record with the replacement we actually used
-        m['replacement'] = replacement
+        m["replacement"] = replacement
 
     return replaced_text, matches
+
 
 # -----------------------------
 # Example usage / quick test
