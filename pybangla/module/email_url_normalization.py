@@ -41,9 +41,9 @@ email_replace_unit = {
 }
 
 url_replace_unit = {
-    "http://": {"bn": "এইচ, টি, টি, পি। কোলন ডাবল স্ল্যাশ", "en": "http clone. double slash"},
+    "http://": {"bn": "এইচ, টি, টি, পি। কোলন ডাবল স্ল্যাশ।", "en": "http clone. double slash"},
     "https://": {
-        "bn": "এইচ, টি, টি, পি, এস। কোলন ডাবল স্ল্যাশ",
+        "bn": "এইচ, টি, টি, পি, এস। কোলন ডাবল স্ল্যাশ।",
         "en": "https clone. double slash",
     },
     "www.": {"bn": "ডব্লিউ, ডব্লিউ, ডব্লিউ, ডট। ", "en": "www dot"},

@@ -1355,7 +1355,7 @@ class TextParser:
                 except Exception as e:
                     print("Error in formatting amount with multiplier:", e)
             
-            print("amount_raw : ", amount_raw)
+            # print("amount_raw : ", amount_raw)
             language = "en" if self.npr.contains_only_english(amount_raw) else "bn"
             if "." in amount_raw:
                 word = self.npr.fraction_number_conversion(amount_raw, language=language)
@@ -1717,6 +1717,7 @@ class TextParser:
             else:
                 try:
                     text = step(text)
+                    # print("text : ", text, step.__name__)
                 except Exception as e:
                     logger.error(f"An error occurred in {step.__name__}: {e}\n, traceback: {traceback.format_exc()}")
                     continue

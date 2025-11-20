@@ -680,8 +680,11 @@ if __name__ == "__main__":
 
     # ]
     texts = [
-        "https://verbex.site/random/page/9031",
-        "আমি shuvo_raihan@gmail.com থেকে মেইল করেছিলাম।",
+        # "https://verbex.site/random/page/9031",
+        # "আমি shuvo_raihan@gmail.com থেকে মেইল করেছিলাম।",
+        # "Order No. 987-654-3210 has been delivered successfully."
+        "Havit HV-SC055 Laptop Cleaning Kit - HV-SC055"
+        # "987-654-3210 has been delivered successfully, 987-654-3210-12345 has been delivered successfully"
     ]
     text_list = texts
 

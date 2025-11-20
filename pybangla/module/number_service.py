@@ -199,6 +199,8 @@ class NumberNormalizationService:
 
         sorted_matches = sorted(matches, key=lambda m: m.start(), reverse=True)
 
+        # print("text 1.5 : ", text)
+
         # print("sorted_matches : ", sorted_matches)
 
         # extracted_passports = []
@@ -208,9 +210,10 @@ class NumberNormalizationService:
 
             # print("Found passport number:", string_pass, " at position:", index_span)
             # Extract digits from the cleaned passport string
+            print("string_pass : ", string_pass)
             digits = re.findall(self.number_pattern, string_pass)
 
-            # print("digits:", digits)
+            print("digits:", digits)
             for digit in digits:
                 words = []
                 for d in digit:
@@ -218,18 +221,7 @@ class NumberNormalizationService:
                         words.append(self.mapping_normalization[d])
                     else:
                         words.append(d)
-                # print("words : ", words)
-                # normalize_string = (", ".join(words))
                 normalize_string = normalize_with_3_pattern(words)
-                # i = 0
-                # for item in words:
-                #     normalize_string += item
-                #     if i % 3 == 0:   # প্রতি ৩টার পর
-                #         normalize_string += '। '  # এখানে দাড়ি যোগ করছি
-                #     else:
-                #         normalize_string+= ", "
-                #     i+=1
-                # print("normalize_string:", digit , "->", normalize_string)
 
                 string_pass = string_pass.replace(digit, " " + normalize_string + " ")
 
@@ -237,6 +229,8 @@ class NumberNormalizationService:
 
         # if have multiple comma then replace with one comma
         text = re.sub(r",\s*,+", ", ", text)
+
+        # print("text 1.5 : ", text)
 
         return text
 
@@ -266,6 +260,7 @@ class NumberNormalizationService:
                     # For alphanumeric IDs, extract only the numeric part
                     # but keep the original format for replacement
                     numeric_parts = re.findall(r"[০-৯\d]+", number_text_original)
+                    # print("numeric_parts : ", numeric_parts)
                     if numeric_parts:
                         # Join all numeric parts
                         clean_number = "".join(numeric_parts)
@@ -326,19 +321,6 @@ class NumberNormalizationService:
                 words.append(self.mapping_normalization[digit])
             else:
                 words.append(digit)
-
-        # If there was a prefix, add it back
-        # print("words : ", words)
-        # i = 0
-        # normalize_string = ""
-        # for item in words:
-        #     normalize_string += item
-        #     if i % 3 == 0:   # প্রতি ৩টার পর
-        #         normalize_string += '। '  # এখানে দাড়ি যোগ করছি
-        #     else:
-        #         normalize_string+= ", "
-        #     i+=1
-
         normalize_string = normalize_with_3_pattern(words)
 
         if prefix:
@@ -391,6 +373,25 @@ class NumberNormalizationService:
         normalize_string = normalize_with_3_pattern(words)
 
         return normalize_string
+    
+
+    def extract_number_with_spans_or_hypen(self, text):
+        """Extract numbers with hyphens or spaces"""
+        extractions = []
+        # Pattern that matches digits with hyphens or spaces between them
+        pattern = r'\b(\d+(?:[-\s]\d+)+)\b'
+
+        for match in re.finditer(pattern, text):
+            # This will match "987-654-3210" but NOT the text after it
+            original_number_format = match.group(1)
+            clean_number = re.sub(r'[-\s]', '', original_number_format)
+
+            extractions.append((
+                clean_number,
+                original_number_format
+            ))
+
+        return extractions
 
     def replace_numbers_with_words(self, text: str) -> str:
         """Replace numbers in text with Bengali words using span-based replacement"""
@@ -399,7 +400,7 @@ class NumberNormalizationService:
 
         text = self.extract_passport_unicode(text)
 
-        # print("text :" , text)
+        # print("text1.5 :" , text)
 
         lines = text.split("\n")
         processed_lines = []
@@ -422,21 +423,28 @@ class NumberNormalizationService:
                 for field_name, clean_number, original_number_format, span in sorted_extractions:
                     start_pos, end_pos = span
 
-                    # Check if the original format has a letter prefix
-                    if re.match(r"^[A-Z]+-", original_number_format):
-                        # Use special formatting for alphanumeric IDs
-                        words = self.number_to_words_with_format(
-                            clean_number, original_number_format
-                        )
-                    else:
-                        # Regular number conversion
+                    # print("original_number_format : ", extract_number_with_spans_or_hypen, clean_number)
+                    number_extract = self.extract_number_with_spans_or_hypen(original_number_format)
+
+                    for ex_n in number_extract:
+                        clean_number, org_number = ex_n[0], ex_n[1]
                         words = self.number_to_words(clean_number)
 
-                    # Replace using span positions
-                    processed_line = processed_line[:start_pos] + words + processed_line[end_pos:]
+                        processed_line = processed_line.replace(org_number, words)
 
-                    # print(f"Replaced '{original_number_format}' at position {start_pos}-{end_pos} with '{words}'")
+                    # print("number_extract : ", number_extract[0][1])
+                    # replace_number = number_extract[0][1]
 
+                    # Check if the original format has a letter prefix
+                    # if re.match(r"^[A-Z]+-", original_number_format):
+                    #     # Use special formatting for alphanumeric IDs
+                    #     words = self.number_to_words_with_format(
+                    #         clean_number, original_number_format
+                    #     )
+                    # else:
+                    #     # Regular number conversion
+                    #     words = self.number_to_words(clean_number)
+                    # processed_line = processed_line.replace(replace_number, words)
             processed_lines.append(processed_line)
 
         return " ".join(processed_lines)
