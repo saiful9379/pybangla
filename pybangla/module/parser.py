@@ -2,13 +2,14 @@ import datetime
 import re
 import string
 from ast import pattern
+import traceback
 
 from fuzzywuzzy import fuzz
 from loguru import logger
 from num2words import num2words
 
 from .config import Config as cfg
-from .currency import extract_currencies
+from .currency import extract_currencies, parse_amount_with_multiplier, format_amount_with_multiplier
 from .date_extractor import DateExtractor
 from .driving_license import DrivingLicenseFormatter, DrivingLicenseParser
 from .email_url_normalization import EmailURLExtractor
@@ -1336,15 +1337,32 @@ class TextParser:
 
     def extract_currency_amounts(self, text):
         norm, info = extract_currencies(text)
+            
         for n in info:
             match_text = n["match_text"]
             amount_raw = n["amount_raw"]
             currency_raw = n["currency_raw"]
+            unit = ""
+            if re.search(r"(?i)(?:k|m|b|bn|t)\b", str(amount_raw)):
+                print("MATCHED!!")
+                # Format amount_raw as a localized string (e.g. '5.5 থাউসেন্ড')
+                try:
+                    localized = format_amount_with_multiplier(amount_raw)
+                    if localized is not None:
+                        amount = localized.split(" ")[0]
+                        unit = localized.split(" ")[1]
+                        amount_raw = amount
+                except Exception as e:
+                    print("Error in formatting amount with multiplier:", e)
+            
+            print("amount_raw : ", amount_raw)
             language = "en" if self.npr.contains_only_english(amount_raw) else "bn"
             if "." in amount_raw:
                 word = self.npr.fraction_number_conversion(amount_raw, language=language)
             else:
                 word = self.npr.number_to_words(amount_raw)
+            if unit:
+                word += " " + unit
             # print("Process word : ", word)
             if currency_raw in cfg.DOLLAR_SIGN_MAPPING_BN:
                 word_currency = cfg.DOLLAR_SIGN_MAPPING_BN[currency_raw]
@@ -1700,7 +1718,7 @@ class TextParser:
                 try:
                     text = step(text)
                 except Exception as e:
-                    logger.error(f"An error occurred in {step.__name__}: {e}")
+                    logger.error(f"An error occurred in {step.__name__}: {e}\n, traceback: {traceback.format_exc()}")
                     continue
 
         return text
