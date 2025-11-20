@@ -232,7 +232,7 @@ def format_amount_with_multiplier(amount_str: str):
 
     word = mapping.get(mult, mult)
     # Preserve the numeric part as captured (may include commas/decimals)
-    return f"{num} {word}"
+    return f"{num.strip()} {word.strip()}"
 
 # -------------------------
 # Quick test
@@ -253,7 +253,9 @@ if __name__ == "__main__":
         "ইভেন্ট আয়োজন করতে কমপক্ষে $5.5 k লাগবে।",
         "কমপক্ষে $5.5 keno লাগবে।",
         "তোমার £12M k লাগবে।",
-        "জরুরী বিতরণে ফি ৮,৬২৫.৬২৫ টাকা"
+        "জরুরী বিতরণে ফি ৮,৬২৫.৬২৫ টাকা",
+        "$15.2 k এক্সাম ফী লাগবে।",
+        "তার NID নম্বর 1234567890123।"
     ]
     for s in samples:
         # First extract currency matches from the full text
