@@ -683,7 +683,8 @@ if __name__ == "__main__":
         # "https://verbex.site/random/page/9031",
         # "আমি shuvo_raihan@gmail.com থেকে মেইল করেছিলাম।",
         # "Order No. 987-654-3210 has been delivered successfully."
-        "Havit HV-SC055 Laptop Cleaning Kit - HV-SC055"
+        "# তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773-550379",
+        # "Havit HV-SC055 Laptop Cleaning Kit - HV-SC055"
         # "987-654-3210 has been delivered successfully, 987-654-3210-12345 has been delivered successfully"
     ]
     text_list = texts

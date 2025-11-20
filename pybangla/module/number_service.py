@@ -210,10 +210,10 @@ class NumberNormalizationService:
 
             # print("Found passport number:", string_pass, " at position:", index_span)
             # Extract digits from the cleaned passport string
-            print("string_pass : ", string_pass)
+            # print("string_pass : ", string_pass)
             digits = re.findall(self.number_pattern, string_pass)
 
-            print("digits:", digits)
+            # print("digits:", digits)
             for digit in digits:
                 words = []
                 for d in digit:
@@ -422,29 +422,23 @@ class NumberNormalizationService:
                 # Process each extraction from right to left
                 for field_name, clean_number, original_number_format, span in sorted_extractions:
                     start_pos, end_pos = span
-
                     # print("original_number_format : ", extract_number_with_spans_or_hypen, clean_number)
                     number_extract = self.extract_number_with_spans_or_hypen(original_number_format)
-
-                    for ex_n in number_extract:
-                        clean_number, org_number = ex_n[0], ex_n[1]
+                    # Check if the original format has a letter prefix
+                    if re.match(r"^[A-Z]+-", original_number_format):
+                    #     # Use special formatting for alphanumeric IDs
+                        words = self.number_to_words_with_format(
+                            clean_number, original_number_format
+                        )
+                    else:
+                    #     # Regular number conversion
                         words = self.number_to_words(clean_number)
 
-                        processed_line = processed_line.replace(org_number, words)
-
-                    # print("number_extract : ", number_extract[0][1])
-                    # replace_number = number_extract[0][1]
-
-                    # Check if the original format has a letter prefix
-                    # if re.match(r"^[A-Z]+-", original_number_format):
-                    #     # Use special formatting for alphanumeric IDs
-                    #     words = self.number_to_words_with_format(
-                    #         clean_number, original_number_format
-                    #     )
-                    # else:
-                    #     # Regular number conversion
-                    #     words = self.number_to_words(clean_number)
-                    # processed_line = processed_line.replace(replace_number, words)
+                    if number_extract and number_extract[0][0]== clean_number:
+                        r_original_number_format = original_number_format.replace(number_extract[0][1], words)
+                        processed_line = processed_line.replace(original_number_format, r_original_number_format)
+                    else:
+                        processed_line = processed_line.replace(original_number_format, words)
             processed_lines.append(processed_line)
 
         return " ".join(processed_lines)

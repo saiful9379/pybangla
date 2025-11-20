@@ -1038,7 +1038,7 @@ class TextParser:
         _year_with_hyphen = re.findall(r"\b(\d{4}[-–—―]\d{2})\b", text)
         replce_map = {}
         for year in _year_with_hyphen:
-            # print("year")
+            # print("year", year)
             rep_year = year.replace("–", "-")
             rep_year = rep_year.replace("—", "-")
             rep_year = rep_year.replace("―", "-")
@@ -1717,7 +1717,7 @@ class TextParser:
             else:
                 try:
                     text = step(text)
-                    # print("text : ", text, step.__name__)
+                    print("text : ", text, step.__name__)
                 except Exception as e:
                     logger.error(f"An error occurred in {step.__name__}: {e}\n, traceback: {traceback.format_exc()}")
                     continue
