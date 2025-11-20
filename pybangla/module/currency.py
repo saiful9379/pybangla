@@ -220,7 +220,7 @@ def format_amount_with_multiplier(amount_str: str):
     mult = (m.group("mult") or "").lower()
 
     mapping = {
-        "k": "থাউসেন্ড",
+        "k": "থাউজ্যান্ড",
         "m": "মিলিয়ন",
         "b": "বিলিয়ন",
         "bn": "বিলিয়ন",
