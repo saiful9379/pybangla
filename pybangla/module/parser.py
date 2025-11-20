@@ -1348,15 +1348,12 @@ class TextParser:
                 # Format amount_raw as a localized string (e.g. '5.5 থাউসেন্ড')
                 try:
                     localized = format_amount_with_multiplier(amount_raw)
-                except Exception:
-                    localized = None
-
-                if localized is not None:
-                    amount = localized.split(" ")[0]
-                    unit = localized.split(" ")[1]
-                    amount_raw = amount
-                else:
-                    amount_raw = None
+                    if localized is not None:
+                        amount = localized.split(" ")[0]
+                        unit = localized.split(" ")[1]
+                        amount_raw = amount
+                except Exception as e:
+                    print("Error in formatting amount with multiplier:", e)
             
             print("amount_raw : ", amount_raw)
             language = "en" if self.npr.contains_only_english(amount_raw) else "bn"
