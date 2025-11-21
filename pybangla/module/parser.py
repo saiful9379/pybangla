@@ -676,7 +676,24 @@ class NumberParser:
                 text = text[:start_position] + " " + norm_string + " " + text[end_position:]
 
         return text
+    def year_hypen_year(self, text):
 
+        pattern = r'(\d{4}-\d{4}|[০-৯]{4}-[০-৯]{4})'
+        # Extract matches
+
+        matches = re.findall(pattern, text)
+        if matches:
+            # print(f"Text: {text}")
+            # print(f"Matches: {matches}\n")
+            for m in matches:
+                if "-" in m:
+                    s_year, e_year = m.split("-")[0], m.split("-")[1]
+                    print(m.split("-"))
+                    start_year = self.year_in_number(s_year)
+                    end_year = self.year_in_number(e_year)
+                    word_start_year_and_end_year = f"{start_year},- {end_year}"
+                    text = text.replace(m, word_start_year_and_end_year)
+        return text
     def number_processing(self, text):
         # print("text : ", text)
         text = extract_consecutive_numbers_with_separators(text)
@@ -699,6 +716,8 @@ class NumberParser:
 
                 norm_full_match = full_match.replace(year, word_year)
                 text = text.replace(full_match, norm_full_match)
+
+        text = self.year_hypen_year(text)
 
         # print("befor processing text : ", text)
         text = alpbanet_with_number(text)
@@ -1215,7 +1234,7 @@ class TextParser:
             text = text.replace(full_match, normalized_year)
 
         return text
-
+    
     def year_to_year(self, text):
         # print("input text : ", text)
         text = self.extract_detailed_year_ranges(text)
@@ -1717,7 +1736,7 @@ class TextParser:
             else:
                 try:
                     text = step(text)
-                    print("text : ", text, step.__name__)
+                    # print("text : ", text, step.__name__, key)
                 except Exception as e:
                     logger.error(f"An error occurred in {step.__name__}: {e}\n, traceback: {traceback.format_exc()}")
                     continue

@@ -52,15 +52,19 @@ class NIDNumber:
     BENGALI_TO_ENGLISH = str.maketrans("০১২৩৪৫৬৭৮৯", "0123456789")
 
     # Updated pattern to match both Bengali and English digits
+
     # NID_PATTERNS = [
-    #     r'\b(?:NID|NID নম্বর|জাতীয় পরিচয়পত্র নং|জাতীয় পরিচয়পত্র নম্বর|জাতীয় পরিচয়পত্র|পরিচয়পত্র|'
-    #     r'জাতীয় পরিচয় নম্বর|NID Number|NID নং|এনআইডি|এনআইডি নম্বর|এনআইডি Number|এনআইডি নং)\s*[:ঃ]?\s*([০-৯\d]{10,17})\b'
+    #     r"(?:NID|NID নম্বর|জাতীয় পরিচয়পত্র নং|জাতীয় পরিচয়পত্র নম্বর|জাতীয় পরিচয়পত্র|পরিচয়পত্র|লাইসেন্স|ড্রাইভিং লাইসেন্স|জাতীয় পরিচয় নম্বর|"
+    #     r"জাতীয় পরিচয় নম্বর|NID Number|NID নং|এনআইডি|এনআইডি নম্বর|এনআইডি Number|এনআইডি নং)\s*[:ঃ]?\s*([০-৯0-9]+(?:\s+[০-৯0-9]+)*)"
     # ]
 
     NID_PATTERNS = [
-        r"(?:NID|NID নম্বর|জাতীয় পরিচয়পত্র নং|জাতীয় পরিচয়পত্র নম্বর|জাতীয় পরিচয়পত্র|পরিচয়পত্র|লাইসেন্স|ড্রাইভিং লাইসেন্স|জাতীয় পরিচয় নম্বর|"
-        r"জাতীয় পরিচয় নম্বর|NID Number|NID নং|এনআইডি|এনআইডি নম্বর|এনআইডি Number|এনআইডি নং)\s*[:ঃ]?\s*([০-৯0-9]+(?:\s+[০-৯0-9]+)*)"
+    r"(?:NID|NID নম্বর|জাতীয় পরিচয়পত্র নং|জাতীয় পরিচয়পত্র নম্বর|জাতীয় পরিচয়পত্র|পরিচয়পত্র|লাইসেন্স|ড্রাইভিং লাইসেন্স|জাতীয় পরিচয় নম্বর|"
+    r"জাতীয় পরিচয় নম্বর|NID Number|NID নং|এনআইডি|এনআইডি নম্বর|এনআইডি Number|এনআইডি নং)\s*[:ঃ]?\s*([০-৯0-9]+(?:[\s\-][০-৯0-9]+)*)"
     ]
+
+    # Compile the pattern
+   
 
     def __post_init__(self) -> None:
         """Validate the NID number format after initialization"""
@@ -92,7 +96,8 @@ class NIDNormalizer:
     """Class to normalize NID numbers in text"""
 
     def __init__(self) -> None:
-        self.nid_pattern = re.compile("|".join(NIDNumber.NID_PATTERNS))
+        # self.nid_pattern = re.compile("|".join(NIDNumber.NID_PATTERNS))
+        self.nid_pattern = re.compile(NIDNumber.NID_PATTERNS[0], re.IGNORECASE)
 
     def extract_nids(self, text: str) -> List[NIDMatch]:
         """Extract all NID numbers with their positions from text"""
