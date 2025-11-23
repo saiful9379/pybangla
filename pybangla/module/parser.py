@@ -1,15 +1,19 @@
 import datetime
 import re
 import string
-from ast import pattern
 import traceback
+from ast import pattern
 
 from fuzzywuzzy import fuzz
 from loguru import logger
 from num2words import num2words
 
 from .config import Config as cfg
-from .currency import extract_currencies, parse_amount_with_multiplier, format_amount_with_multiplier
+from .currency import (
+    extract_currencies,
+    format_amount_with_multiplier,
+    parse_amount_with_multiplier,
+)
 from .date_extractor import DateExtractor
 from .driving_license import DrivingLicenseFormatter, DrivingLicenseParser
 from .email_url_normalization import EmailURLExtractor
@@ -54,6 +58,7 @@ _DELETE_ZW = cfg._DELETE_ZW
 
 data_map = data["bn"]["number_mapping"]
 currency_list = list(cfg.currency_bn.keys())
+
 
 def extract_bengali_dates_with_spans(text):
     """Extract Bengali dates from text with their span positions"""
@@ -676,9 +681,9 @@ class NumberParser:
                 text = text[:start_position] + " " + norm_string + " " + text[end_position:]
 
         return text
-    def year_hypen_year(self, text):
 
-        pattern = r'(\d{4}-\d{4}|[০-৯]{4}-[০-৯]{4})'
+    def year_hypen_year(self, text):
+        pattern = r"(\d{4}-\d{4}|[০-৯]{4}-[০-৯]{4})"
         # Extract matches
 
         matches = re.findall(pattern, text)
@@ -694,6 +699,7 @@ class NumberParser:
                     word_start_year_and_end_year = f"{start_year},- {end_year}"
                     text = text.replace(m, word_start_year_and_end_year)
         return text
+
     def number_processing(self, text):
         # print("text : ", text)
         text = extract_consecutive_numbers_with_separators(text)
@@ -1234,7 +1240,7 @@ class TextParser:
             text = text.replace(full_match, normalized_year)
 
         return text
-    
+
     def year_to_year(self, text):
         # print("input text : ", text)
         text = self.extract_detailed_year_ranges(text)
@@ -1355,31 +1361,36 @@ class TextParser:
             return "not_found"
 
     def check_bengali_scale_after_currency(self, text):
-        scale_words = ['কোটি', 'লক্ষ', 'লাখ', 'হাজার']
+        scale_words = ["কোটি", "লক্ষ", "লাখ", "হাজার"]
 
         # Create pattern using f-string
-        currency_pattern = '[' + ''.join(re.escape(c) for c in currency_list) + ']'
+        currency_pattern = "[" + "".join(re.escape(c) for c in currency_list) + "]"
         pattern = f'({currency_pattern}\\s*[\\d,]+\\.?\\d*)\\s*({"|".join(scale_words)})'
         matches = re.finditer(pattern, text)
         results = []
         for match in matches:
-            results.append({
-                'amount': match.group(1),
-                'scale': match.group(2),
-                'status': True,
-                'full_match': match.group(0),
-                'position': (match.start(), match.end())
-            })
+            results.append(
+                {
+                    "amount": match.group(1),
+                    "scale": match.group(2),
+                    "status": True,
+                    "full_match": match.group(0),
+                    "position": (match.start(), match.end()),
+                }
+            )
         # If no matches found, return single dict with status False
         if not results:
-            return [{
-                'amount': None,
-                'scale': None,
-                'status': False,
-                'full_match': None,
-                'position': None
-            }]
+            return [
+                {
+                    "amount": None,
+                    "scale": None,
+                    "status": False,
+                    "full_match": None,
+                    "position": None,
+                }
+            ]
         return results
+
     def extract_currency_amounts(self, text):
         norm, info = extract_currencies(text)
         scale_return = self.check_bengali_scale_after_currency(text)
@@ -1432,12 +1443,14 @@ class TextParser:
                     add_currency = False
 
             scale_status = False
-            if scale_return and scale_return[index]["scale"] is not None and scale_return[index]["amount"] is not None:
+            if (
+                scale_return
+                and scale_return[index]["scale"] is not None
+                and scale_return[index]["amount"] is not None
+            ):
                 scale_status = True
                 scale = scale_return[index]["scale"]
                 amount_scale = scale_return[index]["amount"]
-
-
 
                 scale_and_match_status = False
                 if amount_scale.strip() == match_text.strip():
@@ -1445,7 +1458,7 @@ class TextParser:
 
                 match_text = scale_return[index]["full_match"]
                 if add_currency and position == "end" and scale_and_match_status:
-                    amount_with_currncy_symbl_word = word + " " +scale +" "+ word_currency
+                    amount_with_currncy_symbl_word = word + " " + scale + " " + word_currency
                 elif position == "start" and scale_and_match_status:
                     amount_with_currncy_symbl_word = word_currency + " " + word + " " + scale
                 elif scale_and_match_status:
@@ -1460,7 +1473,7 @@ class TextParser:
                 else:
                     amount_with_currncy_symbl_word = word
             text = text.replace(match_text, " " + amount_with_currncy_symbl_word + " ")
-            index+=1
+            index += 1
         return text
 
     def matching_similariy_of_months(self, input_word):
@@ -1786,7 +1799,9 @@ class TextParser:
                     text = step(text)
                     # print("text : ", text, step.__name__, key)
                 except Exception as e:
-                    logger.error(f"An error occurred in {step.__name__}: {e}\ntraceback: {traceback.format_exc()}")
+                    logger.error(
+                        f"An error occurred in {step.__name__}: {e}\ntraceback: {traceback.format_exc()}"
+                    )
                     continue
 
         return text

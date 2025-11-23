@@ -373,23 +373,19 @@ class NumberNormalizationService:
         normalize_string = normalize_with_3_pattern(words)
 
         return normalize_string
-    
 
     def extract_number_with_spans_or_hypen(self, text):
         """Extract numbers with hyphens or spaces"""
         extractions = []
         # Pattern that matches digits with hyphens or spaces between them
-        pattern = r'\b(\d+(?:[-\s]\d+)+)\b'
+        pattern = r"\b(\d+(?:[-\s]\d+)+)\b"
 
         for match in re.finditer(pattern, text):
             # This will match "987-654-3210" but NOT the text after it
             original_number_format = match.group(1)
-            clean_number = re.sub(r'[-\s]', '', original_number_format)
+            clean_number = re.sub(r"[-\s]", "", original_number_format)
 
-            extractions.append((
-                clean_number,
-                original_number_format
-            ))
+            extractions.append((clean_number, original_number_format))
 
         return extractions
 
@@ -423,20 +419,26 @@ class NumberNormalizationService:
                 for field_name, clean_number, original_number_format, span in sorted_extractions:
                     start_pos, end_pos = span
                     # print("original_number_format : ", extract_number_with_spans_or_hypen, clean_number)
-                    number_extract = self.extract_number_with_spans_or_hypen(original_number_format)
+                    number_extract = self.extract_number_with_spans_or_hypen(
+                        original_number_format
+                    )
                     # Check if the original format has a letter prefix
                     if re.match(r"^[A-Z]+-", original_number_format):
-                    #     # Use special formatting for alphanumeric IDs
+                        #     # Use special formatting for alphanumeric IDs
                         words = self.number_to_words_with_format(
                             clean_number, original_number_format
                         )
                     else:
-                    #     # Regular number conversion
+                        #     # Regular number conversion
                         words = self.number_to_words(clean_number)
 
-                    if number_extract and number_extract[0][0]== clean_number:
-                        r_original_number_format = original_number_format.replace(number_extract[0][1], words)
-                        processed_line = processed_line.replace(original_number_format, r_original_number_format)
+                    if number_extract and number_extract[0][0] == clean_number:
+                        r_original_number_format = original_number_format.replace(
+                            number_extract[0][1], words
+                        )
+                        processed_line = processed_line.replace(
+                            original_number_format, r_original_number_format
+                        )
                     else:
                         processed_line = processed_line.replace(original_number_format, words)
             processed_lines.append(processed_line)

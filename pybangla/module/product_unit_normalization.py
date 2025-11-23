@@ -21,7 +21,7 @@ class UnitNormalization:
                 "tb": "terabyte",
                 "gb": "gigabyte",
                 "kb": "kilobyte",
-                },
+            },
             "bn": {
                 "ml": "মিলিলিটার",
                 "g": "গ্রাম",
@@ -36,19 +36,16 @@ class UnitNormalization:
                 "tb": "টেরাবাইট",
                 "gb": "গিগাবাইট",
                 "kb": "কিলোবাইট",
-            }
+            },
         }
         # Choose language based on unit_abbr
         language = "bn"
-        
-        if language == "bn":
-            full_form = unit_names["bn"].get(unit_abbr, unit_abbr)
-            
-        elif language == "en":
-            full_form = unit_names["en"].get(unit_abbr, unit_abbr)
-            # Add 's' for plural if quantity is not 1
+        full_form = unit_names[language].get(unit_abbr, unit_abbr)
+
+        if language == "en":
             if float(quantity) != 1:
                 full_form += "s"
+
         return full_form
 
     def unit_processing(self, text):
