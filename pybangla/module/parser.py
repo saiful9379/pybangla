@@ -1402,10 +1402,11 @@ class TextParser:
                     print("Error in formatting amount with multiplier:", e)
             # print("amount_raw : ", amount_raw)
             language = "en" if self.npr.contains_only_english(amount_raw) else "bn"
+
             if "." in amount_raw:
                 word = self.npr.fraction_number_conversion(amount_raw, language=language)
             else:
-                word = self.npr.number_to_words(amount_raw)
+                word = self.npr.number_to_words(amount_raw, language=language)
             if unit:
                 word += " " + unit
             # print("Process word : ", word)
@@ -1431,10 +1432,12 @@ class TextParser:
                     add_currency = False
 
             scale_status = False
-            if scale_return:
+            if scale_return and scale_return[index]["scale"] is not None and scale_return[index]["amount"] is not None:
                 scale_status = True
                 scale = scale_return[index]["scale"]
                 amount_scale = scale_return[index]["amount"]
+
+
 
                 scale_and_match_status = False
                 if amount_scale.strip() == match_text.strip():
