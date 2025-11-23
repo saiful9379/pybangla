@@ -51,20 +51,8 @@ _SYMS = r"(?:\b(?:US|CA|AU|SG|HK|NZ|TW|A|C|S)\$|[ACUS]?\$|€|£|¥|₩|₹|৳|
 _CODES = r"\b(?:USD|EUR|JPY|CNY|RMB|KRW|INR|BDT|PKR|NPR|GBP|AUD|CAD|NZD|HKD|SGD|CHF|SEK|NOK|DKK|RUB|TRY|PLN|CZK|HUF|ILS|MXN|BRL|ZAR|SAR|AED|QAR|OMR|KWD|BHD|TND|DZD|LYD|MAD|EGP|GEL|AZN|AFN|IRR|UAH|GHS|PYG|CRC|NGN|THB|VND)\b"
 _WORDS_BN = r"(?:" + "|".join(map(re.escape, CURRENCY_WORDS_BN.keys())) + r")"
 _CUR = rf"(?:{_SYMS}|{_CODES}|{_WORDS_BN})"
-
 # Grouping spaces (space / NBSP / thin space)
 _GS = r"[\u0020\u00A0\u202F]"
-
-# -------------------------
-# AMOUNT — robust & permissive:
-#   - US: 1,234.56 or 1 234.56
-#   - IN: 12,34,56,789.12 / 2,00,000(.99)
-#   - EU: 1.234,56 or 1 234,56
-#   - LOOSE MULTI-COMMA (>=2 commas) — catches "dirty" groupings
-#   - Plain: 1234 / 1234.56 / 1234,56
-# -------------------------
-# multiplier: allow an optional space before the letter (e.g. "5.5 k")
-# supports k (thousand), m (million), b or bn (billion), t (trillion)
 _MULTIPLIER = r"(?:\s*(?:[kKmM]|[tT]|(?:[bB][nN])|[bB])\b)?"
 _AMOUNT = (
     r"(?:"
@@ -209,8 +197,6 @@ if __name__ == "__main__":
 
                 if localized is not None:
                     ex["amount_raw"] = localized
-                else:
-                    ex["amount_raw"] = None
 
         print("IN :", s)
         print("OUT:", norm)

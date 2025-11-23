@@ -1398,9 +1398,12 @@ class TextParser:
             match_text = n["match_text"]
             amount_raw = n["amount_raw"]
             currency_raw = n["currency_raw"]
+            
+            # matching with upper case currency code
+            currency_raw = currency_raw.upper()
+            
             unit = ""
             if re.search(r"(?i)(?:k|m|b|bn|t)\b", str(amount_raw)):
-                print("MATCHED!!")
                 # Format amount_raw as a localized string (e.g. '5.5 থাউসেন্ড')
                 try:
                     localized = format_amount_with_multiplier(amount_raw)
@@ -1423,9 +1426,15 @@ class TextParser:
             if currency_raw in cfg.DOLLAR_SIGN_MAPPING_BN:
                 word_currency = cfg.DOLLAR_SIGN_MAPPING_BN[currency_raw]
                 position = "end"
+            
             elif currency_raw in cfg.currency_bn:
                 word_currency = cfg.currency_bn[currency_raw]
                 position = "end"
+                
+            elif currency_raw in cfg.CURRENCY_CODES_BN:
+                word_currency = cfg.CURRENCY_CODES_BN[currency_raw]
+                position = "end"
+                
             else:
                 position = self.detect_currency_position(match_text, currency_raw)
                 word_currency = currency_raw
