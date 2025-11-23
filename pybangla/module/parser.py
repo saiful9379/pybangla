@@ -11,8 +11,7 @@ from num2words import num2words
 from .config import Config as cfg
 from .currency import (
     extract_currencies,
-    format_amount_with_multiplier,
-    parse_amount_with_multiplier,
+    format_amount_with_multiplier
 )
 from .date_extractor import DateExtractor
 from .driving_license import DrivingLicenseFormatter, DrivingLicenseParser
