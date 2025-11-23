@@ -3,42 +3,54 @@ import re
 
 class UnitNormalization:
     def __init__(self):
-        self.pattern = r"(\d+(?:\.\d+)?)\s?(gm|g|kg|ml|l|tb|gb)\b"
+        self.pattern = r"(\d+(?:\.\d+)?)\s?(sq\s?ft|sqft|ml|g|gm|kg|lb|l|cm|ft|tb|gb|kb)\b"
 
     # Unit conversion with plural handling
     def get_unit_full_form(self, quantity, unit_abbr):
+        print([quantity, unit_abbr])
         unit_abbr = unit_abbr.lower()
 
-        # unit_names = {
-        #     "ml": "milliliter",
-        #     "g": "gram",
-        #     "gm": "gram",
-        #     "kg": "kilogram",
-        #     "l": "liter",
-        #     "tb": "Terabyte",
-        #     "gb": "Gigabyte",
-        # }
-
         unit_names = {
-            "ml": "মিলিলিটার",
-            "g": "গ্রাম",
-            "gm": "গ্রাম",
-            "kg": "কেজি",
-            "lb": "পাউন্ড",
-            "l": "লিটার",
-            "cm": "সেন্টিমিটার",
-            "ft": "ফুট",
-            "sqft": "স্কোয়ার ফিট",
-            "sq ft": "স্কোয়ার ফিট",
-            "tb": "টেরাবাইট",
-            "gb": "গিগাবাইট",
-            "kb": "কিলোবাইট",
+            "en": {
+                "ml": "milliliter",
+                "g": "gram",
+                "gm": "gram",
+                "kg": "kilogram",
+                "lb": "pound",
+                "l": "liter",
+                "cm": "centimeter",
+                "tb": "terabyte",
+                "gb": "gigabyte",
+                "kb": "kilobyte",
+                },
+            "bn": {
+                "ml": "মিলিলিটার",
+                "g": "গ্রাম",
+                "gm": "গ্রাম",
+                "kg": "কেজি",
+                "lb": "পাউন্ড",
+                "l": "লিটার",
+                "cm": "সেন্টিমিটার",
+                "ft": "ফিট",
+                "sqft": "স্কোয়ার ফিট",
+                "sq ft": "স্কোয়ার ফিট",
+                "tb": "টেরাবাইট",
+                "gb": "গিগাবাইট",
+                "kb": "কিলোবাইট",
+            }
         }
-        full_form = unit_names.get(unit_abbr, unit_abbr)
-        # Add 's' for plural if quantity is not 1
-        if float(quantity) != 1:
-            full_form += "s"
-
+        # Choose language based on unit_abbr
+        language = "bn"
+        
+        if language == "bn":
+            full_form = unit_names["bn"].get(unit_abbr, unit_abbr)
+            
+        elif language == "en":
+            full_form = unit_names["en"].get(unit_abbr, unit_abbr)
+            # Add 's' for plural if quantity is not 1
+            if float(quantity) != 1:
+                full_form += "s"
+        print(full_form)
         return full_form
 
     def unit_processing(self, text):

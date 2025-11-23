@@ -1780,14 +1780,13 @@ class TextParser:
 
         for key, step in processing_steps.items():
             if key not in operation:
-                # print(f"Skipping {key} as it's not in the operation list.")oui
                 continue
             else:
                 try:
                     text = step(text)
                     # print("text : ", text, step.__name__, key)
                 except Exception as e:
-                    logger.error(f"An error occurred in {step.__name__}: {e}\n, traceback: {traceback.format_exc()}")
+                    logger.error(f"An error occurred in {step.__name__}: {e}\ntraceback: {traceback.format_exc()}")
                     continue
 
         return text
