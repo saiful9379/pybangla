@@ -53,7 +53,7 @@ _STANDARDIZE_ZW = cfg._STANDARDIZE_ZW
 _DELETE_ZW = cfg._DELETE_ZW
 
 data_map = data["bn"]["number_mapping"]
-
+currency_list = list(cfg.currency_bn.keys())
 
 def extract_bengali_dates_with_spans(text):
     """Extract Bengali dates from text with their span positions"""
@@ -1354,9 +1354,36 @@ class TextParser:
         else:
             return "not_found"
 
+    def check_bengali_scale_after_currency(self, text):
+        scale_words = ['কোটি', 'লক্ষ', 'লাখ', 'হাজার']
+
+        # Create pattern using f-string
+        currency_pattern = '[' + ''.join(re.escape(c) for c in currency_list) + ']'
+        pattern = f'({currency_pattern}\\s*[\\d,]+\\.?\\d*)\\s*({"|".join(scale_words)})'
+        matches = re.finditer(pattern, text)
+        results = []
+        for match in matches:
+            results.append({
+                'amount': match.group(1),
+                'scale': match.group(2),
+                'status': True,
+                'full_match': match.group(0),
+                'position': (match.start(), match.end())
+            })
+        # If no matches found, return single dict with status False
+        if not results:
+            return [{
+                'amount': None,
+                'scale': None,
+                'status': False,
+                'full_match': None,
+                'position': None
+            }]
+        return results
     def extract_currency_amounts(self, text):
         norm, info = extract_currencies(text)
-            
+        scale_return = self.check_bengali_scale_after_currency(text)
+        index = 0
         for n in info:
             match_text = n["match_text"]
             amount_raw = n["amount_raw"]
@@ -1373,7 +1400,6 @@ class TextParser:
                         amount_raw = amount
                 except Exception as e:
                     print("Error in formatting amount with multiplier:", e)
-            
             # print("amount_raw : ", amount_raw)
             language = "en" if self.npr.contains_only_english(amount_raw) else "bn"
             if "." in amount_raw:
@@ -1404,14 +1430,34 @@ class TextParser:
                 if remaining_text.lstrip().startswith(word_currency):
                     add_currency = False
 
-            # print("add_currency : ", add_currency, position)
-            if add_currency and position == "end":
-                amount_with_currncy_symbl_word = word + " " + word_currency
-            elif position == "start":
-                amount_with_currncy_symbl_word = word_currency + " " + word
+            scale_status = False
+            if scale_return:
+                scale_status = True
+                scale = scale_return[index]["scale"]
+                amount_scale = scale_return[index]["amount"]
+
+                scale_and_match_status = False
+                if amount_scale.strip() == match_text.strip():
+                    scale_and_match_status = True
+
+                match_text = scale_return[index]["full_match"]
+                if add_currency and position == "end" and scale_and_match_status:
+                    amount_with_currncy_symbl_word = word + " " +scale +" "+ word_currency
+                elif position == "start" and scale_and_match_status:
+                    amount_with_currncy_symbl_word = word_currency + " " + word + " " + scale
+                elif scale_and_match_status:
+                    amount_with_currncy_symbl_word = word + " " + scale
+                else:
+                    amount_with_currncy_symbl_word = word
             else:
-                amount_with_currncy_symbl_word = word
+                if add_currency and position == "end":
+                    amount_with_currncy_symbl_word = word + " " + word_currency
+                elif position == "start":
+                    amount_with_currncy_symbl_word = word_currency + " " + word
+                else:
+                    amount_with_currncy_symbl_word = word
             text = text.replace(match_text, " " + amount_with_currncy_symbl_word + " ")
+            index+=1
         return text
 
     def matching_similariy_of_months(self, input_word):
