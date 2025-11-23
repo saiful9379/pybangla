@@ -684,10 +684,11 @@ if __name__ == "__main__":
         # "আমি shuvo_raihan@gmail.com থেকে মেইল করেছিলাম।",
         # "Order No. 987-654-3210 has been delivered successfully."
         # "# জাতীয় পরিচয় নম্বরঃ 0987-654-321 জাতীয় পরিচয় নম্বরঃ 0987654321",
-        "তিনি ₹১০ লাখ দান করেছেন",
         # "তিনি ₹১০ লাখ দান করেছেন",
-        "এই পণ্যটির মূল্য $25.50 লাখ",
-        # "Payment ID 123456789012 confirmed for BDT 10,000.",
+        "তিনি ₹১০ লাখ দান করেছেন",
+        # "এই পণ্যটির মূল্য $25.50 লাখ",
+        "আমার ওজন 70kg এবং আমার উচ্চতা 5.9ft।",
+        "Payment ID 123456789012 confirmed for BDT 10,000.",
         # "# তার পাসপোর্ট নম্বর P87654321 ছিল।, 1995-1969 and phone number 01773-550379",
         # "Havit HV-SC055 Laptop Cleaning Kit - HV-SC055"
         # "987-654-3210 has been delivered successfully, 987-654-3210-12345 has been delivered successfully"

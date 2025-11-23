@@ -51,20 +51,8 @@ _SYMS = r"(?:\b(?:US|CA|AU|SG|HK|NZ|TW|A|C|S)\$|[ACUS]?\$|€|£|¥|₩|₹|৳|
 _CODES = r"\b(?:USD|EUR|JPY|CNY|RMB|KRW|INR|BDT|PKR|NPR|GBP|AUD|CAD|NZD|HKD|SGD|CHF|SEK|NOK|DKK|RUB|TRY|PLN|CZK|HUF|ILS|MXN|BRL|ZAR|SAR|AED|QAR|OMR|KWD|BHD|TND|DZD|LYD|MAD|EGP|GEL|AZN|AFN|IRR|UAH|GHS|PYG|CRC|NGN|THB|VND)\b"
 _WORDS_BN = r"(?:" + "|".join(map(re.escape, CURRENCY_WORDS_BN.keys())) + r")"
 _CUR = rf"(?:{_SYMS}|{_CODES}|{_WORDS_BN})"
-
 # Grouping spaces (space / NBSP / thin space)
 _GS = r"[\u0020\u00A0\u202F]"
-
-# -------------------------
-# AMOUNT — robust & permissive:
-#   - US: 1,234.56 or 1 234.56
-#   - IN: 12,34,56,789.12 / 2,00,000(.99)
-#   - EU: 1.234,56 or 1 234,56
-#   - LOOSE MULTI-COMMA (>=2 commas) — catches "dirty" groupings
-#   - Plain: 1234 / 1234.56 / 1234,56
-# -------------------------
-# multiplier: allow an optional space before the letter (e.g. "5.5 k")
-# supports k (thousand), m (million), b or bn (billion), t (trillion)
 _MULTIPLIER = r"(?:\s*(?:[kKmM]|[tT]|(?:[bB][nN])|[bB])\b)?"
 _AMOUNT = (
     r"(?:"
@@ -131,71 +119,6 @@ def extract_currencies(text: str) -> Tuple[str, List[Dict]]:
     out.append(text[last:])
     return "".join(out), extractions
 
-def parse_amount_with_multiplier(amount_str: str):
-    """
-    Convert strings like '5.5k', '2M', '1,234.56', '1.234,56' into a numeric value.
-
-    Returns an `int` when the result is whole, otherwise a `float`.
-    Supports multipliers: k (thousand), m (million), b or bn (billion), t (trillion).
-    Accepts spaces, NBSP and thin-space as grouping separators.
-    Raises `ValueError` for invalid inputs.
-    """
-    if not isinstance(amount_str, str):
-        amount = str(amount_str)
-    else:
-        amount = amount_str
-
-    amount = amount.strip()
-    if not amount:
-        raise ValueError("empty amount string")
-
-    # allow digits, dot, comma and various space separators inside the number
-    _whitespace_chars = "\u0020\u00A0\u202F"
-    # accept optional space before multiplier, but require multiplier to be a standalone
-    # token (word-boundary) so we don't match 'keno' as 'k'
-    m = re.match(rf"^(?P<num>[\d{_whitespace_chars}\.,]+)(?:\s*(?P<mult>(?:k|m|b|bn|t))\b)?\s*$", amount, re.I)
-    if not m:
-        raise ValueError(f"invalid amount string: {amount!r}")
-
-    num = m.group("num")
-    mult = (m.group("mult") or "").lower()
-
-    # remove normal spaces, NBSP and thin-space used as grouping separators
-    num = re.sub(r"[\s\u00A0\u202F]", "", num)
-
-    # Heuristics to decide decimal separator when both '.' and ',' appear
-    if "." in num and "," in num:
-        if num.rfind(".") > num.rfind(","):
-            # treat '.' as decimal separator, remove commas
-            num = num.replace(",", "")
-        else:
-            # treat ',' as decimal separator, remove dots then replace comma with dot
-            num = num.replace(".", "").replace(",", ".")
-    elif "," in num:
-        # only commas present: decide if commas are grouping separators (e.g. 1,234)
-        if re.match(r"^\d{1,3}(?:,\d{3})+$", num):
-            num = num.replace(",", "")
-        else:
-            # otherwise treat comma as decimal separator
-            num = num.replace(",", ".")
-
-    # parse numeric value
-    try:
-        val = float(num)
-    except Exception as e:
-        print(f"  [!] Could not parse numeric part: {num!r} due to: {e}")
-        return amount_str
-
-    # apply multiplier
-    factors = {"k": 1e3, "m": 1e6, "b": 1e9, "bn": 1e9, "t": 1e12}
-    factor = factors.get(mult, 1.0)
-    val = val * factor
-
-    if float(val).is_integer():
-        return int(round(val))
-    return val
-
-
 def format_amount_with_multiplier(amount_str: str):
     """
     Return a localized string for amounts with multipliers, e.g.
@@ -212,7 +135,11 @@ def format_amount_with_multiplier(amount_str: str):
         return amount_str
 
     _whitespace_chars = "\u0020\u00A0\u202F"
-    m = re.match(rf"^(?P<num>[\d{_whitespace_chars}\.,]+)(?:\s*(?P<mult>(?:k|m|b|bn|t))\b)?\s*$", amount, re.I)
+    m = re.match(
+        rf"^(?P<num>[\d{_whitespace_chars}\.,]+)(?:\s*(?P<mult>(?:k|m|b|bn|t))\b)?\s*$",
+        amount,
+        re.I,
+    )
     if not m:
         return amount_str
 
@@ -233,6 +160,7 @@ def format_amount_with_multiplier(amount_str: str):
     word = mapping.get(mult, mult)
     # Preserve the numeric part as captured (may include commas/decimals)
     return f"{num.strip()} {word.strip()}"
+
 
 # -------------------------
 # Quick test
@@ -255,32 +183,20 @@ if __name__ == "__main__":
         "তোমার £12M k লাগবে।",
         "জরুরী বিতরণে ফি ৮,৬২৫.৬২৫ টাকা",
         "$15.2 k এক্সাম ফী লাগবে।",
-        "তার NID নম্বর 1234567890123।"
+        "তার NID নম্বর 1234567890123।",
     ]
     for s in samples:
         # First extract currency matches from the full text
         norm, info = extract_currencies(s)
         for ex in info:
             if re.search(r"(?i)(?:k|m|b|bn|t)\b", str(ex.get("amount_raw", ""))):
-                print("MATCHED!!")
-                # Format amount_raw as a localized string (e.g. '5.5 থাউসেন্ড')
                 try:
                     localized = format_amount_with_multiplier(ex["amount_raw"])
                 except Exception:
                     localized = None
 
-                # Also try to keep a numeric value in `amount_value` when possible
-                try:
-                    numeric = parse_amount_with_multiplier(ex["amount_raw"])
-                except Exception:
-                    numeric = None
-
                 if localized is not None:
                     ex["amount_raw"] = localized
-                else:
-                    ex["amount_raw"] = None
-
-                ex["amount_value"] = numeric
 
         print("IN :", s)
         print("OUT:", norm)
