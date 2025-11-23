@@ -7,7 +7,6 @@ class UnitNormalization:
 
     # Unit conversion with plural handling
     def get_unit_full_form(self, quantity, unit_abbr):
-        print([quantity, unit_abbr])
         unit_abbr = unit_abbr.lower()
 
         unit_names = {
@@ -50,7 +49,6 @@ class UnitNormalization:
             # Add 's' for plural if quantity is not 1
             if float(quantity) != 1:
                 full_form += "s"
-        print(full_form)
         return full_form
 
     def unit_processing(self, text):
