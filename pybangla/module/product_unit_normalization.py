@@ -9,14 +9,30 @@ class UnitNormalization:
     def get_unit_full_form(self, quantity, unit_abbr):
         unit_abbr = unit_abbr.lower()
 
+        # unit_names = {
+        #     "ml": "milliliter",
+        #     "g": "gram",
+        #     "gm": "gram",
+        #     "kg": "kilogram",
+        #     "l": "liter",
+        #     "tb": "Terabyte",
+        #     "gb": "Gigabyte",
+        # }
+
         unit_names = {
-            "ml": "milliliter",
-            "g": "gram",
-            "gm": "gram",
-            "kg": "kilogram",
-            "l": "liter",
-            "tb": "Terabyte",
-            "gb": "Gigabyte",
+            "ml": "মিলিলিটার",
+            "g": "গ্রাম",
+            "gm": "গ্রাম",
+            "kg": "কেজি",
+            "lb": "পাউন্ড",
+            "l": "লিটার",
+            "cm": "সেন্টিমিটার",
+            "ft": "ফুট",
+            "sqft": "স্কোয়ার ফিট",
+            "sq ft": "স্কোয়ার ফিট",
+            "tb": "টেরাবাইট",
+            "gb": "গিগাবাইট",
+            "kb": "কিলোবাইট",
         }
         full_form = unit_names.get(unit_abbr, unit_abbr)
         # Add 's' for plural if quantity is not 1
