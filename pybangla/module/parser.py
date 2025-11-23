@@ -1379,15 +1379,7 @@ class TextParser:
             )
         # If no matches found, return single dict with status False
         if not results:
-            return [
-                {
-                    "amount": None,
-                    "scale": None,
-                    "status": False,
-                    "full_match": None,
-                    "position": None,
-                }
-            ]
+            return
         return results
 
     def extract_currency_amounts(self, text):
@@ -1398,10 +1390,8 @@ class TextParser:
             match_text = n["match_text"]
             amount_raw = n["amount_raw"]
             currency_raw = n["currency_raw"]
-            
             # matching with upper case currency code
             currency_raw = currency_raw.upper()
-            
             unit = ""
             if re.search(r"(?i)(?:k|m|b|bn|t)\b", str(amount_raw)):
                 # Format amount_raw as a localized string (e.g. '5.5 থাউসেন্ড')
@@ -1426,15 +1416,15 @@ class TextParser:
             if currency_raw in cfg.DOLLAR_SIGN_MAPPING_BN:
                 word_currency = cfg.DOLLAR_SIGN_MAPPING_BN[currency_raw]
                 position = "end"
-            
+
             elif currency_raw in cfg.currency_bn:
                 word_currency = cfg.currency_bn[currency_raw]
                 position = "end"
-                
+
             elif currency_raw in cfg.CURRENCY_CODES_BN:
                 word_currency = cfg.CURRENCY_CODES_BN[currency_raw]
                 position = "end"
-                
+
             else:
                 position = self.detect_currency_position(match_text, currency_raw)
                 word_currency = currency_raw
@@ -1451,10 +1441,12 @@ class TextParser:
                     add_currency = False
 
             scale_status = False
+
+            # print("scale_return : ", scale_return)
             if (
                 scale_return
-                and scale_return[index]["scale"] is not None
-                and scale_return[index]["amount"] is not None
+                # and scale_return[index]["scale"] is not None
+                # and scale_return[index]["amount"] is not None
             ):
                 scale_status = True
                 scale = scale_return[index]["scale"]
