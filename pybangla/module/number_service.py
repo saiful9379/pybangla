@@ -265,7 +265,7 @@ class NumberNormalizationService:
                         # Join all numeric parts
                         clean_number = "".join(numeric_parts)
                         # Convert Bengali digits to English
-                        clean_number = self.convert_bengali_to_english(clean_number)
+                        # clean_number = self.convert_bengali_to_english(clean_number)
 
                         if clean_number:
                             # Adjust span to match the actual position of the number in the original text
