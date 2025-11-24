@@ -1,11 +1,10 @@
 
 
- __Citation Paper:__  BnVITS: A Voice Cloning Approach for Single Speaker Text-to-Speech
+ __Citation Paper:__  Bnvits: a voice cloning approach for single speaker text-to-speech
 
-Abstract
-Although significant progress has been made in voice cloning and text-to-speech (TTS) models, especially in generating natural-sounding speech, low-resource languages such as Bangla (Bn) and other languages remain nearly unexplored. Despite recent advancements, TTS systems for the Bangla language still encounter difficulties due to the intricate phonology and morphology. Furthermore, no previous work has been done on voice cloning for Bangla. To address the research gap, we provide a voice cloning method that uses the limited amount of speech data possible to build a TTS system for Bangla. Additionally, we introduce PYBANGLA, a text normalization tool created especially for Bangla language processing. Voice cloning can be accomplished by honing the top-performing TTS models with just a few target speaker samples. Both subjective and objective evaluation metrics have been conducted to assess the system, and the results show that our BnVITS model performs better than the earlier Bangla TTS model. This approach opens up new opportunities for individualized voice technology by paving the road for more efficient Bangla TTS approaches in terms of speech data.
+Although significant progress has been made in voice cloning and text-to-speech (TTS) models, especially in generating natural-sounding speech, low-resource languages such as Bangla (Bn) and other languages have remained nearly unexplored. Despite recent advancements, TTS systems for the Bangla language have still been challenged by the intricate phonology and morphology. Furthermore, no previous work had been done on voice cloning for Bangla. To address the research gap, a voice cloning method has been proposed that utilizes the limited amount of speech data available to build a TTS system for Bangla. Additionally, PYBANGLA, a text normalization tool created especially for Bangla language processing, has been introduced. Voice cloning has been achieved by refining the top-performing TTS models using just a few target speaker samples. Both subjective and objective evaluation metrics have been conducted to assess the system, and the results show that our BnVITS model has performed better than the earlier Bangla TTS model. This approach has opened up new opportunities for individualized voice technology by paving the road for more efficient Bangla TTS approaches in terms of speech data.
 
-Paper Link : https://doi.org/10.21203/rs.3.rs-6530449/v1
+Paper Link :https://link.springer.com/article/10.1007/s42452-025-07351-0
 
 __PyBangla:__
 
@@ -61,24 +60,26 @@ The performance of PyBangla was evaluated using **200** sentences. However, no e
 | **V2.11.8**    | 399            | 0.0112      |0.0037           | N/A           |
 | **V2.13.0**    | 399            | 0.0117      |0.0035           | N/A           |
 | **V2.15.0**    | 399            |0.0185       |0.0078        | N/A           |
-| **V2.19.0**    | 500            |--------      |-------        | N/A           |
+| **V2.19.0**    | 459            |--------      |-------        | N/A           |
+| **V3.0.0**    | 459            |0.0134      |0076       | N/A           |
+
 ```
 ============================================================
 EVALUATION SUMMARY
 ============================================================
-Total Samples: 399
-Exact Matches: 295 (73.93%)
-Average CER: 0.009
-Average WER: 0.0323
-Average Processing Time: 0.59 ms
-Samples with CER < 0.05: 369
-Samples with CER < 0.10: 394
+Total Samples: 459
+Exact Matches: 420 (91.50%)
+Average CER: 0.0076
+Average WER: 0.0134
+Average Processing Time: 0.64 ms
+Samples with CER < 0.05: 436
+Samples with CER < 0.10: 450
 ============================================================
 
 Reports saved to:
-  - Excel: ./report/eval_data_2.18.0.xlsx
-  - CSV: ./report/eval_data_2.18.0_detailed.csv
-  - Comparison: ./report/eval_data_2.18.0_comparison.txt
+  - Excel: ./report/eval_data_3.0.0.xlsx
+  - CSV: ./report/eval_data_3.0.0_detailed.csv
+  - Comparison: ./report/eval_data_3.0.0_comparison.txt
 ```
 
 __N.B : For more detail and all of processing category listed here please check : [link](./pybangla/eval_data/eval_data_2.11.2_v2.xlsx)__

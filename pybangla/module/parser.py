@@ -208,6 +208,9 @@ def extract_consecutive_numbers_with_separators(text):
 
         # print("numbers : ", numbers)
         # print("matched_text : ", matched_text)
+        # check_year_maching = False
+
+
         if len(numbers) == 2 and "-" in matched_text:
             continue
         # data_map = data['bn']["number_mapping"]
@@ -746,8 +749,10 @@ class NumberParser:
         return text
 
     def number_processing(self, text):
-        # print("text : ", text)
+        print("text 1: ", text)
         text = extract_consecutive_numbers_with_separators(text)
+
+        print("text 2: ", text)
         
         text, s_match = security_code_normalizer(text)
 

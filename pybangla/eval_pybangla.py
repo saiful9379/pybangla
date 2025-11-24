@@ -40,6 +40,31 @@ def get_detailed_diff(text1, text2):
     return diff_details
 
 
+def remove_puntuations(text):
+    """Remove punctuation from a text string.
+
+    This removes any Unicode punctuation character (covers English and
+    Bengali punctuation) and collapses repeated whitespace into a single space.
+    If `text` is None it is returned unchanged.
+    """
+    if text is None:
+        return text
+
+    import unicodedata
+
+    # Ensure we operate on a string
+    s = str(text)
+
+    # Filter out any character whose Unicode category starts with 'P' (punctuation)
+    cleaned = ''.join(ch for ch in s if not unicodedata.category(ch).startswith("P"))
+
+    # Collapse multiple whitespace characters to a single space and strip ends
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+
+    return cleaned
+
+
+
 def evaluate_normalization(data, output_path):
     """Evaluate normalization and generate comprehensive report"""
 
@@ -76,9 +101,9 @@ def evaluate_normalization(data, output_path):
         processing_time = time.time() - start_time
 
         # Calculate metrics
-        cer_score = jiwer.cer(str(reviewed_text), normalized_text)
-        wer_score = jiwer.wer(str(reviewed_text), normalized_text)
-        exact_match = str(reviewed_text) == normalized_text
+        cer_score = jiwer.cer(remove_puntuations(str(reviewed_text)), remove_puntuations(normalized_text))
+        wer_score = jiwer.wer(remove_puntuations(str(reviewed_text)), remove_puntuations(normalized_text))
+        exact_match = remove_puntuations(str(reviewed_text)) == remove_puntuations(normalized_text)
 
         # Get character and word counts
         char_count_input = len(str(input_text))

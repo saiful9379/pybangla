@@ -14,6 +14,7 @@ def normalize_with_3_pattern(number):
         else:
             normalize_string += ", "
         i += 1
+    # print("normalize_string : ", normalize_string)
     return normalize_string
 
 

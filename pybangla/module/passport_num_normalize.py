@@ -143,6 +143,8 @@ class PassportFormatter:
         """Replace all passport numbers in the text with their formatted versions."""
         # Sort passports by span position in reverse order to avoid position shifts
         # print("input text for passport number----> ", text)
+
+        # print("passport text : ", text)
         passports = PassportParser.parse(text)
         # print("passports parsed----> ", passports)
         passports = sorted(passports, key=lambda x: x.span[0], reverse=True)
@@ -163,7 +165,7 @@ class PassportFormatter:
         # print("result----> ", result)
         result = re.sub(cfg._whitespace_re, " ", result)
 
-        result = re.sub(r"\s*,\s*", " ", result)
+        # result = re.sub(r"\s*,\s*", " ", result)
         return result
 
 

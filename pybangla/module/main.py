@@ -359,6 +359,7 @@ class Normalizer:
             return text
 
         text = tp.processing(text, operation)
+        # print("text last : ", text)
         return text
 
     def data_normalizer(self, text):
