@@ -3,6 +3,7 @@ import re
 import string
 import traceback
 from ast import pattern
+from datetime import datetime
 
 from fuzzywuzzy import fuzz
 from loguru import logger
@@ -58,6 +59,50 @@ _DELETE_ZW = cfg._DELETE_ZW
 data_map = data["bn"]["number_mapping"]
 currency_list = list(cfg.currency_bn.keys())
 
+bengali_digits_day = '[০-৯]+'
+# Bengali month names (using non-capturing group ?:)
+bengali_months_day = '(?:জানুয়ারি|ফেব্রুয়ারি|মার্চ|এপ্রিল|মে|জুন|জুলাই|আগস্ট|সেপ্টেম্বর|অক্টোবর|নভেম্বর|ডিসেম্বর)'
+# Pattern for Bengali date
+
+bengali_months_day_pattern = f'{bengali_digits_day}{bengali_months_day}'
+
+
+bengali_number_words = {
+    # Days (1-31)
+    "এক": "১",
+    "দুই": "২",
+    "তিন": "৩",
+    "চার": "৪",
+    "পাঁচ": "৫",
+    "ছয়": "৬",
+    "সাত": "৭",
+    "আট": "৮",
+    "নয়": "৯",
+    "দশ": "১০",
+    "এগারো": "১১",
+    "বারো": "১২",
+    "তেরো": "১৩",
+    "চৌদ্দ": "১৪",
+    "পনেরো": "১৫",
+    "ষোল": "১৬",
+    "সতেরো": "১৭",
+    "আঠারো": "১৮",
+    "উনিশ": "১৯",
+    "বিশ": "২০",
+    "একুশ": "২১",
+    "বাইশ": "২২",
+    "তেইশ": "২৩",
+    "চব্বিশ": "২৪",
+    "পঁচিশ": "২৫",
+    "ছাব্বিশ": "২৬",
+    "সাতাশ": "২৭",
+    "আটাশ": "২৮",
+    "ঊনত্রিশ": "২৯",
+    "ত্রিশ": "৩০",
+    "একত্রিশ": "৩১",
+}
+reverse_bengali_number_words = {value: key for key, value in bengali_number_words.items()}
+
 
 def extract_bengali_dates_with_spans(text):
     """Extract Bengali dates from text with their span positions"""
@@ -84,41 +129,6 @@ def parse_bengali_date(text):
     """Extract Bengali dates including written-out number formats"""
 
     # Bengali number words mapping
-    bengali_number_words = {
-        # Days (1-31)
-        "এক": "১",
-        "দুই": "২",
-        "তিন": "৩",
-        "চার": "৪",
-        "পাঁচ": "৫",
-        "ছয়": "৬",
-        "সাত": "৭",
-        "আট": "৮",
-        "নয়": "৯",
-        "দশ": "১০",
-        "এগারো": "১১",
-        "বারো": "১২",
-        "তেরো": "১৩",
-        "চৌদ্দ": "১৪",
-        "পনেরো": "১৫",
-        "ষোল": "১৬",
-        "সতেরো": "১৭",
-        "আঠারো": "১৮",
-        "উনিশ": "১৯",
-        "বিশ": "২০",
-        "একুশ": "২১",
-        "বাইশ": "২২",
-        "তেইশ": "২৩",
-        "চব্বিশ": "২৪",
-        "পঁচিশ": "২৫",
-        "ছাব্বিশ": "২৬",
-        "সাতাশ": "২৭",
-        "আটাশ": "২৮",
-        "ঊনত্রিশ": "২৯",
-        "ত্রিশ": "৩০",
-        "একত্রিশ": "৩১",
-    }
-
     # Year words pattern (complex due to Bengali number system)
     year_pattern_words = r"(?:এক হাজার নয়শো নব্বই|দুই হাজার|উনিশশো|বিশ শতক)"
 
@@ -592,10 +602,46 @@ class NumberParser:
         if p in l_p:
             return True
         return False
+    
+    def date_pattern_as_bai(self, text):
+        # Pattern for date format XX/XX/XX or XX/XX/XXXX
+        pattern = r'\b(\d{1,2})/(\d{1,2})/(\d{2,4})\b'
+        dates = []
+        for match in re.finditer(pattern, text):
+            date_str = match.group(0)
+            part1, part2, part3 = match.groups()
+
+            # Handle 2-digit year
+            # year = int(part3)
+            # if year < 100:
+            #     # Assume 00-29 is 2000-2029, 30-99 is 1930-1999
+            #     year = 2000 + year if year < 30 else 1900 + year
+
+            first_lang = "en" if self.contains_only_english(part1) else "bn"
+            second_lang = "en" if self.contains_only_english(part2) else "bn"
+            three_lang = "en" if self.contains_only_english(part3) else "bn"
+            first_num = self.number_to_words(part1, language=first_lang)
+            second_num = self.number_to_words(part2, language=second_lang)
+            third_num = self.number_to_words(part3, language=three_lang)
+
+
+            three_bia_string = f"{first_num}/ {second_num} / {third_num}"
+
+            text = text.replace(date_str, three_bia_string)
+
+        return text
 
     def bai_extraction_pattern(self, text):
+
+
+        text = self.date_pattern_as_bai(text)
         # print("text bhai: ", text)
-        pattern = r"([০-৯0-9]{1,2}/[০-৯0-9]{1})"
+        pattern = r"([০-৯0-9]{1,3}/[০-৯0-9]{1,3})"
+
+
+        # matches_3_bai = re.findall(pattern, text)
+        # print("matches_3_bai", matches_3_bai)
+
         matches = [
             (match.group(), match.start(), match.end()) for match in re.finditer(pattern, text)
         ]
@@ -702,8 +748,10 @@ class NumberParser:
     def number_processing(self, text):
         # print("text : ", text)
         text = extract_consecutive_numbers_with_separators(text)
-        # print("replaced_text : ", text)
+        
         text, s_match = security_code_normalizer(text)
+
+        # print("replaced_text : ", text)
 
         text = self.bai_extraction_pattern(text)
         # print("bai_extraction_pattern text : ", text)
@@ -1132,7 +1180,7 @@ class TextParser:
         # print("text 1", text)
         for key, replacement in _symbols[lang]:
             text = text.replace(key, replacement + " ")
-        # print("text : ", text)
+        # print("text : 1.5 ", text)
         return text.strip()
 
     def expand_abbreviations(self, text, lang="bn"):
@@ -1181,12 +1229,28 @@ class TextParser:
         # print("text output : ", text)
         return text
 
+
+    def days_normalization(self, text):
+        # Example text
+        # Extract all Bengali dates (without groups)
+        matches = re.findall(bengali_months_day_pattern, text)
+        for d_m in matches:
+            day_match = re.search(r'[০-৯]+', d_m)
+            if day_match:
+                d = day_match.group()
+                if d.strip() in reverse_bengali_number_words:
+                    word_d = reverse_bengali_number_words[d.strip()]
+
+                    n_d_m = d_m.replace(d, " "+word_d+" ")
+                    text = text.replace(d_m, n_d_m)
+        return text
+
     def expand_position(self, text, lang="bn"):
         """
         Replace :
         রাহিম ক্লাস ওয়ান এ ১ম, ১১তম ২২ তম ৩৩ তম -> রাহিম ক্লাস ওয়ান এ প্রথম, এগারোতম বাইশতম তেত্রিশতম
-
         """
+        text = self.days_normalization(text)
         for regex, replacement in _ordinal_re[lang]:
             text = re.sub(regex, replacement, text)
         if lang == "bn":
@@ -1596,13 +1660,18 @@ class TextParser:
         text = org_text
         # Find all occurrences of the date in the text
         matches = [match.start() for match in re.finditer(date, text)]
+
+        # print("matches : ", matches)
         status = True
         for m in matches:
             start = m
             end = m + len(date)
+            # print(start, end)
             while start > 0 and text[start - 1] != " ":
                 start -= 1
             matches = re.findall(self.year_pattern, text[start:end])
+
+            # print("matches : ", matches)
 
             if " " in text[start:end]:
                 chunk_d = text[start:end].split()
@@ -1614,6 +1683,13 @@ class TextParser:
             else:
                 return True
 
+    def validate_date(self, date_string, format_string='%B %d, %Y'):
+        try:
+            datetime.strptime(date_string, format_string)
+            return True
+        except ValueError:
+            return False
+    
     def check_date_format(self, text):
         pattern1 = r"^\d{4}\s*-\s*\d{1,2}\s*-\s*\d{1,2}$"  # e.g., 2023 - 04 - 05 or 2023-4-5
         pattern2 = r"^\d{1,2}\s*-\s*\d{1,2}\s*-\s*\d{4}$"  # e.g., 06 - 04 - 2023 or 6-4-2023
@@ -1640,25 +1716,34 @@ class TextParser:
 
     def replace_date_processing(self, text):
         text = self.extract_year(text)
-        # print("text date", text)
         original_text = text
         r_text = text
         # print("original_text : ", original_text)
         dates = dt.get_dates(text)
-        # print("dates : ", dates)
         for date in dates:
-            # print("date1 : ", date)
             r_date = self.month_spliting_issue_solver(original_text, date)
-            # print("r_date ", r_date)
             n_status = self.validate_may_connected_with_charater_and_is_year(original_text, r_date)
+            validate_date_status = self.validate_date(date)
+            if validate_date_status:
+                date_string = date
+                date_obj = datetime.strptime(date_string, '%B %d, %Y')
+                day = date_obj.day
+                month = date_obj.month
+                year = date_obj.year
+                day_word = self.npr.number_to_words(str(day))
+                word_year = self.npr.year_in_number(str(year))
+                word_date_string = date_string.replace(str(year), word_year)
+                word_date_string = word_date_string.replace(str(day), day_word)
+                original_text = original_text.replace(date, word_date_string)
             # print(n_status, r_date)
             if n_status == False:
                 continue
+
+
             if r_date is None:
                 r_data = date
             # r_date = date
             date_list = self.check_date_format_exception_case(date.strip())
-            # print("date_list : ", date_list)
             if date_list:
                 formated_date = self.dp.date_processing(date_list)
 
@@ -1803,9 +1888,7 @@ class TextParser:
                         f"An error occurred in {step.__name__}: {e}\ntraceback: {traceback.format_exc()}"
                     )
                     continue
-
         return text
-
     def data_normailization(self, text):
         # Define a list of processing functions
         processing_steps = [
