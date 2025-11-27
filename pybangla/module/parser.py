@@ -198,9 +198,15 @@ def extract_consecutive_numbers_with_separators(text):
     # Sort all matches by position in reverse order
     reversed_sorted = sorted(all_matches, key=lambda x: x[0].start(), reverse=True)
 
+
+
     for match, num_type in reversed_sorted:
+
+
         matched_text = match.group(0)
         # Extract individual numbers
+
+        print("matched_text : ", matched_text)
         if num_type == "bengali":
             numbers = re.findall(r"[০-৯]+", matched_text)
         else:  # english
@@ -749,10 +755,10 @@ class NumberParser:
         return text
 
     def number_processing(self, text):
-        print("text 1: ", text)
+        # print("text 1: ", text)
         text = extract_consecutive_numbers_with_separators(text)
 
-        print("text 2: ", text)
+        # print("text 2: ", text)
         
         text, s_match = security_code_normalizer(text)
 
@@ -1146,7 +1152,7 @@ class TextParser:
 
         # _redundent_punc_removal = r"[!\"#%&\'()*+,\-.\/:;<=>?@\[\\\]^_`।{|}~ ]{2,}"
         _redundant_punc_removal = r"([!\"#%&'()*+,\-./:;<=>?@\[\\\]^_`।{|}~ ])\1+"
-        _remove_hyphen_slash = r"(?<!\d)[-/](?!\d)"
+        # _remove_hyphen_slash = r"(?<!\d)[/](?!\d)"
         _remove_comma = r"(?<=\d),(?=\d)"
         _remove_space_in_punctuations = r"(?<=[^\w\s])\s+(?=[^\w\s])"
 
@@ -1171,10 +1177,8 @@ class TextParser:
         text = re.sub(r"\b[eE][\-\‐ ]passport\b", "ই-পাসপোর্ট", text)
         text = re.sub(_remove_space_in_punctuations, "", text)
         text = re.sub(_redundant_punc_removal, r"\1", text).strip()
-        # print("text pun1.3 : ", text)
         text = re.sub(_remove_comma, "", text)
-        text = re.sub(_remove_hyphen_slash, " ", text)
-
+        # text = re.sub(_remove_hyphen_slash, " ", text)
         # print("text pun1.5 : ", text)
         translation_table = str.maketrans(_punctuations)
         text = text.translate(translation_table)

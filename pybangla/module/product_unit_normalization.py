@@ -3,7 +3,7 @@ import re
 
 class UnitNormalization:
     def __init__(self):
-        self.pattern = r"(\d+(?:\.\d+)?)\s?(sq\s?ft|sqft|ml|g|gm|kg|lb|l|cm|ft|tb|gb|kb)\b"
+        self.pattern = r"(\d+(?:\.\d+)?)\s?(sq\s?ft|sqft|ml|g|gm|kg|lb|l|cm|ft|tb|gb|kb|Mbps|Kbps)\b"
 
     # Unit conversion with plural handling
     def get_unit_full_form(self, quantity, unit_abbr):
@@ -11,6 +11,8 @@ class UnitNormalization:
 
         unit_names = {
             "en": {
+                "mbps": "Megabits per second",
+                "mbps" : "kilobits per second",
                 "ml": "milliliter",
                 "g": "gram",
                 "gm": "gram",
@@ -20,9 +22,11 @@ class UnitNormalization:
                 "cm": "centimeter",
                 "tb": "terabyte",
                 "gb": "gigabyte",
-                "kb": "kilobyte",
+                "kb": "kilobyte"
             },
             "bn": {
+                "mbps": "এম বি পি এস",
+                "mbps": "কে বি পি এস",
                 "ml": "মিলিলিটার",
                 "g": "গ্রাম",
                 "gm": "গ্রাম",
@@ -54,7 +58,11 @@ class UnitNormalization:
         for match in re.finditer(self.pattern, text, re.IGNORECASE):
             quantity = match.group(1)
             unit_abbr = match.group(2)
+            # print("quantity : ", quantity)
+            # print("unit_abbr : ", unit_abbr)
             full_form = self.get_unit_full_form(quantity, unit_abbr)
+
+            # print('full_form : ', full_form)
 
             matches.append(
                 {
