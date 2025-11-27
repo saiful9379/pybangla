@@ -12,7 +12,7 @@ class UnitNormalization:
         unit_names = {
             "en": {
                 "mbps": "Megabits per second",
-                "mbps" : "kilobits per second",
+                "kbps" : "kilobits per second",
                 "ml": "milliliter",
                 "g": "gram",
                 "gm": "gram",
@@ -26,7 +26,7 @@ class UnitNormalization:
             },
             "bn": {
                 "mbps": "এম বি পি এস",
-                "mbps": "কে বি পি এস",
+                "kbps": "কে বি পি এস",
                 "ml": "মিলিলিটার",
                 "g": "গ্রাম",
                 "gm": "গ্রাম",
