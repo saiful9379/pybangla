@@ -69,8 +69,8 @@ def evaluate_normalization(data, output_path):
         normalized_text = nrml.text_normalizer(input_text, all_operation=True)
 
         # remove punctuation
-        # reviewed_text = re.sub(r"[।,!?]", "", str(reviewed_text))
-        # normalized_text = re.sub(r"[।,!?]", "", normalized_text)
+        reviewed_text = re.sub(r"[।,!?]", "", str(reviewed_text))
+        normalized_text = re.sub(r"[।,!?]", "", normalized_text)
         
         print("\nInput Text: ", input_text)
         print("Reviewed Text: ", reviewed_text)

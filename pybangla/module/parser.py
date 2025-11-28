@@ -376,6 +376,10 @@ class NumberParser:
             return
 
     def number_to_words(self, number: str, chunk_millions=7, language="bn"):
+        english_status = self.contains_only_english(number)
+        if english_status:
+            language = "en"
+            
         en_extraction = list(re.finditer(self.en_regex, number, re.UNICODE))
         # print("en_extraction : ", en_extraction[1])
         # print("number_to_words : ", number, language)
@@ -400,7 +404,6 @@ class NumberParser:
                 [self.number_to_words_converting_process(chunk, lang="bn") for chunk in chunks]
             )
             number = number.replace("শূন্য", "")
-
         return (" ".join(number.split())).replace(" শো", "শো")
 
     def digit_number_to_digit_word(self, number, language="bn"):
@@ -431,28 +434,22 @@ class NumberParser:
         english_status = self.contains_only_english(year_in_number)
         # print("english_status : ", english_status)
         if english_status:
-            year_in_number = "".join(
-                [cfg._english2bangla2_digits_mapping[i] for i in year_in_number]
-            )
+            language = "en"
 
         # print("year_in_number : ", year_in_number)
         if language == "bn":
             mid_text = "শো "
         else:
-            mid_text = " century "
+            mid_text = " "
 
         if (len(year_in_number) == 4 and year_in_number[1] != "০") or len(year_in_number) == 3:
-            # print("year in ")
-
-            if year_in_number[1] != "0":
-                year_str = self.number_to_words(year_in_number)
             return (
                 self.number_to_words(year_in_number[:-2])
                 + mid_text
                 + self.number_to_words(year_in_number[-2:])
             )
+        
         else:
-            # print("+++++++++ else+++++++++++++++")
             return self.number_to_words(year_in_number)
 
     def _replace_starting_zero(self, month):
@@ -1744,7 +1741,7 @@ class TextParser:
                 word_date_string = date_string.replace(str(year), word_year)
                 word_date_string = word_date_string.replace(str(day), day_word)
                 original_text = original_text.replace(date, word_date_string)
-            # print(n_status, r_date)
+                
             if n_status == False:
                 continue
 
