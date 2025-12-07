@@ -29,6 +29,7 @@ from .product_number import ProductNormalizer
 from .product_unit_normalization import UnitNormalization
 from .security_code import security_code_normalizer
 from .symbol_conversion import SymbolNormalizer
+from .multiple_dot_number_processing import multiple_dotted_numbers_process
 
 dt = DateExtractor()
 pne = PhoneNumberExtractor()
@@ -785,6 +786,10 @@ class NumberParser:
 
         # print("befor processing text : ", text)
         text = alpbanet_with_number(text)
+        # process mulitple dot number
+        text = multiple_dotted_numbers_process(text)
+
+        # print("after alpbanet_with_number text : ", text)
 
         pattern = r"[\d,\.]+"  # Matches numbers with commas and periods
         matches = [
